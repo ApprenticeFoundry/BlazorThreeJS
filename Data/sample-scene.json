@@ -1,0 +1,967 @@
+{
+    "scene": {
+        "backGroundColor": "#505050",
+        "position": {
+            "x": 0,
+            "y": 0,
+            "z": 0
+        },
+        "pivot": {
+            "x": 0,
+            "y": 0,
+            "z": 0
+        },
+        "rotation": {
+            "x": 0,
+            "y": 0,
+            "z": 0,
+            "order": "XYZ"
+        },
+        "scale": {
+            "x": 1,
+            "y": 1,
+            "z": 1
+        },
+        "type": "Scene",
+        "name": "",
+        "uuid": "b52a7962-d48c-4e17-a7f2-1c9739b39f10",
+        "children": [
+            {
+                "color": "white",
+                "intensity": 0.6,
+                "position": {
+                    "x": 0,
+                    "y": 0,
+                    "z": 0
+                },
+                "pivot": {
+                    "x": 0,
+                    "y": 0,
+                    "z": 0
+                },
+                "rotation": {
+                    "x": 0,
+                    "y": 0,
+                    "z": 0,
+                    "order": "XYZ"
+                },
+                "scale": {
+                    "x": 1,
+                    "y": 1,
+                    "z": 1
+                },
+                "type": "AmbientLight",
+                "name": "",
+                "uuid": "6bff5489-b5df-4792-ada5-018fd8bbb147",
+                "children": []
+            },
+            {
+                "distance": 0,
+                "decay": 1,
+                "color": "white",
+                "intensity": 1,
+                "position": {
+                    "x": 1,
+                    "y": 3,
+                    "z": 0
+                },
+                "pivot": {
+                    "x": 0,
+                    "y": 0,
+                    "z": 0
+                },
+                "rotation": {
+                    "x": 0,
+                    "y": 0,
+                    "z": 0,
+                    "order": "XYZ"
+                },
+                "scale": {
+                    "x": 1,
+                    "y": 1,
+                    "z": 1
+                },
+                "type": "PointLight",
+                "name": "",
+                "uuid": "1dabdbc1-ffcc-4b5b-8ed7-2e2c873cd678",
+                "children": []
+            },
+            {
+                "width": 1,
+                "height": 3,
+                "buttons": [
+                    {
+                        "text": "OFF",
+                        "position": {
+                            "x": 0,
+                            "y": 0,
+                            "z": 0
+                        },
+                        "pivot": {
+                            "x": 0,
+                            "y": 0,
+                            "z": 0
+                        },
+                        "rotation": {
+                            "x": 0,
+                            "y": 0,
+                            "z": 0,
+                            "order": "XYZ"
+                        },
+                        "scale": {
+                            "x": 1,
+                            "y": 1,
+                            "z": 1
+                        },
+                        "type": "Button",
+                        "name": "BTN1",
+                        "uuid": "e653d80c-f332-4ebe-bb3c-bdb14592d1f5",
+                        "children": []
+                    },
+                    {
+                        "text": "Button 2",
+                        "position": {
+                            "x": 0,
+                            "y": 0,
+                            "z": 0
+                        },
+                        "pivot": {
+                            "x": 0,
+                            "y": 0,
+                            "z": 0
+                        },
+                        "rotation": {
+                            "x": 0,
+                            "y": 0,
+                            "z": 0,
+                            "order": "XYZ"
+                        },
+                        "scale": {
+                            "x": 1,
+                            "y": 1,
+                            "z": 1
+                        },
+                        "type": "Button",
+                        "name": "BTN2",
+                        "uuid": "316770b7-126b-4c24-9237-7e5bdb1f56a5",
+                        "children": []
+                    },
+                    {
+                        "text": "Button 3",
+                        "position": {
+                            "x": 0,
+                            "y": 0,
+                            "z": 0
+                        },
+                        "pivot": {
+                            "x": 0,
+                            "y": 0,
+                            "z": 0
+                        },
+                        "rotation": {
+                            "x": 0,
+                            "y": 0,
+                            "z": 0,
+                            "order": "XYZ"
+                        },
+                        "scale": {
+                            "x": 1,
+                            "y": 1,
+                            "z": 1
+                        },
+                        "type": "Button",
+                        "name": "BTN3",
+                        "uuid": "4726bc14-8726-48ff-82b4-e9b99d6dfcf1",
+                        "children": []
+                    }
+                ],
+                "position": {
+                    "x": -4,
+                    "y": 3,
+                    "z": -2
+                },
+                "pivot": {
+                    "x": 0,
+                    "y": 0,
+                    "z": 0
+                },
+                "rotation": {
+                    "x": -0.5235987755982988,
+                    "y": 0,
+                    "z": 0,
+                    "order": "XYZ"
+                },
+                "scale": {
+                    "x": 1,
+                    "y": 1,
+                    "z": 1
+                },
+                "type": "Menu",
+                "name": "MENU1",
+                "uuid": "408b7eba-0448-4034-98d2-5622d68c45e6",
+                "children": []
+            },
+            {
+                "width": 5,
+                "height": 5,
+                "color": "#333333",
+                "textLines": ["Lorem ipsum dolor sit amet."],
+                "textPanels": [
+                    {
+                        "width": 1,
+                        "height": 0.5,
+                        "textLines": ["Child Panel 0"],
+                        "color": "red",
+                        "position": {
+                            "x": -2,
+                            "y": -2,
+                            "z": 0.1
+                        },
+                        "pivot": {
+                            "x": 0,
+                            "y": 0,
+                            "z": 0
+                        },
+                        "rotation": {
+                            "x": 0,
+                            "y": 0,
+                            "z": 0,
+                            "order": "XYZ"
+                        },
+                        "scale": {
+                            "x": 1,
+                            "y": 1,
+                            "z": 1
+                        },
+                        "type": "TextPanel",
+                        "name": "TEXTPANEL1",
+                        "uuid": "43748f8e-48eb-41f0-9c77-4949ec9637a5",
+                        "children": []
+                    },
+                    {
+                        "width": 1,
+                        "height": 0.5,
+                        "textLines": ["Child Panel 1"],
+                        "color": "orange",
+                        "position": {
+                            "x": -1,
+                            "y": -1,
+                            "z": 0.1
+                        },
+                        "pivot": {
+                            "x": 0,
+                            "y": 0,
+                            "z": 0
+                        },
+                        "rotation": {
+                            "x": 0,
+                            "y": 0,
+                            "z": 0,
+                            "order": "XYZ"
+                        },
+                        "scale": {
+                            "x": 1,
+                            "y": 1,
+                            "z": 1
+                        },
+                        "type": "TextPanel",
+                        "name": "TEXTPANEL1",
+                        "uuid": "d28a74de-4517-471f-85c8-1a794a2e2758",
+                        "children": []
+                    },
+                    {
+                        "width": 1,
+                        "height": 0.5,
+                        "textLines": ["Child Panel 2"],
+                        "color": "green",
+                        "position": {
+                            "x": 0,
+                            "y": 0,
+                            "z": 0.1
+                        },
+                        "pivot": {
+                            "x": 0,
+                            "y": 0,
+                            "z": 0
+                        },
+                        "rotation": {
+                            "x": 0,
+                            "y": 0,
+                            "z": 0,
+                            "order": "XYZ"
+                        },
+                        "scale": {
+                            "x": 1,
+                            "y": 1,
+                            "z": 1
+                        },
+                        "type": "TextPanel",
+                        "name": "TEXTPANEL1",
+                        "uuid": "03ef09ad-a97b-44c0-92b3-a4d9fe9733d2",
+                        "children": []
+                    },
+                    {
+                        "width": 1,
+                        "height": 0.5,
+                        "textLines": ["Child Panel 3"],
+                        "color": "purple",
+                        "position": {
+                            "x": 1,
+                            "y": 1,
+                            "z": 0.1
+                        },
+                        "pivot": {
+                            "x": 0,
+                            "y": 0,
+                            "z": 0
+                        },
+                        "rotation": {
+                            "x": 0,
+                            "y": 0,
+                            "z": 0,
+                            "order": "XYZ"
+                        },
+                        "scale": {
+                            "x": 1,
+                            "y": 1,
+                            "z": 1
+                        },
+                        "type": "TextPanel",
+                        "name": "TEXTPANEL1",
+                        "uuid": "457270b9-a08b-4997-8241-785022659799",
+                        "children": []
+                    },
+                    {
+                        "width": 1,
+                        "height": 0.5,
+                        "textLines": ["Child Panel 4"],
+                        "color": "blue",
+                        "position": {
+                            "x": 2,
+                            "y": 2,
+                            "z": 0.1
+                        },
+                        "pivot": {
+                            "x": 0,
+                            "y": 0,
+                            "z": 0
+                        },
+                        "rotation": {
+                            "x": 0,
+                            "y": 0,
+                            "z": 0,
+                            "order": "XYZ"
+                        },
+                        "scale": {
+                            "x": 1,
+                            "y": 1,
+                            "z": 1
+                        },
+                        "type": "TextPanel",
+                        "name": "TEXTPANEL1",
+                        "uuid": "af96392e-8b98-4194-a063-e0ffcb072202",
+                        "children": []
+                    }
+                ],
+                "meshes": [
+                    {
+                        "material": {
+                            "color": "yellow",
+                            "flatShading": false,
+                            "metalness": 0,
+                            "roughness": 1,
+                            "wireframe": false,
+                            "map": {
+                                "type": "Texture",
+                                "name": "",
+                                "uuid": "3355720f-970e-4f1d-a3fc-3f37aa93bb87",
+                                "textureUrl": "",
+                                "wrapS": 1001,
+                                "wrapT": 1001,
+                                "repeat": {
+                                    "x": 1,
+                                    "y": 1
+                                },
+                                "offset": {
+                                    "x": 0,
+                                    "y": 0
+                                },
+                                "center": {
+                                    "x": 0,
+                                    "y": 0
+                                },
+                                "rotation": 0
+                            },
+                            "type": "MeshStandardMaterial",
+                            "name": "",
+                            "uuid": "59743ac1-7274-459f-a0d2-14bdaa0fdbbc"
+                        },
+                        "geometry": {
+                            "radius": 0.1,
+                            "path": [
+                                {
+                                    "x": -2,
+                                    "y": 0,
+                                    "z": 0
+                                },
+                                {
+                                    "x": 4,
+                                    "y": 0,
+                                    "z": 0
+                                },
+                                {
+                                    "x": 4,
+                                    "y": 4,
+                                    "z": 0
+                                },
+                                {
+                                    "x": 4,
+                                    "y": 4,
+                                    "z": -4
+                                }
+                            ],
+                            "tubularSegments": 10,
+                            "radialSegments": 8,
+                            "name": null,
+                            "uuid": "8c769571-df41-4d1e-b887-f9b143d69064",
+                            "type": "TubeGeometry"
+                        },
+                        "position": {
+                            "x": 0,
+                            "y": 0,
+                            "z": 0
+                        },
+                        "pivot": {
+                            "x": 0,
+                            "y": 0,
+                            "z": 0
+                        },
+                        "rotation": {
+                            "x": 0,
+                            "y": 0,
+                            "z": 0,
+                            "order": "XYZ"
+                        },
+                        "scale": {
+                            "x": 1,
+                            "y": 1,
+                            "z": 1
+                        },
+                        "type": "Mesh",
+                        "name": "",
+                        "uuid": "1cc3472a-9e45-4fce-aeae-40ca9aea3a2f",
+                        "children": []
+                    },
+                    {
+                        "material": {
+                            "color": "darkviolet",
+                            "flatShading": false,
+                            "metalness": 0.5,
+                            "roughness": 0.5,
+                            "wireframe": false,
+                            "map": {
+                                "type": "Texture",
+                                "name": "",
+                                "uuid": "dcd30924-199b-481b-89ff-c39c2af9da8a",
+                                "textureUrl": "",
+                                "wrapS": 1001,
+                                "wrapT": 1001,
+                                "repeat": {
+                                    "x": 1,
+                                    "y": 1
+                                },
+                                "offset": {
+                                    "x": 0,
+                                    "y": 0
+                                },
+                                "center": {
+                                    "x": 0,
+                                    "y": 0
+                                },
+                                "rotation": 0
+                            },
+                            "type": "MeshStandardMaterial",
+                            "name": "",
+                            "uuid": "25d57de6-bb02-43ee-9abb-95a9d4062803"
+                        },
+                        "geometry": {
+                            "radius": 0.800000011920929,
+                            "detail": 0,
+                            "name": null,
+                            "uuid": "6c10892e-9710-447e-a97d-6eb021c51f05",
+                            "type": "DodecahedronGeometry"
+                        },
+                        "position": {
+                            "x": -2,
+                            "y": 6,
+                            "z": -2
+                        },
+                        "pivot": {
+                            "x": 0,
+                            "y": 0,
+                            "z": 0
+                        },
+                        "rotation": {
+                            "x": 0,
+                            "y": 0,
+                            "z": 0,
+                            "order": "XYZ"
+                        },
+                        "scale": {
+                            "x": 1,
+                            "y": 1,
+                            "z": 1
+                        },
+                        "type": "Mesh",
+                        "name": "",
+                        "uuid": "6ec772eb-723f-41b3-ba48-46ee8046525a",
+                        "children": []
+                    }
+                ],
+                "position": {
+                    "x": 2,
+                    "y": 2,
+                    "z": -6
+                },
+                "pivot": {
+                    "x": 0,
+                    "y": 0,
+                    "z": 0
+                },
+                "rotation": {
+                    "x": -0.7853981633974483,
+                    "y": 0,
+                    "z": 0.5235987755982988,
+                    "order": "XYZ"
+                },
+                "scale": {
+                    "x": 1,
+                    "y": 1,
+                    "z": 1
+                },
+                "type": "PanelGroup",
+                "name": "PANELGROUP1",
+                "uuid": "a79db245-ba5a-4db9-8ed5-febd8b6bb63b",
+                "children": []
+            },
+            {
+                "material": {
+                    "color": "darkgreen",
+                    "flatShading": false,
+                    "metalness": 0,
+                    "roughness": 1,
+                    "wireframe": false,
+                    "map": {
+                        "type": "Texture",
+                        "name": "",
+                        "uuid": "ea7ecd44-16a1-4b8f-ae49-555c308eb578",
+                        "textureUrl": "",
+                        "wrapS": 1001,
+                        "wrapT": 1001,
+                        "repeat": {
+                            "x": 1,
+                            "y": 1
+                        },
+                        "offset": {
+                            "x": 0,
+                            "y": 0
+                        },
+                        "center": {
+                            "x": 0,
+                            "y": 0
+                        },
+                        "rotation": 0
+                    },
+                    "type": "MeshStandardMaterial",
+                    "name": "",
+                    "uuid": "42f5b773-166f-42e2-bd92-cb1e280248b8"
+                },
+                "geometry": {
+                    "radius": 0.15000000596046448,
+                    "length": 0.35,
+                    "capSegments": 4,
+                    "radialSegments": 8,
+                    "name": null,
+                    "uuid": "6d43ddd4-c166-4086-a663-7707e50da653",
+                    "type": "CapsuleGeometry"
+                },
+                "position": {
+                    "x": 0,
+                    "y": 0,
+                    "z": 0
+                },
+                "pivot": {
+                    "x": 0,
+                    "y": 0,
+                    "z": 0
+                },
+                "rotation": {
+                    "x": 0,
+                    "y": 0,
+                    "z": 0,
+                    "order": "XYZ"
+                },
+                "scale": {
+                    "x": 1,
+                    "y": 1,
+                    "z": 1
+                },
+                "type": "Mesh",
+                "name": "",
+                "uuid": "ae24f89d-3815-474f-8395-85a49a6c7496",
+                "children": []
+            },
+            {
+                "material": {
+                    "color": "blue",
+                    "flatShading": false,
+                    "metalness": 0,
+                    "roughness": 1,
+                    "wireframe": false,
+                    "map": {
+                        "type": "Texture",
+                        "name": "",
+                        "uuid": "7f050310-cc54-43eb-b559-6908de40e421",
+                        "textureUrl": "",
+                        "wrapS": 1001,
+                        "wrapT": 1001,
+                        "repeat": {
+                            "x": 1,
+                            "y": 1
+                        },
+                        "offset": {
+                            "x": 0,
+                            "y": 0
+                        },
+                        "center": {
+                            "x": 0,
+                            "y": 0
+                        },
+                        "rotation": 0
+                    },
+                    "type": "MeshStandardMaterial",
+                    "name": "",
+                    "uuid": "367d19d5-c711-43e7-a2ca-0895ad726a36"
+                },
+                "geometry": {
+                    "radius": 0.15000000596046448,
+                    "length": 0.35,
+                    "capSegments": 4,
+                    "radialSegments": 8,
+                    "name": null,
+                    "uuid": "a28628d2-0e2f-4842-a322-5adda2719587",
+                    "type": "CapsuleGeometry"
+                },
+                "position": {
+                    "x": 4,
+                    "y": 0,
+                    "z": 0
+                },
+                "pivot": {
+                    "x": 0,
+                    "y": 0,
+                    "z": 0
+                },
+                "rotation": {
+                    "x": 0,
+                    "y": 0,
+                    "z": 0,
+                    "order": "XYZ"
+                },
+                "scale": {
+                    "x": 1,
+                    "y": 1,
+                    "z": 1
+                },
+                "type": "Mesh",
+                "name": "",
+                "uuid": "b4988fc9-6afc-4fd8-87db-e73515071d02",
+                "children": []
+            },
+            {
+                "material": {
+                    "color": "yellow",
+                    "flatShading": false,
+                    "metalness": 0,
+                    "roughness": 1,
+                    "wireframe": false,
+                    "map": {
+                        "type": "Texture",
+                        "name": "",
+                        "uuid": "c6e4c816-8dfd-4bd7-93d2-d46389834276",
+                        "textureUrl": "",
+                        "wrapS": 1001,
+                        "wrapT": 1001,
+                        "repeat": {
+                            "x": 1,
+                            "y": 1
+                        },
+                        "offset": {
+                            "x": 0,
+                            "y": 0
+                        },
+                        "center": {
+                            "x": 0,
+                            "y": 0
+                        },
+                        "rotation": 0
+                    },
+                    "type": "MeshStandardMaterial",
+                    "name": "",
+                    "uuid": "208b791d-5490-47b9-bbb3-7c073dad621b"
+                },
+                "geometry": {
+                    "radius": 0.15000000596046448,
+                    "length": 0.35,
+                    "capSegments": 4,
+                    "radialSegments": 8,
+                    "name": null,
+                    "uuid": "cdf62222-5109-45a7-a11a-81c192919f26",
+                    "type": "CapsuleGeometry"
+                },
+                "position": {
+                    "x": 4,
+                    "y": 4,
+                    "z": 0
+                },
+                "pivot": {
+                    "x": 0,
+                    "y": 0,
+                    "z": 0
+                },
+                "rotation": {
+                    "x": 0,
+                    "y": 0,
+                    "z": 0,
+                    "order": "XYZ"
+                },
+                "scale": {
+                    "x": 1,
+                    "y": 1,
+                    "z": 1
+                },
+                "type": "Mesh",
+                "name": "",
+                "uuid": "52225f79-b757-4540-82d8-6f19c2f02847",
+                "children": []
+            },
+            {
+                "material": {
+                    "color": "red",
+                    "flatShading": false,
+                    "metalness": 0,
+                    "roughness": 1,
+                    "wireframe": false,
+                    "map": {
+                        "type": "Texture",
+                        "name": "",
+                        "uuid": "47996d37-5414-43d3-8771-923a1c2182ab",
+                        "textureUrl": "",
+                        "wrapS": 1001,
+                        "wrapT": 1001,
+                        "repeat": {
+                            "x": 1,
+                            "y": 1
+                        },
+                        "offset": {
+                            "x": 0,
+                            "y": 0
+                        },
+                        "center": {
+                            "x": 0,
+                            "y": 0
+                        },
+                        "rotation": 0
+                    },
+                    "type": "MeshStandardMaterial",
+                    "name": "",
+                    "uuid": "037de599-335d-438c-8e51-92c82f8d9b1d"
+                },
+                "geometry": {
+                    "radius": 0.15000000596046448,
+                    "length": 0.35,
+                    "capSegments": 4,
+                    "radialSegments": 8,
+                    "name": null,
+                    "uuid": "5c98fb26-b338-461c-ab51-dedb67ad25b2",
+                    "type": "CapsuleGeometry"
+                },
+                "position": {
+                    "x": 4,
+                    "y": 4,
+                    "z": -4
+                },
+                "pivot": {
+                    "x": 0,
+                    "y": 0,
+                    "z": 0
+                },
+                "rotation": {
+                    "x": 0,
+                    "y": 0,
+                    "z": 0,
+                    "order": "XYZ"
+                },
+                "scale": {
+                    "x": 1,
+                    "y": 1,
+                    "z": 1
+                },
+                "type": "Mesh",
+                "name": "",
+                "uuid": "f6b571da-8013-4e5d-a65d-2522948395ac",
+                "children": []
+            },
+            {
+                "material": {
+                    "color": "yellow",
+                    "flatShading": false,
+                    "metalness": 0,
+                    "roughness": 1,
+                    "wireframe": false,
+                    "map": {
+                        "type": "Texture",
+                        "name": "",
+                        "uuid": "ada83195-e928-4b3f-ae13-2500e32e169b",
+                        "textureUrl": "",
+                        "wrapS": 1001,
+                        "wrapT": 1001,
+                        "repeat": {
+                            "x": 1,
+                            "y": 1
+                        },
+                        "offset": {
+                            "x": 0,
+                            "y": 0
+                        },
+                        "center": {
+                            "x": 0,
+                            "y": 0
+                        },
+                        "rotation": 0
+                    },
+                    "type": "MeshStandardMaterial",
+                    "name": "",
+                    "uuid": "ba5409a7-4825-41fc-957a-57d1e565909e"
+                },
+                "geometry": {
+                    "radius": 0.15000000596046448,
+                    "path": [
+                        {
+                            "x": 0,
+                            "y": 0,
+                            "z": 0
+                        },
+                        {
+                            "x": 4,
+                            "y": 0,
+                            "z": 0
+                        },
+                        {
+                            "x": 4,
+                            "y": 4,
+                            "z": 0
+                        },
+                        {
+                            "x": 4,
+                            "y": 4,
+                            "z": -4
+                        }
+                    ],
+                    "tubularSegments": 10,
+                    "radialSegments": 8,
+                    "name": null,
+                    "uuid": "6e4d1ad6-7df8-4c3b-ac9b-83a30e1a52bc",
+                    "type": "TubeGeometry"
+                },
+                "position": {
+                    "x": 0,
+                    "y": 0,
+                    "z": 0
+                },
+                "pivot": {
+                    "x": 0,
+                    "y": 0,
+                    "z": 0
+                },
+                "rotation": {
+                    "x": 0,
+                    "y": 0,
+                    "z": 0,
+                    "order": "XYZ"
+                },
+                "scale": {
+                    "x": 1,
+                    "y": 1,
+                    "z": 1
+                },
+                "type": "Mesh",
+                "name": "",
+                "uuid": "fa32ca5d-f281-4c10-9c1c-349ae5b0e076",
+                "children": []
+            }
+        ]
+    },
+    "viewerSettings": {
+        "containerId": "example1",
+        "canSelect": true,
+        "canSelectHelpers": false,
+        "selectedColor": "#808080",
+        "webGLRendererSettings": {
+            "antialias": false
+        }
+    },
+    "camera": {
+        "fov": 75,
+        "near": 0.1,
+        "far": 1000,
+        "animateRotationSettings": {
+            "animateRotation": false,
+            "thetaX": 0.1,
+            "thetaY": 0.1,
+            "thetaZ": 0.1,
+            "radius": 5,
+            "stopAnimationOnOrbitControlMove": false
+        },
+        "lookAt": {
+            "x": 0,
+            "y": 0,
+            "z": 0
+        },
+        "position": {
+            "x": 3,
+            "y": 3,
+            "z": 3
+        },
+        "pivot": {
+            "x": 0,
+            "y": 0,
+            "z": 0
+        },
+        "rotation": {
+            "x": 0,
+            "y": 0,
+            "z": 0,
+            "order": "XYZ"
+        },
+        "scale": {
+            "x": 1,
+            "y": 1,
+            "z": 1
+        },
+        "type": "PerspectiveCamera",
+        "name": "",
+        "uuid": "8b2565d4-ead5-47c3-8573-023606e400dc",
+        "children": []
+    },
+    "orbitControls": {
+        "enabled": true,
+        "minDistance": 0,
+        "maxDistance": 10000,
+        "targetPosition": {
+            "x": 0,
+            "y": 0,
+            "z": 0
+        }
+    }
+}

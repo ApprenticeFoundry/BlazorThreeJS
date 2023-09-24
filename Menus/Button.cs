@@ -1,5 +1,6 @@
-﻿using Newtonsoft.Json;
+﻿
 using BlazorThreeJS.Core;
+using System.Text.Json.Serialization;
 namespace BlazorThreeJS.Menus
 {
     public sealed class Button : Object3D
