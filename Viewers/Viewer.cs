@@ -6,7 +6,6 @@
 
 using System.Text.Json;
 using System.Text.Json.Nodes;
-using System.Text.Json.Serialization;
 using BlazorThreeJS.Cameras;
 using BlazorThreeJS.ComponentHelpers;
 using BlazorThreeJS.Controls;
@@ -25,15 +24,20 @@ using Microsoft.AspNetCore.Components;
 using Microsoft.AspNetCore.Components.Rendering;
 using Microsoft.JSInterop;
 
-
-
-
 namespace BlazorThreeJS.Viewers
 {
+    public class SceneDTO
+    {
+        public required Scene Scene { get; set; }
+        public required ViewerSettings ViewerSettings { get; set; }
+        public required Camera Camera { get; set; }
+        public required OrbitControls OrbitControls { get; set; }
+    }
+
     public sealed class Viewer : ComponentBase, IDisposable
     {
         [Inject] private IJSRuntime JSBridge { get; set; }
-  
+
 
         private static event Viewer.SelectedObjectStaticEventHandler ObjectSelectedStatic;
 
@@ -53,6 +57,8 @@ namespace BlazorThreeJS.Viewers
         public event LoadedObjectEventHandler ObjectLoaded;
 
         public event LoadedModuleEventHandler JsModuleLoaded;
+        private JsonSerializerOptions JSONOptions { get; set; } = new JsonSerializerOptions { PropertyNamingPolicy = JsonNamingPolicy.CamelCase };
+
 
         [Parameter]
         public ViewerSettings ViewerSettings { get; set; }
@@ -81,20 +87,32 @@ namespace BlazorThreeJS.Viewers
             LoadedModels.Clear();
 
             // NOTE: change JSRootPath to use the _content when building for use in other apps
-            await viewer.JSBridge.InvokeAsync<IJSObjectReference>("import", (object)$"{JSRootPath}/app-lib.js").AsTask();
-            // await viewer.JSBridge.InvokeAsync<IJSObjectReference>("import", (object)$"{JSRootPathDevelopment}/app-lib.js").AsTask();
+            // await viewer.JSBridge.InvokeAsync<IJSObjectReference>("import", (object)$"{JSRootPath}/app-lib.js").AsTask();
+            await viewer.JSBridge.InvokeAsync<IJSObjectReference>("import", (object)$"{JSRootPathDevelopment}/app-lib.js").AsTask();
 
-            if (viewer.UseDefaultScene && !viewer.Scene.Children.Any<Object3D>())
+            if (viewer.UseDefaultScene && !viewer.Scene.HasChildren())
                 viewer.AddDefaultScene();
-                
-            //var options = new JsonSerializerOptions { PropertyNameCaseInsensitive = false };
-            string str = JsonSerializer.Serialize((object)new
+
+            var dto = new SceneDTO()
             {
                 Scene = viewer.Scene,
                 ViewerSettings = viewer.ViewerSettings,
                 Camera = viewer.Camera,
                 OrbitControls = viewer.OrbitControls
-            });
+            };
+
+            // var jsonObject = (object)new
+            // {
+            //     Scene = viewer.Scene,
+            //     ViewerSettings = viewer.ViewerSettings,
+            //     Camera = viewer.Camera,
+            //     OrbitControls = viewer.OrbitControls
+            // };
+
+            // string str = JsonSerializer.Serialize(jsonObject, JSONOptions);
+            string str = JsonSerializer.Serialize<SceneDTO>(dto, JSONOptions);
+            // string str = JsonSerializer.Serialize<object[]>(dto.Scene.GetAllChildren().ToArray(), JSONOptions);
+            // var str = CodingExtensions.Dehydrate<SceneDTO>(dto, true);
 
             await JSBridge.InvokeVoidAsync("BlazorThreeJS.loadViewer", (object)str);
             await UpdateScene();
@@ -104,7 +122,7 @@ namespace BlazorThreeJS.Viewers
         private void PopulateButtonsDict()
         {
             Viewer.Buttons.Clear();
-            var menus = this.Scene.Children.FindAll((item) => item.Type == "Menu");
+            var menus = this.Scene.GetAllChildren().FindAll((item) => item.Type == "Menu");
             foreach (var menu in menus)
             {
                 foreach (var button in ((PanelMenu)menu).Buttons)
@@ -121,7 +139,7 @@ namespace BlazorThreeJS.Viewers
         {
             PopulateButtonsDict();
 
-            var json = JsonSerializer.Serialize((object)this.Scene);
+            var json = JsonSerializer.Serialize((object)this.Scene, JSONOptions);
             await JSBridge.InvokeVoidAsync("BlazorThreeJS.updateScene", (object)json);
         }
 
@@ -130,7 +148,7 @@ namespace BlazorThreeJS.Viewers
         public async Task UpdateCamera(Camera camera)
         {
             this.Camera = camera;
-            var json = JsonSerializer.Serialize((object)this.Camera);
+            var json = JsonSerializer.Serialize((object)this.Camera, JSONOptions);
             await JSBridge.InvokeVoidAsync("BlazorThreeJS.updateCamera", (object)json);
         }
 
@@ -167,7 +185,7 @@ namespace BlazorThreeJS.Viewers
         {
             if (!await JSBridge.InvokeAsync<bool>("BlazorThreeJS.deleteByUuid", (object)uuid))
                 return;
-            ChildrenHelper.RemoveObjectByUuid(uuid, this.Scene.Children);
+            ChildrenHelper.RemoveObjectByUuid(uuid, this.Scene.GetAllChildren());
         }
 
         public async Task MoveObject(Object3D object3D)
@@ -179,13 +197,13 @@ namespace BlazorThreeJS.Viewers
         public async Task ClearSceneAsync()
         {
             await JSBridge.InvokeVoidAsync("BlazorThreeJS.clearScene");
-            this.Scene.Children.RemoveAll(item => item.Type.Contains("LabelText") || item.Type.Contains("Mesh"));
+            this.Scene.GetAllChildren().RemoveAll(item => item.Type.Contains("LabelText") || item.Type.Contains("Mesh"));
         }
 
         public async Task ClearLightsAsync()
         {
             await JSBridge.InvokeVoidAsync("BlazorThreeJS.clearScene");
-            this.Scene.Children.Clear();
+            this.Scene.GetAllChildren().Clear();
         }
 
         public async Task<Guid> Request3DModel(ImportSettings settings)
@@ -198,7 +216,7 @@ namespace BlazorThreeJS.Viewers
             LoadedModels.Add(uuid, settings);
 
             // settings.Material = settings.Material ?? new MeshStandardMaterial();
-            var json = JsonSerializer.Serialize((object)settings);
+            var json = JsonSerializer.Serialize((object)settings, JSONOptions);
             await JSBridge.InvokeVoidAsync("BlazorThreeJS.import3DModel", (object)json);
 
             return uuid;
@@ -213,7 +231,7 @@ namespace BlazorThreeJS.Viewers
             });
 
 
-            var json = (object)JsonSerializer.Serialize((object)settings);
+            var json = (object)JsonSerializer.Serialize((object)settings, JSONOptions);
             var args = new List<object>() { $"{sourceGuid}", json };
             await JSBridge.InvokeVoidAsync("BlazorThreeJS.clone3DModel", args.ToArray());
             return sourceGuid;
@@ -232,7 +250,7 @@ namespace BlazorThreeJS.Viewers
                     Name = settings.Uuid.ToString(),
                     Uuid = settings.Uuid,
                 };
-                settings.Scene!.Children.Add(group);
+                settings.Scene!.Add(group);
 
                 settings.OnComplete.Invoke(settings.Scene!, group);
                 settings.OnComplete = (Scene s, Object3D o) => { };
@@ -306,13 +324,13 @@ namespace BlazorThreeJS.Viewers
             {
                 UUID = e.UUID
             });
-            
+
 
             this.ObjectLoaded?.Invoke(new Object3DArgs()
             {
                 UUID = e.UUID
             });
-            
+
         }
 
         private List<Object3D> ParseChildren(JsonArray? source)
@@ -341,13 +359,13 @@ namespace BlazorThreeJS.Viewers
                     }
                     if (type == "Group")
                     {
-                         var group = new Group()
+                        var group = new Group()
                         {
                             Name = name,
                             Uuid = Guid.Parse(type)
                         };
 
-                        group.Children.AddRange(children1);
+                        group.AddRange(children1);
                     }
                 }
             }
@@ -358,10 +376,10 @@ namespace BlazorThreeJS.Viewers
         {
             var options = UnitSpec.JsonHydrateOptions(false);
             string json = await JSBridge.InvokeAsync<string>("BlazorThreeJS.getSceneItemByGuid", (object)e.UUID);
-	       
+
 
             var jobject = JsonNode.Parse(json);
-            if ( jobject == null) 
+            if (jobject == null)
                 return;
 
             var name = jobject["name"]?.GetValue<string>() ?? string.Empty;
@@ -377,21 +395,21 @@ namespace BlazorThreeJS.Viewers
                     Uuid = Guid.Parse(uuid),
                 };
 
-                group.Children.AddRange(children);
-                this.Scene.Children.Add(group);
+                group.AddRange(children);
+                this.Scene.Add(group);
             }
 
             if (type.Matches("Mesh"))
             {
-        
+
                 var mesh = new Mesh()
                 {
                     Name = name,
                     Uuid = Guid.Parse(uuid),
                 };
 
-                mesh.Children.AddRange(children);
-                this.Scene.Children.Add(mesh);
+                mesh.AddRange(children);
+                this.Scene.Add(mesh);
             }
 
             this.ObjectLoaded?.Invoke(new Object3DArgs()

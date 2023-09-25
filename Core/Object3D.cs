@@ -5,6 +5,7 @@
 // Assembly location: Blazor3D.dll
 
 using BlazorThreeJS.Maths;
+using BlazorThreeJS.Menus;
 using System;
 using System.Collections.Generic;
 
@@ -30,24 +31,57 @@ namespace BlazorThreeJS.Core
 
         public Guid Uuid { get; set; } = Guid.NewGuid();
 
-        public List<Object3D> Children { get; } = new List<Object3D>();
+        private List<Object3D> children = new();
+
+        public List<Object3D> GetAllChildren()
+        {
+            return children;
+        }
+
+        public object[] Children
+        {
+            get
+            {
+                return (object[])children.ToArray();
+            }
+        }
 
         public Object3D Add(Object3D child)
         {
-            this.Children.Add(child);
+            this.children.Add(child);
             return child;
         }
-        public bool Remove(Object3D child) => this.Children.Remove(child);
+        public List<Object3D> AddRange(List<Object3D> newChildren)
+        {
+            this.children.AddRange(newChildren);
+            return newChildren;
+        }
+        public Object3D RemoveChild(Object3D child)
+        {
+            this.children.Remove(child);
+            return child;
+        }
+
+        public bool HasChildren()
+        {
+            return children.Count > 0;
+        }
+        // public T AddChild<T>(T child) where T : Object3D
+        // {
+        //     this.children.Add(child);
+        //     return child;
+        // }
+        public bool Remove(Object3D child) => this.children.Remove(child);
         public Object3D Update(Object3D child)
         {
-            var obj = this.Children.Find((item) =>
+            var obj = this.children.Find((item) =>
             {
                 return item.Uuid == child.Uuid;
             });
 
             if (obj != null)
             {
-                this.Children.Remove(obj);
+                this.children.Remove(obj);
             }
 
             this.Add(child);

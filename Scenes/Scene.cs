@@ -10,13 +10,13 @@ using BlazorThreeJS.Core;
 
 namespace BlazorThreeJS.Scenes
 {
-    public sealed class Scene : Object3D
+  public sealed class Scene : Object3D
+  {
+    public Scene()
+      : base(nameof(Scene))
     {
-        public Scene()
-          : base(nameof(Scene))
-        {
-        }
-
-        public string BackGroundColor { get; set; } = "#505050";
     }
+
+    public string BackGroundColor { get; set; } = "#505050";
+  }
 }

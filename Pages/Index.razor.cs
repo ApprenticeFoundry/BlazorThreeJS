@@ -426,15 +426,17 @@ public class IndexPage : ComponentBase, IDisposable
         var menuPos = new Vector3(-4, 3, -2);
         var menuRot = new Euler(-1 * Math.PI * 30 / 180, 0, 0);
 
-        scene.Add(new PanelMenu
+        var panel = new PanelMenu
         {
             Name = "MENU1",
             Width = 1.0,
             Height = 3.0,
-            Buttons = buttons,
             Position = menuPos,
             Rotation = menuRot
-        });
+        };
+
+        panel.Buttons.AddRange(buttons);
+        scene.Add(panel);
 
         // scene.Add(BuildTextPanel());
         scene.Add(BuildPanelGroup());
@@ -638,10 +640,10 @@ public class IndexPage : ComponentBase, IDisposable
             Name = "MENU2",
             Width = 2.5,
             Height = 3.0,
-            Buttons = buttons,
             Position = menuPos,
             Rotation = menuRot
         };
+        MenuBtn1.Buttons.AddRange(buttons);
         return MenuBtn1;
     }
 
