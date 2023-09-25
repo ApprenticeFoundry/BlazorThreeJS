@@ -4,15 +4,24 @@
 // MVID: 8589B0D0-D62F-4099-9D8A-332F65D16B15
 // Assembly location: Blazor3D.dll
 
+using BlazorThreeJS.Cameras;
 using BlazorThreeJS.Maths;
 using BlazorThreeJS.Menus;
+using BlazorThreeJS.Objects;
 using System;
 using System.Collections.Generic;
+using System.Text.Json.Serialization;
 
 
 
 namespace BlazorThreeJS.Core
 {
+    // [JsonDerivedType(typeof(Mesh))]
+    // [JsonDerivedType(typeof(PanelMenu))]
+    // [JsonDerivedType(typeof(PanelGroup))]
+    // [JsonDerivedType(typeof(Camera))]
+    // [JsonDerivedType(typeof(OrthographicCamera))]
+    // [JsonDerivedType(typeof(PerspectiveCamera))]
     public abstract class Object3D
     {
         protected Object3D(string type) => this.Type = type;

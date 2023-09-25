@@ -6,6 +6,7 @@
 
 using System.Text.Json;
 using System.Text.Json.Nodes;
+using System.Text.Json.Serialization;
 using BlazorThreeJS.Cameras;
 using BlazorThreeJS.ComponentHelpers;
 using BlazorThreeJS.Controls;
@@ -57,7 +58,7 @@ namespace BlazorThreeJS.Viewers
         public event LoadedObjectEventHandler ObjectLoaded;
 
         public event LoadedModuleEventHandler JsModuleLoaded;
-        private JsonSerializerOptions JSONOptions { get; set; } = new JsonSerializerOptions { PropertyNamingPolicy = JsonNamingPolicy.CamelCase };
+        private JsonSerializerOptions JSONOptions { get; set; } = new JsonSerializerOptions { PropertyNamingPolicy = JsonNamingPolicy.CamelCase, DefaultIgnoreCondition = JsonIgnoreCondition.WhenWritingNull, IncludeFields = true, IgnoreReadOnlyFields = true };
 
 
         [Parameter]

@@ -2,6 +2,7 @@ import { Texture, TextureLoader } from 'three';
 
 export class TextureBuilder {
     static buildTexture(options: any) {
+        if (!Boolean(options)) return null;
         if (options.type == 'Texture') {
             let texture = new Texture();
             if (options.textureUrl) {
