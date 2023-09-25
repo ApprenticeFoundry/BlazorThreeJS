@@ -290,7 +290,7 @@ namespace BlazorThreeJS.Viewers
 
         private void OnObjectSelectedStatic(Object3DStaticArgs e)
         {
-            if (!(this.ViewerSettings.ContainerId == e.ContainerId))
+            if (!(this.ViewerSettings.containerId == e.ContainerId))
                 return;
 
 
@@ -299,7 +299,7 @@ namespace BlazorThreeJS.Viewers
 
         private void OnObjectLoadedStatic(Object3DStaticArgs e)
         {
-            if (!(this.ViewerSettings.ContainerId == e.ContainerId))
+            if (!(this.ViewerSettings.containerId == e.ContainerId))
                 return;
 
             this.ObjectLoadedPrivate?.Invoke(new Object3DArgs()
@@ -413,7 +413,7 @@ namespace BlazorThreeJS.Viewers
         {
             __builder.OpenElement(0, "div");
             __builder.AddAttribute(1, "class", "viewer3dContainer");
-            __builder.AddAttribute(2, "id", this.ViewerSettings.ContainerId);
+            __builder.AddAttribute(2, "id", this.ViewerSettings.containerId);
             __builder.AddAttribute(3, "b-h6holr0slw");
             __builder.CloseElement();
         }

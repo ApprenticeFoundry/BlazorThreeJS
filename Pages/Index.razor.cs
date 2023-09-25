@@ -30,7 +30,7 @@ public class IndexPage : ComponentBase, IDisposable
 
     public ViewerSettings settings = new ViewerSettings()
     {
-        ContainerId = "example1",
+        containerId = "example1",
         CanSelect = true,// default is false
         SelectedColor = "#808080",
         WebGLRendererSettings = new WebGLRendererSettings
