@@ -4,6 +4,7 @@
 // MVID: 8589B0D0-D62F-4099-9D8A-332F65D16B15
 // Assembly location: Blazor3D.dll
 
+using System.Text.Json.Serialization;
 using BlazorThreeJS.Core;
 
 namespace BlazorThreeJS.Menus
@@ -13,6 +14,7 @@ namespace BlazorThreeJS.Menus
         public PanelMenu(string type = "Menu") : base(type)
         {
         }
+
         public double Width { get; set; } = 2.0;
         public double Height { get; set; } = 1.0;
         public List<Button> Buttons { get; set; } = new();

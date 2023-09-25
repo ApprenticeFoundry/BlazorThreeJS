@@ -6,18 +6,19 @@
 
 using BlazorThreeJS.Enums;
 using BlazorThreeJS.Materials;
-using Newtonsoft.Json;
-using Newtonsoft.Json.Converters;
+
 using BlazorThreeJS.Maths;
 using BlazorThreeJS.Core;
 using BlazorThreeJS.Objects;
 using BlazorThreeJS.Scenes;
+using System.Text.Json.Serialization;
+
 
 namespace BlazorThreeJS.Settings
 {
     public class ImportSettings
     {
-        [JsonConverter(typeof(StringEnumConverter))]
+        [JsonConverter(typeof(JsonStringEnumConverter))]
         public Import3DFormats Format { get; set; }
         public string? FileURL { get; set; }
         public string? TextureURL { get; set; }

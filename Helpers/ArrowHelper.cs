@@ -24,7 +24,7 @@ namespace BlazorThreeJS.Helpers
           double length = 1.0,
           string color = "0xffff00",
           double headLength = 0.2,
-          double headWidth = 0.040000000000000008)
+          double headWidth = 0.04)
           : this()
         {
             this.Dir = dir ?? new Vector3(0.0f, 0.0f, 1f);
@@ -45,6 +45,6 @@ namespace BlazorThreeJS.Helpers
 
         public double HeadLength { get; set; } = 0.2;
 
-        public double HeadWidth { get; set; } = 0.040000000000000008;
+        public double HeadWidth { get; set; } = 0.04;
     }
 }

@@ -15,16 +15,16 @@ namespace BlazorThreeJS.ComponentHelpers
     {
         internal static void RemoveObjectByUuid(Guid uuid, List<Object3D> children)
         {
-            Object3D object3D = (Object3D)null;
-            foreach (Object3D child in children)
+            Object3D object3D = null;
+            foreach (var child in children)
             {
                 if (child.Uuid == uuid)
                 {
                     object3D = child;
                     break;
                 }
-                if (child.Children.Count > 0)
-                    ChildrenHelper.RemoveObjectByUuid(uuid, child.Children);
+                if (child.HasChildren())
+                    ChildrenHelper.RemoveObjectByUuid(uuid, child.GetAllChildren());
             }
             if (object3D == null)
                 return;
@@ -38,9 +38,9 @@ namespace BlazorThreeJS.ComponentHelpers
             {
                 if (child.Uuid == uuid)
                     return child;
-                if (child.Children.Count > 0)
+                if (child.HasChildren())
                 {
-                    objectByUuid = ChildrenHelper.GetObjectByUuid(uuid, child.Children);
+                    objectByUuid = ChildrenHelper.GetObjectByUuid(uuid, child.GetAllChildren());
                     if (objectByUuid != null)
                         return objectByUuid;
                 }

@@ -10,7 +10,7 @@ namespace BlazorThreeJS.Settings
 {
     public sealed class ViewerSettings
     {
-        public string ContainerId { get; set; } = "blazorview3d";
+        public string containerId { get; set; } = "blazorview3d";
 
         public bool CanSelect { get; set; }
 

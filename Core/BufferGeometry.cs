@@ -5,16 +5,22 @@
 // Assembly location: Blazor3D.dll
 
 using System;
+using System.Text.Json.Serialization;
+using BlazorThreeJS.Geometires;
 
 
 
 namespace BlazorThreeJS.Core
 {
+    [JsonDerivedType(typeof(BoxGeometry))]
+    [JsonDerivedType(typeof(CapsuleGeometry))]
+    [JsonDerivedType(typeof(DodecahedronGeometry))]
+    [JsonDerivedType(typeof(TubeGeometry))]
     public abstract class BufferGeometry
     {
         protected BufferGeometry(string type) => this.Type = type;
 
-        public string Name { get; set; }
+        public string Name { get; set; } = string.Empty;
 
         public Guid Uuid { get; set; } = Guid.NewGuid();
 
