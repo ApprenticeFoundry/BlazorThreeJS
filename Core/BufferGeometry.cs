@@ -12,6 +12,7 @@ using BlazorThreeJS.Geometires;
 
 namespace BlazorThreeJS.Core
 {
+    [JsonDerivedType(typeof(BoxGeometry))]
     [JsonDerivedType(typeof(CapsuleGeometry))]
     [JsonDerivedType(typeof(DodecahedronGeometry))]
     [JsonDerivedType(typeof(TubeGeometry))]

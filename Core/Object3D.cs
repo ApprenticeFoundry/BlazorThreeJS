@@ -5,6 +5,7 @@
 // Assembly location: Blazor3D.dll
 
 using BlazorThreeJS.Cameras;
+using BlazorThreeJS.Lights;
 using BlazorThreeJS.Maths;
 using BlazorThreeJS.Menus;
 using BlazorThreeJS.Objects;
@@ -16,12 +17,11 @@ using System.Text.Json.Serialization;
 
 namespace BlazorThreeJS.Core
 {
-    // [JsonDerivedType(typeof(Mesh))]
-    // [JsonDerivedType(typeof(PanelMenu))]
-    // [JsonDerivedType(typeof(PanelGroup))]
-    // [JsonDerivedType(typeof(Camera))]
-    // [JsonDerivedType(typeof(OrthographicCamera))]
-    // [JsonDerivedType(typeof(PerspectiveCamera))]
+    [JsonDerivedType(typeof(Mesh))]
+    [JsonDerivedType(typeof(PanelMenu))]
+    [JsonDerivedType(typeof(PanelGroup))]
+    [JsonDerivedType(typeof(AmbientLight))]
+    [JsonDerivedType(typeof(PointLight))]
     public abstract class Object3D
     {
         protected Object3D(string type) => this.Type = type;
@@ -47,11 +47,11 @@ namespace BlazorThreeJS.Core
             return children;
         }
 
-        public object[] Children
+        public List<Object3D> Children
         {
             get
             {
-                return (object[])children.ToArray();
+                return children;
             }
         }
 

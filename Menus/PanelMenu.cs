@@ -15,11 +15,8 @@ namespace BlazorThreeJS.Menus
         {
         }
 
-        [JsonPropertyName("width")]
         public double Width { get; set; } = 2.0;
-        [JsonPropertyName("height")]
         public double Height { get; set; } = 1.0;
-        [JsonPropertyName("buttons")]
         public List<Button> Buttons { get; set; } = new();
         public PanelMenu AddButton(Button button)
         {
