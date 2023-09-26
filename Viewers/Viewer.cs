@@ -88,8 +88,8 @@ namespace BlazorThreeJS.Viewers
             LoadedModels.Clear();
 
             // NOTE: change JSRootPath to use the _content when building for use in other apps
-            // await viewer.JSBridge.InvokeAsync<IJSObjectReference>("import", (object)$"{JSRootPath}/app-lib.js").AsTask();
-            await viewer.JSBridge.InvokeAsync<IJSObjectReference>("import", (object)$"{JSRootPathDevelopment}/app-lib.js").AsTask();
+            await viewer.JSBridge.InvokeAsync<IJSObjectReference>("import", (object)$"{JSRootPath}/app-lib.js").AsTask();
+            // await viewer.JSBridge.InvokeAsync<IJSObjectReference>("import", (object)$"{JSRootPathDevelopment}/app-lib.js").AsTask();
 
             if (viewer.UseDefaultScene && !viewer.Scene.HasChildren())
                 viewer.AddDefaultScene();
