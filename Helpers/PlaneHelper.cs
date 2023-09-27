@@ -18,7 +18,7 @@ namespace BlazorThreeJS.Helpers
         {
         }
 
-        public PlaneHelper(Plane plane = null, double size = 1.0, string color = "0xffff00")
+        public PlaneHelper(Plane plane, double size = 1.0, string color = "0xffff00")
           : this()
         {
             this.Plane = plane ?? new Plane();

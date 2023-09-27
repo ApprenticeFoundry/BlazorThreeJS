@@ -37,29 +37,31 @@ namespace BlazorThreeJS.Viewers
 
     public sealed class Viewer : ComponentBase, IDisposable
     {
-        [Inject] private IJSRuntime JSBridge { get; set; }
+        [Inject] private IJSRuntime? JSBridge { get; set; }
 
 
-        private static event Viewer.SelectedObjectStaticEventHandler ObjectSelectedStatic;
+        //private static event Viewer.SelectedObjectStaticEventHandler ObjectSelectedStatic;
 
-        private static event Viewer.LoadedObjectStaticEventHandler ObjectLoadedStatic;
+        //private static event Viewer.LoadedObjectStaticEventHandler ObjectLoadedStatic;
 
         private static Dictionary<Guid, ImportSettings> ImportPromises { get; set; } = new();
         private static Dictionary<Guid, Button> Buttons { get; set; } = new();
         private static Dictionary<Guid, ImportSettings> LoadedModels { get; set; } = new();
 
         private string JSRootPath = "./_content/BlazorThreeJS/dist";
-        private string JSRootPathDevelopment = "/dist";
+        //private string JSRootPathDevelopment = "/dist";
 
-        private event LoadedObjectEventHandler ObjectLoadedPrivate;
+        private event LoadedObjectEventHandler? ObjectLoadedPrivate;
 
-        public event SelectedObjectEventHandler ObjectSelected;
+        public event SelectedObjectEventHandler? ObjectSelected;
 
-        public event LoadedObjectEventHandler ObjectLoaded;
+        public event LoadedObjectEventHandler? ObjectLoaded;
 
-        public event LoadedModuleEventHandler JsModuleLoaded;
+        public event LoadedModuleEventHandler? JsModuleLoaded;
         private JsonSerializerOptions JSONOptions { get; set; } = new JsonSerializerOptions { PropertyNamingPolicy = JsonNamingPolicy.CamelCase, DefaultIgnoreCondition = JsonIgnoreCondition.WhenWritingNull, IncludeFields = true, IgnoreReadOnlyFields = true };
 
+        //private delegate void SelectedObjectStaticEventHandler(Object3DStaticArgs e);
+        //private delegate void LoadedObjectStaticEventHandler(Object3DStaticArgs e);
 
         [Parameter]
         public ViewerSettings ViewerSettings { get; set; }
@@ -77,47 +79,38 @@ namespace BlazorThreeJS.Viewers
 
         protected override async Task OnAfterRenderAsync(bool firstRender)
         {
-            Viewer viewer = this;
+
             if (!firstRender)
                 return;
 
-            Viewer.ObjectSelectedStatic += new Viewer.SelectedObjectStaticEventHandler(viewer.OnObjectSelectedStatic);
-            Viewer.ObjectLoadedStatic += new Viewer.LoadedObjectStaticEventHandler(viewer.OnObjectLoadedStatic);
-            viewer.ObjectLoadedPrivate += new LoadedObjectEventHandler(viewer.OnObjectLoadedPrivate);
+            //Viewer.ObjectSelectedStatic += new Viewer.SelectedObjectStaticEventHandler(viewer.OnObjectSelectedStatic);
+            //Viewer.ObjectLoadedStatic += new Viewer.LoadedObjectStaticEventHandler(viewer.OnObjectLoadedStatic);
+            ObjectLoadedPrivate += new LoadedObjectEventHandler(OnObjectLoadedPrivate);
 
             LoadedModels.Clear();
 
             // NOTE: change JSRootPath to use the _content when building for use in other apps
-            await viewer.JSBridge.InvokeAsync<IJSObjectReference>("import", (object)$"{JSRootPath}/app-lib.js").AsTask();
+            await JSBridge!.InvokeAsync<IJSObjectReference>("import", (object)$"{JSRootPath}/app-lib.js").AsTask();
             // await viewer.JSBridge.InvokeAsync<IJSObjectReference>("import", (object)$"{JSRootPathDevelopment}/app-lib.js").AsTask();
 
-            if (viewer.UseDefaultScene && !viewer.Scene.HasChildren())
-                viewer.AddDefaultScene();
+            if (UseDefaultScene && !Scene.HasChildren())
+                AddDefaultScene();
 
             var dto = new SceneDTO()
             {
-                Scene = viewer.Scene,
-                ViewerSettings = viewer.ViewerSettings,
-                Camera = viewer.Camera,
-                OrbitControls = viewer.OrbitControls
+                Scene = Scene,
+                ViewerSettings = ViewerSettings,
+                Camera = Camera,
+                OrbitControls = OrbitControls
             };
 
-            // var jsonObject = (object)new
-            // {
-            //     Scene = viewer.Scene,
-            //     ViewerSettings = viewer.ViewerSettings,
-            //     Camera = viewer.Camera,
-            //     OrbitControls = viewer.OrbitControls
-            // };
 
-            // string str = JsonSerializer.Serialize(jsonObject, JSONOptions);
+
             string str = JsonSerializer.Serialize<SceneDTO>(dto, JSONOptions);
-            // string str = JsonSerializer.Serialize<object[]>(dto.Scene.GetAllChildren().ToArray(), JSONOptions);
-            // var str = CodingExtensions.Dehydrate<SceneDTO>(dto, true);
-
-            await JSBridge.InvokeVoidAsync("BlazorThreeJS.loadViewer", (object)str);
+            await JSBridge!.InvokeVoidAsync("BlazorThreeJS.loadViewer", (object)str);
             await UpdateScene();
-            await viewer.OnModuleLoaded();
+            //SRS  I bet we never load a module  so do not do this!!
+            //await viewer.OnModuleLoaded();
         }
 
         private void PopulateButtonsDict()
@@ -132,8 +125,8 @@ namespace BlazorThreeJS.Viewers
                     if (!Viewer.Buttons.ContainsKey(button.Uuid)) Viewer.Buttons.Add(button.Uuid, button);
                 }
             }
-            Console.WriteLine($"menus Count ={menus.Count}");
-            Console.WriteLine($"Viewer.Buttons Count ={Viewer.Buttons.Count}");
+            //Console.WriteLine($"PopulateButtonsDict menus Count ={menus.Count}");
+            //Console.WriteLine($"Viewer.Buttons Count ={Viewer.Buttons.Count}");
         }
 
         public async Task UpdateScene()
@@ -141,19 +134,19 @@ namespace BlazorThreeJS.Viewers
             PopulateButtonsDict();
 
             var json = JsonSerializer.Serialize((object)this.Scene, JSONOptions);
-            await JSBridge.InvokeVoidAsync("BlazorThreeJS.updateScene", (object)json);
+            await JSBridge!.InvokeVoidAsync("BlazorThreeJS.updateScene", (object)json);
         }
 
-        public async Task SetCameraPositionAsync(Vector3 position, Vector3? lookAt = null) => await JSBridge.InvokeVoidAsync("BlazorThreeJS.setCameraPosition", (object)position, lookAt);
+        public async Task SetCameraPositionAsync(Vector3 position, Vector3? lookAt = null) => await JSBridge!.InvokeVoidAsync("BlazorThreeJS.setCameraPosition", (object)position, lookAt);
 
         public async Task UpdateCamera(Camera camera)
         {
             this.Camera = camera;
             var json = JsonSerializer.Serialize((object)this.Camera, JSONOptions);
-            await JSBridge.InvokeVoidAsync("BlazorThreeJS.updateCamera", (object)json);
+            await JSBridge!.InvokeVoidAsync("BlazorThreeJS.updateCamera", (object)json);
         }
 
-        public async Task ShowCurrentCameraInfo() => await JSBridge.InvokeVoidAsync("BlazorThreeJS.showCurrentCameraInfo");
+        public async Task ShowCurrentCameraInfo() => await JSBridge!.InvokeVoidAsync("BlazorThreeJS.showCurrentCameraInfo");
 
         [JSInvokable]
         public static void ReceiveSelectedObjectUUID(string uuid, Vector3 size)
@@ -184,26 +177,26 @@ namespace BlazorThreeJS.Viewers
 
         public async Task RemoveByUuidAsync(Guid uuid)
         {
-            if (!await JSBridge.InvokeAsync<bool>("BlazorThreeJS.deleteByUuid", (object)uuid))
+            if (!await JSBridge!.InvokeAsync<bool>("BlazorThreeJS.deleteByUuid", (object)uuid))
                 return;
             ChildrenHelper.RemoveObjectByUuid(uuid, this.Scene.GetAllChildren());
         }
 
         public async Task MoveObject(Object3D object3D)
         {
-            if (!await JSBridge.InvokeAsync<bool>("BlazorThreeJS.moveObject", object3D))
+            if (!await JSBridge!.InvokeAsync<bool>("BlazorThreeJS.moveObject", object3D))
                 return;
         }
 
         public async Task ClearSceneAsync()
         {
-            await JSBridge.InvokeVoidAsync("BlazorThreeJS.clearScene");
+            await JSBridge!.InvokeVoidAsync("BlazorThreeJS.clearScene");
             this.Scene.GetAllChildren().RemoveAll(item => item.Type.Contains("LabelText") || item.Type.Contains("Mesh"));
         }
 
         public async Task ClearLightsAsync()
         {
-            await JSBridge.InvokeVoidAsync("BlazorThreeJS.clearScene");
+            await JSBridge!.InvokeVoidAsync("BlazorThreeJS.clearScene");
             this.Scene.GetAllChildren().Clear();
         }
 
@@ -218,7 +211,7 @@ namespace BlazorThreeJS.Viewers
 
             // settings.Material = settings.Material ?? new MeshStandardMaterial();
             var json = JsonSerializer.Serialize((object)settings, JSONOptions);
-            await JSBridge.InvokeVoidAsync("BlazorThreeJS.import3DModel", (object)json);
+            await JSBridge!.InvokeVoidAsync("BlazorThreeJS.import3DModel", (object)json);
 
             return uuid;
         }
@@ -234,7 +227,7 @@ namespace BlazorThreeJS.Viewers
 
             var json = (object)JsonSerializer.Serialize((object)settings, JSONOptions);
             var args = new List<object>() { $"{sourceGuid}", json };
-            await JSBridge.InvokeVoidAsync("BlazorThreeJS.clone3DModel", args.ToArray());
+            await JSBridge!.InvokeVoidAsync("BlazorThreeJS.clone3DModel", args.ToArray());
             return sourceGuid;
         }
 
@@ -281,14 +274,15 @@ namespace BlazorThreeJS.Viewers
 
         private async Task OnModuleLoaded()
         {
-            LoadedModuleEventHandler jsModuleLoaded = this.JsModuleLoaded;
-            if (jsModuleLoaded == null)
+            if (JsModuleLoaded == null)
                 return;
 
-            Delegate[] invocationList = jsModuleLoaded.GetInvocationList();
+            Delegate[] invocationList = JsModuleLoaded.GetInvocationList();
             Task[] taskArray = new Task[invocationList.Length];
+
             for (int index = 0; index < invocationList.Length; ++index)
                 taskArray[index] = ((LoadedModuleEventHandler)invocationList[index])();
+
             await Task.WhenAll(taskArray);
         }
 
@@ -376,7 +370,7 @@ namespace BlazorThreeJS.Viewers
         private async Task OnObjectLoadedPrivate(Object3DArgs e)
         {
             var options = UnitSpec.JsonHydrateOptions(false);
-            string json = await JSBridge.InvokeAsync<string>("BlazorThreeJS.getSceneItemByGuid", (object)e.UUID);
+            string json = await JSBridge!.InvokeAsync<string>("BlazorThreeJS.getSceneItemByGuid", (object)e.UUID);
 
 
             var jobject = JsonNode.Parse(json);
@@ -421,8 +415,8 @@ namespace BlazorThreeJS.Viewers
 
         public void Dispose()
         {
-            Viewer.ObjectSelectedStatic -= new Viewer.SelectedObjectStaticEventHandler(this.OnObjectSelectedStatic);
-            Viewer.ObjectLoadedStatic -= new Viewer.LoadedObjectStaticEventHandler(this.OnObjectLoadedStatic);
+            //Viewer.ObjectSelectedStatic -= new Viewer.SelectedObjectStaticEventHandler(this.OnObjectSelectedStatic);
+            //Viewer.ObjectLoadedStatic -= new Viewer.LoadedObjectStaticEventHandler(this.OnObjectLoadedStatic);
             this.ObjectLoadedPrivate -= new LoadedObjectEventHandler(this.OnObjectLoadedPrivate);
         }
 
@@ -440,7 +434,7 @@ namespace BlazorThreeJS.Viewers
         public Viewer()
         {
             // OrthographicCamera camera = new();
-            PerspectiveCamera camera = new()
+            var camera = new PerspectiveCamera()
             {
                 Position = new Vector3(3f, 3f, 3f)
             };
@@ -450,11 +444,10 @@ namespace BlazorThreeJS.Viewers
             this.Camera = (Camera)camera;
             // ISSUE: reference to a compiler-generated field
             this.OrbitControls = new OrbitControls();
-            // ISSUE: explicit constructor call
-            // base.\u002Ector();
+            this.Scene = new Scene();
+            this.ViewerSettings = new ViewerSettings();
         }
 
-        private delegate void SelectedObjectStaticEventHandler(Object3DStaticArgs e);
-        private delegate void LoadedObjectStaticEventHandler(Object3DStaticArgs e);
+
     }
 }

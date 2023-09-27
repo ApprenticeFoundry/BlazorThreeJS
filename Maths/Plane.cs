@@ -13,7 +13,7 @@ namespace BlazorThreeJS.Maths
         {
         }
 
-        public Plane(Vector3 normal = null, double constant = 0.0)
+        public Plane(Vector3 normal, double constant = 0.0)
         {
             this.Normal = normal ?? new Vector3(1f, 0.0f, 0.0f);
             this.Constant = constant;

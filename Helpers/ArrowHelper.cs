@@ -19,8 +19,8 @@ namespace BlazorThreeJS.Helpers
         }
 
         public ArrowHelper(
-          Vector3 dir = null,
-          Vector3 origin = null,
+          Vector3 dir,
+          Vector3 origin,
           double length = 1.0,
           string color = "0xffff00",
           double headLength = 0.2,
