@@ -49,7 +49,7 @@ namespace BlazorThreeJS.Viewers
         private static Dictionary<Guid, ImportSettings> LoadedModels { get; set; } = new();
 
         private string JSRootPath = "./_content/BlazorThreeJS/dist";
-        //private string JSRootPathDevelopment = "/dist";
+        // private string JSRootPathDevelopment = "/dist";
 
         private event LoadedObjectEventHandler? ObjectLoadedPrivate;
 
@@ -91,7 +91,7 @@ namespace BlazorThreeJS.Viewers
 
             // NOTE: change JSRootPath to use the _content when building for use in other apps
             await JSBridge!.InvokeAsync<IJSObjectReference>("import", (object)$"{JSRootPath}/app-lib.js").AsTask();
-            // await viewer.JSBridge.InvokeAsync<IJSObjectReference>("import", (object)$"{JSRootPathDevelopment}/app-lib.js").AsTask();
+            // await JSBridge!.InvokeAsync<IJSObjectReference>("import", (object)$"{JSRootPathDevelopment}/app-lib.js").AsTask();
 
             if (UseDefaultScene && !Scene.HasChildren())
                 AddDefaultScene();
