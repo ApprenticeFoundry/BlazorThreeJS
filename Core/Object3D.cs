@@ -19,6 +19,7 @@ namespace BlazorThreeJS.Core
 {
     [JsonDerivedType(typeof(Mesh))]
     [JsonDerivedType(typeof(Group))]
+    [JsonDerivedType(typeof(TextPanel))]
     [JsonDerivedType(typeof(PanelMenu))]
     [JsonDerivedType(typeof(PanelGroup))]
     [JsonDerivedType(typeof(AmbientLight))]
