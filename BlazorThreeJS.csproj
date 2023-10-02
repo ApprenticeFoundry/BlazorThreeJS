@@ -8,8 +8,8 @@
     <DockerDefaultTargetOS>Linux</DockerDefaultTargetOS>
     <DockerfileContext>.</DockerfileContext>
     <IsPackable>true</IsPackable>     
-    <Version>2.0.5</Version>
-    <AssemblyVersion>2.0.5</AssemblyVersion>
+    <Version>2.1.5</Version>
+    <AssemblyVersion>2.1.5</AssemblyVersion>
     <JsLibRoot>JsLib\</JsLibRoot>
     <DefaultItemExcludes>$(DefaultItemExcludes);$(JsLibRoot)node_modules\**</DefaultItemExcludes>
     <Authors>Stephen Strong</Authors>
@@ -20,6 +20,7 @@
     <PackageLicenseExpression>MIT</PackageLicenseExpression>
     <PackageId>ApprenticeFoundryBlazorThreeJS</PackageId>
     <PlatformTarget>AnyCPU</PlatformTarget>
+    <PackageProjectUrl>https://apprenticefoundry.github.io/</PackageProjectUrl>
 </PropertyGroup>
 
   <ItemGroup>
