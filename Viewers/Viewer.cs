@@ -48,7 +48,7 @@ namespace BlazorThreeJS.Viewers
         private static Dictionary<Guid, Button> Buttons { get; set; } = new();
         private static Dictionary<Guid, ImportSettings> LoadedModels { get; set; } = new();
 
-        private string JSRootPath = "./_content/BlazorThreeJS/dist";
+        private string JSRootPath = "./_content/ApprenticeFoundryBlazorThreeJS/dist";
         // private string JSRootPathDevelopment = "/dist";
 
         private event LoadedObjectEventHandler? ObjectLoadedPrivate;
