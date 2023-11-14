@@ -53,7 +53,7 @@ namespace BlazorThreeJS.Viewers
 
         private event LoadedObjectEventHandler? ObjectLoadedPrivate;
 
-        public event SelectedObjectEventHandler? ObjectSelected;
+        //public event SelectedObjectEventHandler? ObjectSelected;
 
         public event LoadedObjectEventHandler? ObjectLoaded;
 

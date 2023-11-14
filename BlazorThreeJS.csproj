@@ -8,8 +8,8 @@
     <DockerDefaultTargetOS>Linux</DockerDefaultTargetOS>
     <DockerfileContext>.</DockerfileContext>
     <IsPackable>true</IsPackable>     
-    <Version>2.1.5</Version>
-    <AssemblyVersion>2.1.5</AssemblyVersion>
+    <Version>2.2.0</Version>
+    <AssemblyVersion>2.2.0</AssemblyVersion>
     <JsLibRoot>JsLib\</JsLibRoot>
     <DefaultItemExcludes>$(DefaultItemExcludes);$(JsLibRoot)node_modules\**</DefaultItemExcludes>
     <Authors>Stephen Strong</Authors>
