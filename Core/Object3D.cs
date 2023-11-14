@@ -5,6 +5,7 @@
 // Assembly location: Blazor3D.dll
 
 using BlazorThreeJS.Cameras;
+using BlazorThreeJS.Labels;
 using BlazorThreeJS.Lights;
 using BlazorThreeJS.Maths;
 using BlazorThreeJS.Menus;
@@ -24,6 +25,7 @@ namespace BlazorThreeJS.Core
     [JsonDerivedType(typeof(PanelGroup))]
     [JsonDerivedType(typeof(AmbientLight))]
     [JsonDerivedType(typeof(PointLight))]
+    [JsonDerivedType(typeof(LabelText))]
     public abstract class Object3D
     {
         protected Object3D(string type) => this.Type = type;
