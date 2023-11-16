@@ -8,8 +8,8 @@
     <DockerDefaultTargetOS>Linux</DockerDefaultTargetOS>
     <DockerfileContext>.</DockerfileContext>
     <IsPackable>true</IsPackable>     
-    <Version>2.2.1</Version>
-    <AssemblyVersion>2.2.1</AssemblyVersion>
+    <Version>2.2.2</Version>
+    <AssemblyVersion>2.2.2</AssemblyVersion>
     <JsLibRoot>JsLib\</JsLibRoot>
     <DefaultItemExcludes>$(DefaultItemExcludes);$(JsLibRoot)node_modules\**</DefaultItemExcludes>
     <Authors>Stephen Strong</Authors>
@@ -24,7 +24,7 @@
 </PropertyGroup>
 
   <ItemGroup>
-      <PackageReference Include="ApprenticeFoundryRulesAndUnits" Version="1.0.5" />
+      <PackageReference Include="ApprenticeFoundryRulesAndUnits" Version="1.3.2" />
       <PackageReference Include="System.Text.Json" Version="7.0.3" />
     <PackageReference Include="Microsoft.VisualStudio.Azure.Containers.Tools.Targets" Version="1.17.2" />
 
