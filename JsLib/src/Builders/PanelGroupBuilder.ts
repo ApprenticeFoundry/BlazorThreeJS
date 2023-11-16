@@ -13,7 +13,6 @@ class PanelGroupBuilderClass {
 
     private MakePanel(scene: Scene, panelGroupOptions: any) {
         const { width, height, color } = panelGroupOptions;
-        console.log('panelGroupOptions=', panelGroupOptions);
         const blockOptions: BlockOptions = {
             width,
             height,

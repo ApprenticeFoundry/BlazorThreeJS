@@ -31,7 +31,7 @@ export class SceneBuilder {
             const label = new Text();
 
             label.text = options.text;
-            label.fontSize = 1;
+            label.fontSize = options.fontSize;
             label.userData = {
                 isTextLabel: true,
             };
@@ -80,29 +80,29 @@ export class SceneBuilder {
             return null;
         }
 
-        if (options.type == 'Mesh') {
-            const object3D = SceneState.findPrimitive(options.uuid);
-            if (Boolean(object3D)) {
-                Transforms.setPosition(object3D, options.position);
-                Transforms.setRotation(object3D, options.rotation);
-                Transforms.setScale(object3D, options.scale);
-            }
-            // SceneState.establishPrimitive(options.uuid, object3D);
-            return null;
-        }
+        // if (options.type == 'Mesh') {
+        //     const object3D = SceneState.findPrimitive(options.uuid);
+        //     if (Boolean(object3D)) {
+        //         Transforms.setPosition(object3D, options.position);
+        //         Transforms.setRotation(object3D, options.rotation);
+        //         Transforms.setScale(object3D, options.scale);
+        //     }
+        //     // SceneState.establishPrimitive(options.uuid, object3D);
+        //     return null;
+        // }
 
-        if (options.type.includes('Group')) {
-            const object3D = SceneState.findGLTFByGuid(options.uuid);
-            if (Boolean(object3D)) {
-                // const sceneGLTF = object3D.scene;
-                const sceneGLTF = object3D;
-                Transforms.setPosition(sceneGLTF, options.position);
-                Transforms.setRotation(sceneGLTF, options.rotation);
-                Transforms.setScale(sceneGLTF, options.scale);
-            }
-            // SceneState.addGLTF(scene, options.uuid, object3D);
-            return null;
-        }
+        // if (options.type.includes('Group')) {
+        //     const object3D = SceneState.findGLTFByGuid(options.uuid);
+        //     if (Boolean(object3D)) {
+        //         // const sceneGLTF = object3D.scene;
+        //         const sceneGLTF = object3D;
+        //         Transforms.setPosition(sceneGLTF, options.position);
+        //         Transforms.setRotation(sceneGLTF, options.rotation);
+        //         Transforms.setScale(sceneGLTF, options.scale);
+        //     }
+        //     // SceneState.addGLTF(scene, options.uuid, object3D);
+        //     return null;
+        // }
     }
 
     static BuildMenus(scene: Scene, options: any): null {

@@ -205,7 +205,7 @@ export class SceneStateClass {
     private refresh(scene: Scene, refreshList: Array<Text | Object3D | Group>) {
         refreshList.forEach((updatedOption: any) => {
             if (this.isExist(updatedOption.uuid)) {
-                // SceneBuilder.UpdateChild(updatedOption, scene);
+                SceneBuilder.UpdateChild(updatedOption, scene);
             } else {
                 const item = SceneBuilder.BuildChild(scene, updatedOption);
                 if (Boolean(item)) this.addToScene(scene, item);

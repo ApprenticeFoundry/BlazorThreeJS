@@ -12,6 +12,7 @@ using BlazorThreeJS.Events;
 using BlazorThreeJS.Labels;
 using BlazorThreeJS.Enums;
 using BlazorThreeJS.Menus;
+using FoundryRulesAndUnits.Extensions;
 
 namespace BlazorThreeJS.Pages;
 
@@ -403,7 +404,7 @@ public class IndexPage : ComponentBase, IDisposable
         //     }
         // });
 
-        // TestText = scene.Add(new LabelText("My First Text") { Position = new Vector3(0, 3, 0), Color = "#33333a" }) as LabelText;
+        TestText = scene.Add(new LabelText("My First Text") { Position = new Vector3(0, 3, 0), Color = "#33333a" }) as LabelText;
 
         // scene.Add(new Mesh
         // {
@@ -895,7 +896,10 @@ public class IndexPage : ComponentBase, IDisposable
 
         var sec = DateTime.Now.Second;
 
-        if (TestText != null) TestText.Text = $"Second {sec}";
+        var newText = $"Second {sec}";
+        $"newText={newText}".WriteInfo();
+
+        if (TestText != null) TestText.Text = newText;
 
         await View3D1.UpdateScene();
     }
