@@ -4,15 +4,12 @@
 // MVID: 8589B0D0-D62F-4099-9D8A-332F65D16B15
 // Assembly location: Blazor3D.dll
 
-using BlazorThreeJS.Cameras;
 using BlazorThreeJS.Labels;
 using BlazorThreeJS.Lights;
 using BlazorThreeJS.Maths;
 using BlazorThreeJS.Menus;
 using BlazorThreeJS.Objects;
 using BlazorThreeJS.Scenes;
-using System;
-using System.Collections.Generic;
 using System.Text.Json.Serialization;
 
 
