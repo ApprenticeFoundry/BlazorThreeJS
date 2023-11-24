@@ -10,6 +10,7 @@ using BlazorThreeJS.Lights;
 using BlazorThreeJS.Maths;
 using BlazorThreeJS.Menus;
 using BlazorThreeJS.Objects;
+using BlazorThreeJS.Scenes;
 using System;
 using System.Collections.Generic;
 using System.Text.Json.Serialization;
@@ -26,6 +27,7 @@ namespace BlazorThreeJS.Core
     [JsonDerivedType(typeof(AmbientLight))]
     [JsonDerivedType(typeof(PointLight))]
     [JsonDerivedType(typeof(LabelText))]
+    [JsonDerivedType(typeof(Scene))]
     public abstract class Object3D
     {
         protected Object3D(string type) => this.Type = type;
