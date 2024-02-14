@@ -67,8 +67,8 @@ export class Viewer3D {
             preserveDrawingBuffer: true
         });
 
-        const requestedWidth = this.options.scene.width;
-        const requestedHeight = this.options.scene.width;
+        const requestedWidth = this.options.viewerSettings.width;
+        const requestedHeight = this.options.viewerSettings.height;
         if (Boolean(requestedWidth) && Boolean(requestedHeight)) {
             this.renderer.setSize(requestedWidth, requestedHeight, true);
         }

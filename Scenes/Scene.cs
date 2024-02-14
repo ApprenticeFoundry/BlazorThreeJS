@@ -13,8 +13,6 @@ namespace BlazorThreeJS.Scenes
 {
   public sealed class Scene : Object3D
   {
-    public int Width = 0;
-    public int Height = 0;
     public Scene()
       : base(nameof(Scene))
     {

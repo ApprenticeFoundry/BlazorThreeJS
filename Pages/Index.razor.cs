@@ -34,17 +34,15 @@ public class IndexPage : ComponentBase, IDisposable
         containerId = "example1",
         CanSelect = true,// default is false
         SelectedColor = "#808080",
+        Width = 900,
+        Height = 600,
         WebGLRendererSettings = new WebGLRendererSettings
         {
             Antialias = false // if you need poor quality for some reasons
         }
     };
 
-    public Scene scene = new()
-    {
-        Width = 900,
-        Height = 600
-    };
+    public Scene scene = new();
 
     public void Dispose()
     {
