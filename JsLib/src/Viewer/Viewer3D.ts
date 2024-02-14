@@ -64,10 +64,18 @@ export class Viewer3D {
 
         this.renderer = new WebGLRenderer({
             antialias: this.options.viewerSettings.webGLRendererSettings.antialias,
-            preserveDrawingBuffer: true,
+            preserveDrawingBuffer: true
         });
-        this.renderer.domElement.style.width = '100%';
-        this.renderer.domElement.style.height = '100%';
+
+        const requestedWidth = this.options.scene.width;
+        const requestedHeight = this.options.scene.width;
+        if (Boolean(requestedWidth) && Boolean(requestedHeight)) {
+            this.renderer.setSize(requestedWidth, requestedHeight, true);
+        }
+        else {
+            this.renderer.domElement.style.width = '100%';
+            this.renderer.domElement.style.height = '100%';
+        }
 
         // this.renderer.domElement.onclick = (event) => {
         //     if (this.options.viewerSettings.canSelect == true) {

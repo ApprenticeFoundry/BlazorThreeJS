@@ -40,7 +40,11 @@ public class IndexPage : ComponentBase, IDisposable
         }
     };
 
-    public Scene scene = new Scene();
+    public Scene scene = new()
+    {
+        Width = 900,
+        Height = 600
+    };
 
     public void Dispose()
     {

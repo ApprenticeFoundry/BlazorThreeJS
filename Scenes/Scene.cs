@@ -4,6 +4,7 @@
 // MVID: 8589B0D0-D62F-4099-9D8A-332F65D16B15
 // Assembly location: Blazor3D.dll
 
+using System.Security.Cryptography.X509Certificates;
 using BlazorThreeJS.Core;
 
 
@@ -12,6 +13,8 @@ namespace BlazorThreeJS.Scenes
 {
   public sealed class Scene : Object3D
   {
+    public int Width = 0;
+    public int Height = 0;
     public Scene()
       : base(nameof(Scene))
     {
