@@ -29,10 +29,10 @@ namespace BlazorThreeJS.Viewers
 {
     public class SceneDTO
     {
-        public required Scene Scene { get; set; }
-        public required ViewerSettings ViewerSettings { get; set; }
-        public required Camera Camera { get; set; }
-        public required OrbitControls OrbitControls { get; set; }
+        public  Scene Scene { get; set; }
+        public  ViewerSettings ViewerSettings { get; set; }
+        public  Camera Camera { get; set; }
+        public  OrbitControls OrbitControls { get; set; }
     }
 
     public sealed class Viewer : ComponentBase, IDisposable
