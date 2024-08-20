@@ -29,10 +29,10 @@ namespace BlazorThreeJS.Viewers
 {
     public class SceneDTO
     {
-        public  Scene Scene { get; set; }
-        public  ViewerSettings ViewerSettings { get; set; }
-        public  Camera Camera { get; set; }
-        public  OrbitControls OrbitControls { get; set; }
+        public  Scene? Scene { get; set; }
+        public  ViewerSettings? ViewerSettings { get; set; }
+        public  Camera? Camera { get; set; }
+        public  OrbitControls? OrbitControls { get; set; }
     }
 
     public sealed class Viewer : ComponentBase, IDisposable
@@ -48,8 +48,8 @@ namespace BlazorThreeJS.Viewers
         private static Dictionary<Guid, Button> Buttons { get; set; } = new();
         private static Dictionary<Guid, ImportSettings> LoadedModels { get; set; } = new();
 
-        private string JSRootPath = "./_content/ApprenticeFoundryBlazorThreeJS/dist";
-        // private string JSRootPathDevelopment = "/dist";
+        // private string JSRootPath = "./_content/ApprenticeFoundryBlazorThreeJS/dist";
+        private string JSRootPathDevelopment = "/dist";
 
         private event LoadedObjectEventHandler? ObjectLoadedPrivate;
 
@@ -77,6 +77,23 @@ namespace BlazorThreeJS.Viewers
 
         public OrbitControls OrbitControls { get; set; }
 
+        public Viewer()
+        {
+            // OrthographicCamera camera = new();
+            var camera = new PerspectiveCamera()
+            {
+                Position = new Vector3(3f, 3f, 3f)
+            };
+            // PerspectiveCamera perspectiveCamera = new PerspectiveCamera();
+            // perspectiveCamera.Position = new Vector3(3f, 3f, 3f);
+            // ISSUE: reference to a compiler-generated field
+            this.Camera = (Camera)camera;
+            // ISSUE: reference to a compiler-generated field
+            this.OrbitControls = new OrbitControls();
+            this.Scene = new Scene();
+            this.ViewerSettings = new ViewerSettings();
+        }
+
         protected override async Task OnAfterRenderAsync(bool firstRender)
         {
 
@@ -90,8 +107,8 @@ namespace BlazorThreeJS.Viewers
             LoadedModels.Clear();
 
             // NOTE: change JSRootPath to use the _content when building for use in other apps
-            await JSBridge!.InvokeAsync<IJSObjectReference>("import", (object)$"{JSRootPath}/app-lib.js").AsTask();
-            // await JSBridge!.InvokeAsync<IJSObjectReference>("import", (object)$"{JSRootPathDevelopment}/app-lib.js").AsTask();
+            //await JSBridge!.InvokeAsync<IJSObjectReference>("import", (object)$"{JSRootPath}/app-lib.js").AsTask();
+            await JSBridge!.InvokeAsync<IJSObjectReference>("import", (object)$"{JSRootPathDevelopment}/app-lib.js").AsTask();
 
             if (UseDefaultScene && !Scene.HasChildren())
                 AddDefaultScene();
@@ -431,22 +448,7 @@ namespace BlazorThreeJS.Viewers
             __builder.CloseElement();
         }
 
-        public Viewer()
-        {
-            // OrthographicCamera camera = new();
-            var camera = new PerspectiveCamera()
-            {
-                Position = new Vector3(3f, 3f, 3f)
-            };
-            // PerspectiveCamera perspectiveCamera = new PerspectiveCamera();
-            // perspectiveCamera.Position = new Vector3(3f, 3f, 3f);
-            // ISSUE: reference to a compiler-generated field
-            this.Camera = (Camera)camera;
-            // ISSUE: reference to a compiler-generated field
-            this.OrbitControls = new OrbitControls();
-            this.Scene = new Scene();
-            this.ViewerSettings = new ViewerSettings();
-        }
+
 
 
     }

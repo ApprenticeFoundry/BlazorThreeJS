@@ -386,25 +386,25 @@ public class IndexPage : ComponentBase, IDisposable
             Position = new Vector3(1, 3, 0)
         });
 
-        // var height = 4;
+        var height = 4;
 
-        // var piv = new Vector3(-1, -height / 2, -3);
-        // var pos = new Vector3(0, height, 0);
-        // var rot = new Euler(0, Math.PI * 45 / 180, 0);
+        var piv = new Vector3(-1, -height / 2, -3);
+        var pos = new Vector3(0, height, 0);
+        var rot = new Euler(0, Math.PI * 45 / 180, 0);
 
         // var realPos = new Vector3(piv.X + pos.X, piv.Y + pos.Y, piv.Z + pos.Z);
 
-        // scene.Add(new Mesh
-        // {
-        //     Geometry = new BoxGeometry(width: 2, height: height, depth: 6),
-        //     Position = pos,
-        //     Rotation = rot,
-        //     Pivot = piv,
-        //     Material = new MeshStandardMaterial()
-        //     {
-        //         Color = "magenta"
-        //     }
-        // });
+        scene.Add(new Mesh
+        {
+            Geometry = new BoxGeometry(width: 2, height: height, depth: 6),
+            Position = pos,
+            Rotation = rot,
+            Pivot = piv,
+            Material = new MeshStandardMaterial()
+            {
+                Color = "magenta"
+            }
+        });
 
         TestText = scene.Add(new LabelText("My First Text") { Position = new Vector3(0, 3, 0), Color = "#33333a" }) as LabelText;
 
