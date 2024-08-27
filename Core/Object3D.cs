@@ -64,7 +64,7 @@ namespace BlazorThreeJS.Core
             return null;
         }
 
-        public IEnumerable<ITreeNode> GetChildren()
+        public IEnumerable<ITreeNode> GetTreeChildren()
         {
             var result = new List<ITreeNode>();
             result.AddRange(children);

@@ -58,5 +58,10 @@ namespace BlazorThreeJS.Core
             this.StatusBits.IsSelected = value;
             return value;
         }
+
+        public IEnumerable<ITreeNode> GetTreeChildren()
+        {
+            return Enumerable.Empty<ITreeNode>();
+        }
     }
 }
