@@ -170,12 +170,14 @@ export class Viewer3D {
         // this.addAxes();  we should control this from FoundryBlazor by default
         this.addRoom();
 
-        this.options.scene.children.forEach((childOptions: any) => {
-            const child = SceneBuilder.BuildPeripherals(this.scene, childOptions);
-            if (child) {
-                this.scene.add(child);
-            }
-        });
+        if (Boolean(this.options.scene.children)) {
+            this.options.scene.children.forEach((childOptions: any) => {
+                const child = SceneBuilder.BuildPeripherals(this.scene, childOptions);
+                if (child) {
+                    this.scene.add(child);
+                }
+            });
+        }
         // Add cached meshes.
         SceneState.renderToScene(this.scene, this.options);
     }

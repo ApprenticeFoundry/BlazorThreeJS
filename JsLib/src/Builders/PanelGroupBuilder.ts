@@ -116,9 +116,11 @@ class PanelGroupBuilderClass {
 
     private GetTextPanelOptions(options: any) {
         const filterOptions = Boolean(options.scene) ? options.scene : options;
-        this.PanelGroups = filterOptions.children.filter((item: any) => {
-            return item.type === 'PanelGroup';
-        });
+        if (Boolean(filterOptions.children)) {
+            this.PanelGroups = filterOptions.children.filter((item: any) => {
+                return item.type === 'PanelGroup';
+            });
+        }
     }
 
     public BuildPanelGroup(scene: Scene, options: any) {
