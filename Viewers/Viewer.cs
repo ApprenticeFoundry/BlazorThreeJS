@@ -29,10 +29,10 @@ namespace BlazorThreeJS.Viewers
 {
     public class SceneDTO
     {
-        public  Scene? Scene { get; set; }
-        public  ViewerSettings? ViewerSettings { get; set; }
-        public  Camera? Camera { get; set; }
-        public  OrbitControls? OrbitControls { get; set; }
+        public Scene? Scene { get; set; }
+        public ViewerSettings? ViewerSettings { get; set; }
+        public Camera? Camera { get; set; }
+        public OrbitControls? OrbitControls { get; set; }
     }
 
     public sealed class Viewer : ComponentBase, IDisposable
@@ -48,8 +48,8 @@ namespace BlazorThreeJS.Viewers
         private static Dictionary<Guid, Button> Buttons { get; set; } = new();
         private static Dictionary<Guid, ImportSettings> LoadedModels { get; set; } = new();
 
-        // private string JSRootPath = "./_content/ApprenticeFoundryBlazorThreeJS/dist";
-        private string JSRootPathDevelopment = "/dist";
+        private string JSRootPath = "./_content/ApprenticeFoundryBlazorThreeJS/dist";
+        // private string JSRootPathDevelopment = "/dist";
 
         private event LoadedObjectEventHandler? ObjectLoadedPrivate;
 
@@ -107,8 +107,8 @@ namespace BlazorThreeJS.Viewers
             LoadedModels.Clear();
 
             // NOTE: change JSRootPath to use the _content when building for use in other apps
-            //await JSBridge!.InvokeAsync<IJSObjectReference>("import", (object)$"{JSRootPath}/app-lib.js").AsTask();
-            await JSBridge!.InvokeAsync<IJSObjectReference>("import", (object)$"{JSRootPathDevelopment}/app-lib.js").AsTask();
+            await JSBridge!.InvokeAsync<IJSObjectReference>("import", (object)$"{JSRootPath}/app-lib.js").AsTask();
+            // await JSBridge!.InvokeAsync<IJSObjectReference>("import", (object)$"{JSRootPathDevelopment}/app-lib.js").AsTask();
 
             if (UseDefaultScene && !Scene.HasChildren())
                 AddDefaultScene();
