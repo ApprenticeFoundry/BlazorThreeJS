@@ -58,7 +58,12 @@ namespace BlazorThreeJS.Viewers
         public event LoadedObjectEventHandler? ObjectLoaded;
 
         public event LoadedModuleEventHandler? JsModuleLoaded;
-        private JsonSerializerOptions JSONOptions { get; set; } = new JsonSerializerOptions { PropertyNamingPolicy = JsonNamingPolicy.CamelCase, DefaultIgnoreCondition = JsonIgnoreCondition.WhenWritingNull, IncludeFields = true, IgnoreReadOnlyFields = true };
+        private JsonSerializerOptions JSONOptions { get; set; } = new JsonSerializerOptions { 
+                PropertyNamingPolicy = JsonNamingPolicy.CamelCase, 
+                DefaultIgnoreCondition = JsonIgnoreCondition.WhenWritingNull,
+                IncludeFields = true, 
+                IgnoreReadOnlyFields = true 
+            };
 
         //private delegate void SelectedObjectStaticEventHandler(Object3DStaticArgs e);
         //private delegate void LoadedObjectStaticEventHandler(Object3DStaticArgs e);
@@ -106,6 +111,9 @@ namespace BlazorThreeJS.Viewers
 
             LoadedModels.Clear();
 
+            //await JSBridge!.InvokeVoidAsync("import", DotNetObjectReference.Create(this));
+
+
             // NOTE: change JSRootPath to use the _content when building for use in other apps
             await JSBridge!.InvokeAsync<IJSObjectReference>("import", (object)$"{JSRootPath}/app-lib.js").AsTask();
             // await JSBridge!.InvokeAsync<IJSObjectReference>("import", (object)$"{JSRootPathDevelopment}/app-lib.js").AsTask();
@@ -134,6 +142,7 @@ namespace BlazorThreeJS.Viewers
         {
             Viewer.Buttons.Clear();
             var menus = this.Scene.GetAllChildren().FindAll((item) => item.Type == "Menu");
+            
             foreach (var menu in menus)
             {
                 foreach (var button in ((PanelMenu)menu).Buttons)

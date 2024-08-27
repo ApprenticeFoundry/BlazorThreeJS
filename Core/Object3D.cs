@@ -10,6 +10,7 @@ using BlazorThreeJS.Maths;
 using BlazorThreeJS.Menus;
 using BlazorThreeJS.Objects;
 using BlazorThreeJS.Scenes;
+using FoundryRulesAndUnits.Models;
 using System.Text.Json.Serialization;
 
 
@@ -25,8 +26,10 @@ namespace BlazorThreeJS.Core
     [JsonDerivedType(typeof(PointLight))]
     [JsonDerivedType(typeof(LabelText))]
     [JsonDerivedType(typeof(Scene))]
-    public abstract class Object3D
+    public abstract class Object3D: ITreeNode
     {
+        private StatusBitArray StatusBits = new();
+
         protected Object3D(string type) => this.Type = type;
 
         public Vector3 Position { get; set; } = new Vector3();
@@ -50,12 +53,19 @@ namespace BlazorThreeJS.Core
             return children;
         }
 
-        public List<Object3D> Children
+        public virtual string GetTreeNodeTitle()
         {
-            get
-            {
-                return children;
-            }
+            return $"{Name}: {Type} ({GetType().Name})";
+        }
+
+        public IEnumerable<TreeNodeAction>? GetTreeNodeActions()
+        {
+            return null;
+        }
+
+        public IEnumerable<ITreeNode> GetChildren()
+        {
+             return children;
         }
 
         public Object3D Add(Object3D child)
@@ -63,11 +73,13 @@ namespace BlazorThreeJS.Core
             this.children.Add(child);
             return child;
         }
+
         public List<Object3D> AddRange(List<Object3D> newChildren)
         {
             this.children.AddRange(newChildren);
             return newChildren;
         }
+
         public Object3D RemoveChild(Object3D child)
         {
             this.children.Remove(child);
@@ -78,12 +90,11 @@ namespace BlazorThreeJS.Core
         {
             return children.Count > 0;
         }
-        // public T AddChild<T>(T child) where T : Object3D
-        // {
-        //     this.children.Add(child);
-        //     return child;
-        // }
+
+
+
         public bool Remove(Object3D child) => this.children.Remove(child);
+
         public Object3D Update(Object3D child)
         {
             var obj = this.children.Find((item) =>
@@ -99,5 +110,30 @@ namespace BlazorThreeJS.Core
             this.Add(child);
             return child;
         }
+
+        public bool GetIsExpanded()
+        {
+            return this.StatusBits.IsExpanded;
+        }
+
+        public bool SetExpanded(bool value)
+        {
+            this.StatusBits.IsExpanded = value;
+            return value;
+        }
+
+        public bool GetIsSelected()
+        {
+            return this.StatusBits.IsSelected;
+        }
+
+        public bool SetSelected(bool value)
+        {
+            this.StatusBits.IsSelected = value;
+            return value;
+        }
+
+
+
     }
 }

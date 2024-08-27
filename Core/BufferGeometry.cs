@@ -7,6 +7,7 @@
 using System;
 using System.Text.Json.Serialization;
 using BlazorThreeJS.Geometires;
+using FoundryRulesAndUnits.Models;
 
 
 
@@ -16,8 +17,9 @@ namespace BlazorThreeJS.Core
     [JsonDerivedType(typeof(CapsuleGeometry))]
     [JsonDerivedType(typeof(DodecahedronGeometry))]
     [JsonDerivedType(typeof(TubeGeometry))]
-    public abstract class BufferGeometry
+    public abstract class BufferGeometry: ITreeNode
     {
+        private StatusBitArray StatusBits = new();
         protected BufferGeometry(string type) => this.Type = type;
 
         public string Name { get; set; } = string.Empty;
@@ -25,5 +27,43 @@ namespace BlazorThreeJS.Core
         public Guid Uuid { get; set; } = Guid.NewGuid();
 
         public string Type { get; } = "Geometry";
+
+        public IEnumerable<ITreeNode> GetChildren()
+        {
+            return new List<ITreeNode>();
+        }
+
+
+        public IEnumerable<TreeNodeAction>? GetTreeNodeActions()
+        {
+            return null;
+        }
+
+        public virtual string GetTreeNodeTitle()
+        {
+            return $"{Name}: {Type} ({GetType().Name})";
+        }
+
+        public bool GetIsExpanded()
+        {
+            return this.StatusBits.IsExpanded;
+        }
+
+        public bool SetExpanded(bool value)
+        {
+            this.StatusBits.IsExpanded = value;
+            return value;
+        }
+
+        public bool GetIsSelected()
+        {
+            return this.StatusBits.IsSelected;
+        }
+
+        public bool SetSelected(bool value)
+        {
+            this.StatusBits.IsSelected = value;
+            return value;
+        }
     }
 }

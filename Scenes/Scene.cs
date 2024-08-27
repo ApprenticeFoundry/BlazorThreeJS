@@ -6,6 +6,7 @@
 
 using System.Security.Cryptography.X509Certificates;
 using BlazorThreeJS.Core;
+using FoundryRulesAndUnits.Models;
 
 
 
@@ -19,5 +20,7 @@ namespace BlazorThreeJS.Scenes
     }
 
     public string BackGroundColor { get; set; } = "#505050";
+
+
   }
 }
