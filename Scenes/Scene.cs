@@ -12,7 +12,7 @@ using FoundryRulesAndUnits.Models;
 
 namespace BlazorThreeJS.Scenes
 {
-  public sealed class Scene : Object3D
+  public class Scene : Object3D
   {
     public Scene()
       : base(nameof(Scene))

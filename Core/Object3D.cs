@@ -26,9 +26,9 @@ namespace BlazorThreeJS.Core
     [JsonDerivedType(typeof(PointLight))]
     [JsonDerivedType(typeof(LabelText))]
     [JsonDerivedType(typeof(Scene))]
-    public abstract class Object3D: ITreeNode
+    public abstract class Object3D : ITreeNode
     {
-        private StatusBitArray StatusBits = new();
+        protected StatusBitArray StatusBits = new();
 
         protected Object3D(string type) => this.Type = type;
 
@@ -48,6 +48,7 @@ namespace BlazorThreeJS.Core
 
         private List<Object3D> children = new();
 
+        public IEnumerable<Object3D> Children => children;
         public List<Object3D> GetAllChildren()
         {
             return children;
@@ -55,7 +56,7 @@ namespace BlazorThreeJS.Core
 
         public virtual string GetTreeNodeTitle()
         {
-            return $"{Name}: {Type} ({GetType().Name})";
+            return $"{Name} [{Uuid}] => {Type} ({GetType().Name})";
         }
 
         public IEnumerable<TreeNodeAction>? GetTreeNodeActions()
@@ -65,7 +66,9 @@ namespace BlazorThreeJS.Core
 
         public IEnumerable<ITreeNode> GetChildren()
         {
-             return children;
+            var result = new List<ITreeNode>();
+            result.AddRange(children);
+            return result;
         }
 
         public Object3D Add(Object3D child)

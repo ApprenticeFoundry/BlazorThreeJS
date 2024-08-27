@@ -17,9 +17,9 @@ namespace BlazorThreeJS.Core
     [JsonDerivedType(typeof(CapsuleGeometry))]
     [JsonDerivedType(typeof(DodecahedronGeometry))]
     [JsonDerivedType(typeof(TubeGeometry))]
-    public abstract class BufferGeometry: ITreeNode
+    public abstract class BufferGeometry : ITreeNode
     {
-        private StatusBitArray StatusBits = new();
+        protected StatusBitArray StatusBits = new();
         protected BufferGeometry(string type) => this.Type = type;
 
         public string Name { get; set; } = string.Empty;
@@ -28,22 +28,15 @@ namespace BlazorThreeJS.Core
 
         public string Type { get; } = "Geometry";
 
-        public IEnumerable<ITreeNode> GetChildren()
+        public virtual string GetTreeNodeTitle()
         {
-            return new List<ITreeNode>();
+            return $"{Name} [{Uuid}] => {Type} ({GetType().Name})";
         }
-
 
         public IEnumerable<TreeNodeAction>? GetTreeNodeActions()
         {
             return null;
         }
-
-        public virtual string GetTreeNodeTitle()
-        {
-            return $"{Name}: {Type} ({GetType().Name})";
-        }
-
         public bool GetIsExpanded()
         {
             return this.StatusBits.IsExpanded;

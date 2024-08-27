@@ -35,7 +35,7 @@ namespace BlazorThreeJS.Viewers
         public OrbitControls? OrbitControls { get; set; }
     }
 
-    public sealed class Viewer : ComponentBase, IDisposable
+    public class Viewer : ComponentBase, IDisposable
     {
         [Inject] private IJSRuntime? JSBridge { get; set; }
 
@@ -142,7 +142,7 @@ namespace BlazorThreeJS.Viewers
         {
             Viewer.Buttons.Clear();
             var menus = this.Scene.GetAllChildren().FindAll((item) => item.Type == "Menu");
-            
+
             foreach (var menu in menus)
             {
                 foreach (var button in ((PanelMenu)menu).Buttons)
