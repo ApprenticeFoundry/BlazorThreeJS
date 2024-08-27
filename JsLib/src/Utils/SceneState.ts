@@ -175,9 +175,13 @@ export class SceneStateClass {
     }
 
     private itemsToUpdate(sceneOptions: any): any[] {
-        const options = sceneOptions.children.filter((childOptions: any) => {
-            return 'LabelText|Mesh|Group'.indexOf(childOptions.type) >= 0;
-        });
+
+        let options = [];
+        if (Boolean(sceneOptions.children)) {
+            options = sceneOptions.children.filter((childOptions: any) => {
+                return 'LabelText|Mesh|Group'.indexOf(childOptions.type) >= 0;
+            });
+        }
         return options;
     }
 

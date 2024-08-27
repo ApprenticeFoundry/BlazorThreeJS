@@ -48,24 +48,25 @@ public class IndexPage : ComponentBase, IDisposable
     {
         // View3D1.ObjectSelected -= OnObjectSelected;
         // View3D1.ObjectLoaded -= OnObjectLoaded;
-        View3D1.JsModuleLoaded -= OnJsModuleLoaded;
+        // View3D1.JsModuleLoaded -= OnJsModuleLoaded;
     }
 
-    protected override Task OnAfterRenderAsync(bool firstRender)
+    protected override async Task OnAfterRenderAsync(bool firstRender)
     {
         if (firstRender)
         {
             // subscribe events only once
             // View3D1.ObjectSelected += OnObjectSelected;
             // View3D1.ObjectLoaded += OnObjectLoaded;
-            View3D1.JsModuleLoaded += OnJsModuleLoaded;
+            // View3D1.JsModuleLoaded += OnJsModuleLoaded;
+            await DisplayItems();
 
         }
 
-        return base.OnAfterRenderAsync(firstRender);
+        await base.OnAfterRenderAsync(firstRender);
     }
 
-    public async Task OnJsModuleLoaded()
+    public async Task DisplayItems()
     {
 
         await View3D1.SetCameraPositionAsync(new Vector3(0, 3, 6), new Vector3(0, 0, 0));
@@ -77,7 +78,7 @@ public class IndexPage : ComponentBase, IDisposable
         var model2Pos = new Vector3(2.5, 3, 0);
         var model2Guid = Guid.NewGuid();
         // var model2Guid = new Guid("66ca8b5b-970e-448c-b695-ee4c3fdfe65f");
-        Console.WriteLine($"model2Guid={model2Guid}");
+        Console.WriteLine($"in DisplayItems model2Guid={model2Guid}");
         var model2 = new ImportSettings
         {
             Uuid = model2Guid,

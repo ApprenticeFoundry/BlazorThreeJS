@@ -48,9 +48,6 @@ namespace BlazorThreeJS.Viewers
         private static Dictionary<Guid, Button> Buttons { get; set; } = new();
         private static Dictionary<Guid, ImportSettings> LoadedModels { get; set; } = new();
 
-        private string JSRootPath = "./_content/ApprenticeFoundryBlazorThreeJS/dist";
-        // private string JSRootPathDevelopment = "/dist";
-
         private event LoadedObjectEventHandler? ObjectLoadedPrivate;
 
         //public event SelectedObjectEventHandler? ObjectSelected;
@@ -58,12 +55,13 @@ namespace BlazorThreeJS.Viewers
         public event LoadedObjectEventHandler? ObjectLoaded;
 
         public event LoadedModuleEventHandler? JsModuleLoaded;
-        private JsonSerializerOptions JSONOptions { get; set; } = new JsonSerializerOptions { 
-                PropertyNamingPolicy = JsonNamingPolicy.CamelCase, 
-                DefaultIgnoreCondition = JsonIgnoreCondition.WhenWritingNull,
-                IncludeFields = true, 
-                IgnoreReadOnlyFields = true 
-            };
+        private JsonSerializerOptions JSONOptions { get; set; } = new JsonSerializerOptions
+        {
+            PropertyNamingPolicy = JsonNamingPolicy.CamelCase,
+            DefaultIgnoreCondition = JsonIgnoreCondition.WhenWritingNull,
+            IncludeFields = true,
+            IgnoreReadOnlyFields = true
+        };
 
         //private delegate void SelectedObjectStaticEventHandler(Object3DStaticArgs e);
         //private delegate void LoadedObjectStaticEventHandler(Object3DStaticArgs e);
@@ -113,10 +111,6 @@ namespace BlazorThreeJS.Viewers
 
             //await JSBridge!.InvokeVoidAsync("import", DotNetObjectReference.Create(this));
 
-
-            // NOTE: change JSRootPath to use the _content when building for use in other apps
-            await JSBridge!.InvokeAsync<IJSObjectReference>("import", (object)$"{JSRootPath}/app-lib.js").AsTask();
-            // await JSBridge!.InvokeAsync<IJSObjectReference>("import", (object)$"{JSRootPathDevelopment}/app-lib.js").AsTask();
 
             if (UseDefaultScene && !Scene.HasChildren())
                 AddDefaultScene();

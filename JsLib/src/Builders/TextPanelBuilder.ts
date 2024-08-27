@@ -57,9 +57,11 @@ class TextPanelBuilderClass {
 
     private GetTextPanelOptions(options: any) {
         const filterOptions = Boolean(options.scene) ? options.scene : options;
-        this.TextPanels = filterOptions.children.filter((item: any) => {
+        if (Boolean(filterOptions.children)) {
+            this.TextPanels = filterOptions.children.filter((item: any) => {
             return item.type === 'TextPanel';
         });
+        }
     }
 
     public BuildTextPanels(scene: Scene, options: any) {
