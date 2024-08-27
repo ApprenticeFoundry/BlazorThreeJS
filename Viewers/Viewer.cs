@@ -48,9 +48,6 @@ namespace BlazorThreeJS.Viewers
         private static Dictionary<Guid, Button> Buttons { get; set; } = new();
         private static Dictionary<Guid, ImportSettings> LoadedModels { get; set; } = new();
 
-        // private string JSRootPath = "./_content/ApprenticeFoundryBlazorThreeJS/dist";
-        // private string JSRootPathDevelopment = "/dist";
-
         private event LoadedObjectEventHandler? ObjectLoadedPrivate;
 
         //public event SelectedObjectEventHandler? ObjectSelected;
@@ -114,10 +111,6 @@ namespace BlazorThreeJS.Viewers
 
             //await JSBridge!.InvokeVoidAsync("import", DotNetObjectReference.Create(this));
 
-
-            // NOTE: change JSRootPath to use the _content when building for use in other apps
-            // await JSBridge!.InvokeAsync<IJSObjectReference>("import", (object)$"{JSRootPath}/app-lib.js").AsTask();
-            // await JSBridge!.InvokeAsync<IJSObjectReference>("import", (object)$"{JSRootPathDevelopment}/app-lib.js").AsTask();
 
             if (UseDefaultScene && !Scene.HasChildren())
                 AddDefaultScene();
