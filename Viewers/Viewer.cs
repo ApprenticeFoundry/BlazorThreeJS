@@ -37,15 +37,15 @@ namespace BlazorThreeJS.Viewers
 
     public class Viewer : ComponentBase, IDisposable
     {
-        [Inject] private IJSRuntime? JSBridge { get; set; }
+        [Inject] private IJSRuntime? JsRuntime { get; set; }
 
 
         //private static event Viewer.SelectedObjectStaticEventHandler ObjectSelectedStatic;
 
         //private static event Viewer.LoadedObjectStaticEventHandler ObjectLoadedStatic;
 
-        private static Dictionary<Guid, ImportSettings> ImportPromises { get; set; } = new();
         private static Dictionary<Guid, Button> Buttons { get; set; } = new();
+        private static Dictionary<Guid, ImportSettings> ImportPromises { get; set; } = new();
         private static Dictionary<Guid, ImportSettings> LoadedModels { get; set; } = new();
 
         private event LoadedObjectEventHandler? ObjectLoadedPrivate;
@@ -93,7 +93,7 @@ namespace BlazorThreeJS.Viewers
             this.Camera = (Camera)camera;
             // ISSUE: reference to a compiler-generated field
             this.OrbitControls = new OrbitControls();
-            this.Scene = new Scene();
+            this.Scene = new Scene(JsRuntime);
             this.ViewerSettings = new ViewerSettings();
         }
 
@@ -126,8 +126,8 @@ namespace BlazorThreeJS.Viewers
 
 
             string str = JsonSerializer.Serialize<SceneDTO>(dto, JSONOptions);
-            await JSBridge!.InvokeVoidAsync("BlazorThreeJS.loadViewer", (object)str);
-            await UpdateScene();
+            await JsRuntime!.InvokeVoidAsync("BlazorThreeJS.loadViewer", (object)str);
+            await this.Scene.UpdateScene();
             //SRS  I bet we never load a module  so do not do this!!
             //await viewer.OnModuleLoaded();
         }
@@ -149,24 +149,18 @@ namespace BlazorThreeJS.Viewers
             //Console.WriteLine($"Viewer.Buttons Count ={Viewer.Buttons.Count}");
         }
 
-        public async Task UpdateScene()
-        {
-            PopulateButtonsDict();
 
-            var json = JsonSerializer.Serialize((object)this.Scene, JSONOptions);
-            await JSBridge!.InvokeVoidAsync("BlazorThreeJS.updateScene", (object)json);
-        }
 
-        public async Task SetCameraPositionAsync(Vector3 position, Vector3? lookAt = null) => await JSBridge!.InvokeVoidAsync("BlazorThreeJS.setCameraPosition", (object)position, lookAt);
+        public async Task SetCameraPositionAsync(Vector3 position, Vector3? lookAt = null) => await JsRuntime!.InvokeVoidAsync("BlazorThreeJS.setCameraPosition", (object)position, lookAt);
 
         public async Task UpdateCamera(Camera camera)
         {
             this.Camera = camera;
             var json = JsonSerializer.Serialize((object)this.Camera, JSONOptions);
-            await JSBridge!.InvokeVoidAsync("BlazorThreeJS.updateCamera", (object)json);
+            await JsRuntime!.InvokeVoidAsync("BlazorThreeJS.updateCamera", (object)json);
         }
 
-        public async Task ShowCurrentCameraInfo() => await JSBridge!.InvokeVoidAsync("BlazorThreeJS.showCurrentCameraInfo");
+        public async Task ShowCurrentCameraInfo() => await JsRuntime!.InvokeVoidAsync("BlazorThreeJS.showCurrentCameraInfo");
 
         [JSInvokable]
         public static void ReceiveSelectedObjectUUID(string uuid, Vector3 size)
@@ -197,81 +191,20 @@ namespace BlazorThreeJS.Viewers
 
         public async Task RemoveByUuidAsync(Guid uuid)
         {
-            if (!await JSBridge!.InvokeAsync<bool>("BlazorThreeJS.deleteByUuid", (object)uuid))
+            if (!await JsRuntime!.InvokeAsync<bool>("BlazorThreeJS.deleteByUuid", (object)uuid))
                 return;
             ChildrenHelper.RemoveObjectByUuid(uuid, this.Scene.GetAllChildren());
         }
 
         public async Task MoveObject(Object3D object3D)
         {
-            if (!await JSBridge!.InvokeAsync<bool>("BlazorThreeJS.moveObject", object3D))
+            if (!await JsRuntime!.InvokeAsync<bool>("BlazorThreeJS.moveObject", object3D))
                 return;
         }
 
-        public async Task ClearSceneAsync()
-        {
-            await JSBridge!.InvokeVoidAsync("BlazorThreeJS.clearScene");
-            this.Scene.GetAllChildren().RemoveAll(item => item.Type.Contains("LabelText") || item.Type.Contains("Mesh"));
-        }
-
-        public async Task ClearLightsAsync()
-        {
-            await JSBridge!.InvokeVoidAsync("BlazorThreeJS.clearScene");
-            this.Scene.GetAllChildren().Clear();
-        }
-
-        public async Task<Guid> Request3DModel(ImportSettings settings)
-        {
-            Guid uuid = settings.Uuid;
-            settings.Scene = Scene;
-            ImportPromises.Add(uuid, settings);
-
-            Console.WriteLine($"Adding settings={uuid}");
-            LoadedModels.Add(uuid, settings);
-
-            // settings.Material = settings.Material ?? new MeshStandardMaterial();
-            var json = JsonSerializer.Serialize((object)settings, JSONOptions);
-            await JSBridge!.InvokeVoidAsync("BlazorThreeJS.import3DModel", (object)json);
-
-            return uuid;
-        }
-
-        public async Task<Guid> Clone3DModel(Guid sourceGuid, List<ImportSettings> settings)
-        {
-            settings.ForEach((setting) =>
-            {
-                setting.Scene = Scene;
-                ImportPromises.Add(setting.Uuid, setting);
-            });
 
 
-            var json = (object)JsonSerializer.Serialize((object)settings, JSONOptions);
-            var args = new List<object>() { $"{sourceGuid}", json };
-            await JSBridge!.InvokeVoidAsync("BlazorThreeJS.clone3DModel", args.ToArray());
-            return sourceGuid;
-        }
 
-        [JSInvokable]
-        public static Task ReceiveLoadedObjectUUID(string containerId, string uuid)
-        {
-            var guid = Guid.Parse(uuid);
-
-            if (Viewer.ImportPromises.ContainsKey(guid))
-            {
-                var settings = Viewer.ImportPromises[guid];
-                Group group = new()
-                {
-                    Name = settings.Uuid.ToString(),
-                    Uuid = settings.Uuid,
-                };
-                settings.Scene!.Add(group);
-
-                settings.OnComplete.Invoke(settings.Scene!, group);
-                settings.OnComplete = (Scene s, Object3D o) => { };
-                Viewer.ImportPromises.Remove(guid);
-            }
-            return Task.CompletedTask;
-        }
 
         [JSInvokable]
         public static Task OnClickButton(string containerId, string uuid)
@@ -390,7 +323,7 @@ namespace BlazorThreeJS.Viewers
         private async Task OnObjectLoadedPrivate(Object3DArgs e)
         {
             var options = UnitSpec.JsonHydrateOptions(false);
-            string json = await JSBridge!.InvokeAsync<string>("BlazorThreeJS.getSceneItemByGuid", (object)e.UUID);
+            string json = await JsRuntime!.InvokeAsync<string>("BlazorThreeJS.getSceneItemByGuid", (object)e.UUID);
 
 
             var jobject = JsonNode.Parse(json);
@@ -440,9 +373,7 @@ namespace BlazorThreeJS.Viewers
             this.ObjectLoadedPrivate -= new LoadedObjectEventHandler(this.OnObjectLoadedPrivate);
         }
 
-        protected override void BuildRenderTree(
-
-        RenderTreeBuilder __builder)
+        protected override void BuildRenderTree(RenderTreeBuilder __builder)
         {
             __builder.OpenElement(0, "div");
             __builder.AddAttribute(1, "class", "viewer3dContainer");
@@ -450,7 +381,6 @@ namespace BlazorThreeJS.Viewers
             __builder.AddAttribute(3, "b-h6holr0slw");
             __builder.CloseElement();
         }
-
 
 
 

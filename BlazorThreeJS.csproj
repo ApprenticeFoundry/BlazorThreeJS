@@ -25,9 +25,8 @@
 
   <ItemGroup>
     <!-- <ProjectReference Include="..\FoundryRulesAndUnits\FoundryRulesAndUnits.csproj" /> -->
-    <PackageReference Include="ApprenticeFoundryRulesAndUnits" Version="4.0.0" />
+    <PackageReference Include="ApprenticeFoundryRulesAndUnits" Version="4.3.0" />
     <PackageReference Include="System.Text.Json" Version="8.0.4" />
-    <!--<PackageReference Include="Microsoft.VisualStudio.Azure.Containers.Tools.Targets" Version="1.17.2" />-->
 
   </ItemGroup>
 

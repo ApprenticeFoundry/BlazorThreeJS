@@ -13,11 +13,14 @@ using BlazorThreeJS.Labels;
 using BlazorThreeJS.Enums;
 using BlazorThreeJS.Menus;
 using FoundryRulesAndUnits.Extensions;
+using Microsoft.JSInterop;
 
 namespace BlazorThreeJS.Pages;
 
 public class IndexPage : ComponentBase, IDisposable
 {
+    [Inject] private IJSRuntime? jsRuntime { get; set; }
+
     public Viewer View3D1 = null!;
     public Guid objGuid;
     public string Msg = string.Empty;
@@ -28,6 +31,7 @@ public class IndexPage : ComponentBase, IDisposable
     public TextPanel TextPanel1 { get; set; } = new();
     public TextPanel TextPanel2 { get; set; } = new();
     public PanelGroup PanelGroup1 { get; set; } = new();
+    public Scene scene  { get; set; }
 
     public ViewerSettings settings = new ViewerSettings()
     {
@@ -42,7 +46,7 @@ public class IndexPage : ComponentBase, IDisposable
         }
     };
 
-    public Scene scene = new();
+
 
     public void Dispose()
     {
@@ -55,6 +59,7 @@ public class IndexPage : ComponentBase, IDisposable
     {
         if (firstRender)
         {
+            this.scene = new(jsRuntime!);
             // subscribe events only once
             // View3D1.ObjectSelected += OnObjectSelected;
             // View3D1.ObjectLoaded += OnObjectLoaded;
@@ -70,7 +75,7 @@ public class IndexPage : ComponentBase, IDisposable
     {
 
         await View3D1.SetCameraPositionAsync(new Vector3(0, 3, 6), new Vector3(0, 0, 0));
-        // await View3D1.UpdateScene();
+        // await scene.UpdateScene();
 
         // await View3D1.Request3DModel(model1);
         // await RenderLegoMan();
@@ -110,7 +115,7 @@ public class IndexPage : ComponentBase, IDisposable
 
                 Task.Run(async () =>
                 {
-                    await View3D1.UpdateScene();
+                    await scene.UpdateScene();
                 });
             }
             // OnComplete = (Scene scene, Object3D object3D) =>
@@ -132,7 +137,7 @@ public class IndexPage : ComponentBase, IDisposable
             // }
         };
 
-        await View3D1.Request3DModel(model2);
+        await scene.Request3DModel(model2);
 
         // var settings = new List<ImportSettings>() { model1, model2 };
 
@@ -182,7 +187,7 @@ public class IndexPage : ComponentBase, IDisposable
             }
         };
 
-        await View3D1.Request3DModel(sourceModel);
+        await scene.Request3DModel(sourceModel);
 
 
 
@@ -216,7 +221,7 @@ public class IndexPage : ComponentBase, IDisposable
             }
         };
 
-        await View3D1.Request3DModel(model3);
+        await scene.Request3DModel(model3);
 
     }
 
@@ -227,7 +232,7 @@ public class IndexPage : ComponentBase, IDisposable
 
         var settings = new List<ImportSettings>() { m1, m2 };
         // var settings = new List<ImportSettings>() { m1 };
-        await View3D1.Clone3DModel(sourceGuid, settings);
+        await scene.Clone3DModel(sourceGuid, settings);
     }
 
     private async Task<ImportSettings> RenderLegoMan()
@@ -298,13 +303,13 @@ public class IndexPage : ComponentBase, IDisposable
 
 
 
-        await View3D1.Request3DModel(body);
-        await View3D1.Request3DModel(head);
-        await View3D1.Request3DModel(armLeft);
-        await View3D1.Request3DModel(armRight);
-        await View3D1.Request3DModel(pelvis);
-        await View3D1.Request3DModel(legLeft);
-        await View3D1.Request3DModel(legRight);
+        await scene.Request3DModel(body);
+        await scene.Request3DModel(head);
+        await scene.Request3DModel(armLeft);
+        await scene.Request3DModel(armRight);
+        await scene.Request3DModel(pelvis);
+        await scene.Request3DModel(legLeft);
+        await scene.Request3DModel(legRight);
         return body;
     }
 
@@ -798,7 +803,7 @@ public class IndexPage : ComponentBase, IDisposable
         // });
         Task.Run(async () =>
         {
-            await View3D1.UpdateScene();
+            await scene.UpdateScene();
         });
 
     }
@@ -844,7 +849,7 @@ public class IndexPage : ComponentBase, IDisposable
     public async Task OnClearScene()
     {
         SelectedObject = null;
-        await View3D1.ClearSceneAsync();
+        await scene.ClearSceneAsync();
         // await View3D1.UpdateScene();
     }
 
@@ -865,7 +870,7 @@ public class IndexPage : ComponentBase, IDisposable
             if (axis == 2) SelectedObject.Position.Z = pos.Z + moveBy;
 
             // await View3D1.MoveObject(SelectedObject);
-            await View3D1.UpdateScene();
+            await scene.UpdateScene();
 
         }
     }
@@ -882,7 +887,7 @@ public class IndexPage : ComponentBase, IDisposable
             }
         });
 
-        await View3D1.UpdateScene();
+        await scene.UpdateScene();
     }
 
     public async Task OnUpdateText()
@@ -904,7 +909,7 @@ public class IndexPage : ComponentBase, IDisposable
 
         if (TestText != null) TestText.Text = newText;
 
-        await View3D1.UpdateScene();
+        await scene.UpdateScene();
     }
 
 }
