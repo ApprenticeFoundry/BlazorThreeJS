@@ -189,18 +189,8 @@ namespace BlazorThreeJS.Viewers
 
         }
 
-        public async Task RemoveByUuidAsync(Guid uuid)
-        {
-            if (!await JsRuntime!.InvokeAsync<bool>("BlazorThreeJS.deleteByUuid", (object)uuid))
-                return;
-            ChildrenHelper.RemoveObjectByUuid(uuid, ActiveScene.GetAllChildren());
-        }
 
-        public async Task MoveObject(Object3D object3D)
-        {
-            if (!await JsRuntime!.InvokeAsync<bool>("BlazorThreeJS.moveObject", object3D))
-                return;
-        }
+
 
 
 

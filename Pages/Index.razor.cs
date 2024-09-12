@@ -46,7 +46,11 @@ public class IndexPage : ComponentBase, IDisposable
         }
     };
 
-
+    protected override void OnInitialized()
+    {
+        scene = new(jsRuntime!);
+        base.OnInitialized();
+    }
 
     public void Dispose()
     {
@@ -841,7 +845,7 @@ public class IndexPage : ComponentBase, IDisposable
     {
         if (SelectedObject != null)
         {
-            await View3D1.RemoveByUuidAsync(SelectedObject.Uuid);
+            await scene.RemoveByUuidAsync(SelectedObject.Uuid);
             SelectedObject = null;
         }
     }
