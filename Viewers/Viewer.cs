@@ -70,7 +70,7 @@ namespace BlazorThreeJS.Viewers
         public ViewerSettings ViewerSettings { get; set; }
 
         [Parameter]
-        public Scene Scene { get; set; }
+        public Scene ActiveScene { get; set; }
 
         [Parameter]
         public bool UseDefaultScene { get; set; }
@@ -93,7 +93,7 @@ namespace BlazorThreeJS.Viewers
             this.Camera = (Camera)camera;
             // ISSUE: reference to a compiler-generated field
             this.OrbitControls = new OrbitControls();
-            this.Scene = new Scene(JsRuntime);
+            ActiveScene = new Scene(JsRuntime!);
             this.ViewerSettings = new ViewerSettings();
         }
 
@@ -112,12 +112,12 @@ namespace BlazorThreeJS.Viewers
             //await JSBridge!.InvokeVoidAsync("import", DotNetObjectReference.Create(this));
 
 
-            if (UseDefaultScene && !Scene.HasChildren())
+            if (UseDefaultScene && !ActiveScene.HasChildren())
                 AddDefaultScene();
 
             var dto = new SceneDTO()
             {
-                Scene = Scene,
+                Scene = ActiveScene,
                 ViewerSettings = ViewerSettings,
                 Camera = Camera,
                 OrbitControls = OrbitControls
@@ -127,7 +127,7 @@ namespace BlazorThreeJS.Viewers
 
             string str = JsonSerializer.Serialize<SceneDTO>(dto, JSONOptions);
             await JsRuntime!.InvokeVoidAsync("BlazorThreeJS.loadViewer", (object)str);
-            await this.Scene.UpdateScene();
+            await ActiveScene.UpdateScene();
             //SRS  I bet we never load a module  so do not do this!!
             //await viewer.OnModuleLoaded();
         }
@@ -135,7 +135,7 @@ namespace BlazorThreeJS.Viewers
         private void PopulateButtonsDict()
         {
             Viewer.Buttons.Clear();
-            var menus = this.Scene.GetAllChildren().FindAll((item) => item.Type == "Menu");
+            var menus = ActiveScene.GetAllChildren().FindAll((item) => item.Type == "Menu");
 
             foreach (var menu in menus)
             {
@@ -193,7 +193,7 @@ namespace BlazorThreeJS.Viewers
         {
             if (!await JsRuntime!.InvokeAsync<bool>("BlazorThreeJS.deleteByUuid", (object)uuid))
                 return;
-            ChildrenHelper.RemoveObjectByUuid(uuid, this.Scene.GetAllChildren());
+            ChildrenHelper.RemoveObjectByUuid(uuid, ActiveScene.GetAllChildren());
         }
 
         public async Task MoveObject(Object3D object3D)
@@ -241,8 +241,8 @@ namespace BlazorThreeJS.Viewers
 
         private void AddDefaultScene()
         {
-            this.Scene.Add((Object3D)new AmbientLight());
-            Scene scene = this.Scene;
+            ActiveScene.Add((Object3D)new AmbientLight());
+
             PointLight child = new PointLight();
             child.Position = new Vector3()
             {
@@ -250,8 +250,8 @@ namespace BlazorThreeJS.Viewers
                 Y = 3f,
                 Z = 0.0f
             };
-            scene.Add((Object3D)child);
-            this.Scene.Add((Object3D)new Mesh());
+            ActiveScene.Add((Object3D)child);
+            ActiveScene.Add((Object3D)new Mesh());
         }
 
         private void OnObjectSelectedStatic(Object3DStaticArgs e)
@@ -344,7 +344,7 @@ namespace BlazorThreeJS.Viewers
                 };
 
                 group.AddRange(children);
-                this.Scene.Add(group);
+                ActiveScene.Add(group);
             }
 
             if (type.Matches("Mesh"))
@@ -357,7 +357,7 @@ namespace BlazorThreeJS.Viewers
                 };
 
                 mesh.AddRange(children);
-                this.Scene.Add(mesh);
+                ActiveScene.Add(mesh);
             }
 
             this.ObjectLoaded?.Invoke(new Object3DArgs()
