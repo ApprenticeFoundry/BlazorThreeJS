@@ -67,11 +67,11 @@ public class Scene : Object3D
         // settings.Material = settings.Material ?? new MeshStandardMaterial();
 
         var json = JsonSerializer.Serialize((object)settings, JSONOptions);
-        $"Request3DModel  JSONOptions: {json}".WriteInfo();
+        //$"Request3DModel  JSONOptions: {json}".WriteInfo();
         await JsRuntime!.InvokeVoidAsync("BlazorThreeJS.import3DModel", (object)json);
         await UpdateScene();
 
-        $"Request3DModel: {settings} {uuid}".WriteInfo();
+        //$"Request3DModel: {settings} {uuid}".WriteInfo();
 
         return uuid;
     }
