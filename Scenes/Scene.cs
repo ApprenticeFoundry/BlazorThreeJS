@@ -11,6 +11,7 @@ using BlazorThreeJS.ComponentHelpers;
 using BlazorThreeJS.Core;
 using BlazorThreeJS.Objects;
 using BlazorThreeJS.Settings;
+using FoundryRulesAndUnits.Extensions;
 using FoundryRulesAndUnits.Models;
 using Microsoft.JSInterop;
 
@@ -64,8 +65,13 @@ public class Scene : Object3D
         LoadedModels.Add(uuid, settings);
 
         // settings.Material = settings.Material ?? new MeshStandardMaterial();
+
         var json = JsonSerializer.Serialize((object)settings, JSONOptions);
+        $"Request3DModel  JSONOptions: {json}".WriteInfo();
         await JsRuntime!.InvokeVoidAsync("BlazorThreeJS.import3DModel", (object)json);
+        await UpdateScene();
+
+        $"Request3DModel: {settings} {uuid}".WriteInfo();
 
         return uuid;
     }

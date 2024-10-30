@@ -200,9 +200,9 @@ public class IndexPage : ComponentBase, IDisposable
         {
             Uuid = Guid.NewGuid(),
             Format = Import3DFormats.Gltf,
-            // FileURL = "https://localhost:5001/storage/StaticFiles/jet.glb",
+            FileURL = "https://localhost:5001/storage/StaticFiles/jet.glb",
             // FileURL = "https://localhost:5001/storage/StaticFiles/block_large.glb",
-            FileURL = "https://localhost:5001/storage/StaticFiles/block_small.glb",
+            // FileURL = "https://localhost:5001/storage/StaticFiles/block_small.glb",
 
             // FileURL = "https://localhost:5001/storage/StaticFiles/pr_H64_wheel_H187_0048_inst_0.glb",
             Position = model3Pos,
