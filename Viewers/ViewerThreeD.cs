@@ -28,7 +28,7 @@ using Microsoft.JSInterop;
 namespace BlazorThreeJS.Viewers
 {
 
-    public class Viewer : ComponentBase, IDisposable
+    public class ViewerThreeD : ComponentBase, IDisposable
     {
         [Inject] private IJSRuntime? JsRuntime { get; set; }
 
@@ -51,8 +51,8 @@ namespace BlazorThreeJS.Viewers
         //public event SelectedObjectEventHandler? ObjectSelected;
         //private delegate void SelectedObjectStaticEventHandler(Object3DStaticArgs e);
         //private delegate void LoadedObjectStaticEventHandler(Object3DStaticArgs e);
-        //private static event Viewer.SelectedObjectStaticEventHandler ObjectSelectedStatic;
-        //private static event Viewer.LoadedObjectStaticEventHandler ObjectLoadedStatic;
+        //private static event ViewerThreeDSelectedObjectStaticEventHandler ObjectSelectedStatic;
+        //private static event ViewerThreeDLoadedObjectStaticEventHandler ObjectLoadedStatic;
 
         private ViewerSettings _viewingSettings = null!;
         private Scene _activeScene = null!;
@@ -111,17 +111,30 @@ namespace BlazorThreeJS.Viewers
             if (_activeScene != null)
                 return _activeScene;
 
-            _activeScene = new Scene("Viewer", JsRuntime!);
-            _activeScene.Add((Object3D)new AmbientLight());
-
-            PointLight child = new PointLight();
-            child.Position = new Vector3()
+            var title = "Viewer3d";
+            if ( Scene.FindBestScene(title, out Scene? found))
             {
-                X = 1f,
-                Y = 3f,
-                Z = 0.0f
-            };
-            _activeScene.Add((Object3D)child);
+                _activeScene = found!;
+            }
+            else
+            {
+
+                _activeScene = new Scene("Viewer3d", JsRuntime!);
+                _activeScene.Add((Object3D)new AmbientLight() { Name = "Default Light" });
+
+                PointLight child = new PointLight() 
+                { 
+                    Name = "Default Light" ,
+                    Position = new Vector3()
+                    {
+                        X = 1f,
+                        Y = 3f,
+                        Z = 0.0f
+                    }
+                };
+                _activeScene.Add((Object3D)child);
+            }
+
             return _activeScene;
         }
 
@@ -133,8 +146,8 @@ namespace BlazorThreeJS.Viewers
             if (!firstRender)
                 return;
 
-            //Viewer.ObjectSelectedStatic += new Viewer.SelectedObjectStaticEventHandler(viewer.OnObjectSelectedStatic);
-            //Viewer.ObjectLoadedStatic += new Viewer.LoadedObjectStaticEventHandler(viewer.OnObjectLoadedStatic);
+            //ViewerThreeD.ObjectSelectedStatic += new ViewerThreeD.SelectedObjectStaticEventHandler(ViewerThreeD.OnObjectSelectedStatic);
+            //ViewerThreeD.ObjectLoadedStatic += new ViewerThreeD.LoadedObjectStaticEventHandler(ViewerThreeD.OnObjectLoadedStatic);
             
             ObjectLoadedPrivate += new LoadedObjectEventHandler(OnObjectLoadedPrivate);
 
@@ -157,12 +170,12 @@ namespace BlazorThreeJS.Viewers
             await JsRuntime!.InvokeVoidAsync("BlazorThreeJS.loadViewer", (object)str);
             await ActiveScene.UpdateScene();
             //SRS  I bet we never load a module  so do not do this!!
-            //await viewer.OnModuleLoaded();
+            //await ViewerThreeD.OnModuleLoaded();
         }
 
         private void PopulateButtonsDict()
         {
-            Viewer.Buttons.Clear();
+            ViewerThreeD.Buttons.Clear();
             var menus = ActiveScene.GetAllChildren().FindAll((item) => item.Type == "Menu");
 
             foreach (var menu in menus)
@@ -170,11 +183,11 @@ namespace BlazorThreeJS.Viewers
                 foreach (var button in ((PanelMenu)menu).Buttons)
                 {
                     Console.WriteLine($"From FoundryBlazor Button UUID={button.Uuid}");
-                    if (!Viewer.Buttons.ContainsKey(button.Uuid)) Viewer.Buttons.Add(button.Uuid, button);
+                    if (!ViewerThreeD.Buttons.ContainsKey(button.Uuid)) ViewerThreeD.Buttons.Add(button.Uuid, button);
                 }
             }
             //Console.WriteLine($"PopulateButtonsDict menus Count ={menus.Count}");
-            //Console.WriteLine($"Viewer.Buttons Count ={Viewer.Buttons.Count}");
+            //Console.WriteLine($"ViewerThreeD.Buttons Count ={ViewerThreeD.Buttons.Count}");
         }
 
 
@@ -230,11 +243,11 @@ namespace BlazorThreeJS.Viewers
             var guid = Guid.Parse(uuid);
 
             Console.WriteLine($"OnClickButton containerId, uuid={containerId}, {uuid}");
-            Console.WriteLine($"After OnClickButton, Viewer.Buttons ContainsKey ={Viewer.Buttons.ContainsKey(guid)}");
+            Console.WriteLine($"After OnClickButton, ViewerThreeD.Buttons ContainsKey ={ViewerThreeD.Buttons.ContainsKey(guid)}");
 
-            if (Viewer.Buttons.ContainsKey(guid))
+            if (ViewerThreeD.Buttons.ContainsKey(guid))
             {
-                var button = Viewer.Buttons[guid];
+                var button = ViewerThreeD.Buttons[guid];
                 var parms = new List<String>();
                 button.OnClick?.Invoke(button);
             }
@@ -373,8 +386,8 @@ namespace BlazorThreeJS.Viewers
 
         public void Dispose()
         {
-            //Viewer.ObjectSelectedStatic -= new Viewer.SelectedObjectStaticEventHandler(this.OnObjectSelectedStatic);
-            //Viewer.ObjectLoadedStatic -= new Viewer.LoadedObjectStaticEventHandler(this.OnObjectLoadedStatic);
+            //ViewerThreeDObjectSelectedStatic -= new ViewerThreeDSelectedObjectStaticEventHandler(this.OnObjectSelectedStatic);
+            //ViewerThreeDObjectLoadedStatic -= new ViewerThreeDLoadedObjectStaticEventHandler(this.OnObjectLoadedStatic);
             this.ObjectLoadedPrivate -= new LoadedObjectEventHandler(this.OnObjectLoadedPrivate);
         }
 

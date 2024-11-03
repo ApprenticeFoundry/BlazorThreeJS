@@ -10,6 +10,7 @@ using BlazorThreeJS.ComponentHelpers;
 using BlazorThreeJS.Core;
 using BlazorThreeJS.Objects;
 using BlazorThreeJS.Settings;
+using FoundryRulesAndUnits.Extensions;
 using Microsoft.JSInterop;
 
 
@@ -35,9 +36,17 @@ public class Scene : Object3D
         _AllScenes.Add(this);
     }
 
+    public static bool FindBestScene(string title, out Scene? found)
+    {
+        found = Scene.GetSceneByTitle(title);
+        if ( found == null)
+            found = _AllScenes.First();
+        return found != null;
+    }
+
     public static Scene? GetSceneByTitle(string title)
     {
-        return _AllScenes.FirstOrDefault(scene => scene.Title == title);
+        return _AllScenes.FirstOrDefault(scene => scene.Title.Matches(title));
     }
 
     public static List<Scene> GetAllScenes()

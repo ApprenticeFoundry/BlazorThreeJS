@@ -21,7 +21,7 @@ public class IndexPage : ComponentBase, IDisposable
 {
     [Inject] private IJSRuntime? jsRuntime { get; set; }
 
-    public Viewer View3D1 = null!;
+
     public Guid objGuid;
     public string Msg = string.Empty;
 
@@ -31,7 +31,7 @@ public class IndexPage : ComponentBase, IDisposable
     public TextPanel TextPanel1 { get; set; } = new();
     public TextPanel TextPanel2 { get; set; } = new();
     public PanelGroup PanelGroup1 { get; set; } = new();
-    public Scene scene  { get; set; }
+
 
     public ViewerSettings settings = new ViewerSettings()
     {
@@ -78,7 +78,7 @@ public class IndexPage : ComponentBase, IDisposable
     public async Task DisplayItems()
     {
 
-        await View3D1.SetCameraPositionAsync(new Vector3(0, 3, 6), new Vector3(0, 0, 0));
+       // await View3D1.SetCameraPositionAsync(new Vector3(0, 3, 6), new Vector3(0, 0, 0));
         // await scene.UpdateScene();
 
         // await View3D1.Request3DModel(model1);
