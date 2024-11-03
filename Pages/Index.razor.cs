@@ -2,13 +2,13 @@
 using BlazorThreeJS.Core;
 using BlazorThreeJS.Viewers;
 using BlazorThreeJS.Settings;
-using BlazorThreeJS.Scenes;
+
 using BlazorThreeJS.Lights;
 using BlazorThreeJS.Maths;
 using BlazorThreeJS.Objects;
 using BlazorThreeJS.Geometires;
 using BlazorThreeJS.Materials;
-using BlazorThreeJS.Events;
+
 using BlazorThreeJS.Labels;
 using BlazorThreeJS.Enums;
 using BlazorThreeJS.Menus;
@@ -48,7 +48,7 @@ public class IndexPage : ComponentBase, IDisposable
 
     protected override void OnInitialized()
     {
-        scene = new(jsRuntime!);
+        scene = new("Index Scene", jsRuntime!);
         base.OnInitialized();
     }
 
@@ -63,7 +63,7 @@ public class IndexPage : ComponentBase, IDisposable
     {
         if (firstRender)
         {
-            this.scene = new(jsRuntime!);
+            //this.scene = new(jsRuntime!);
             // subscribe events only once
             // View3D1.ObjectSelected += OnObjectSelected;
             // View3D1.ObjectLoaded += OnObjectLoaded;

@@ -9,7 +9,7 @@ using BlazorThreeJS.Lights;
 using BlazorThreeJS.Maths;
 using BlazorThreeJS.Menus;
 using BlazorThreeJS.Objects;
-using BlazorThreeJS.Scenes;
+using BlazorThreeJS.Viewers;
 using FoundryRulesAndUnits.Models;
 using System.Text.Json.Serialization;
 
@@ -56,7 +56,7 @@ namespace BlazorThreeJS.Core
 
         public virtual string GetTreeNodeTitle()
         {
-            return $"{Name} [{Uuid}] => {Type} ({GetType().Name})";
+            return $"Name: {Name} [{Uuid}] => {Type} c#: ({GetType().Name})";
         }
 
         public IEnumerable<TreeNodeAction>? GetTreeNodeActions()

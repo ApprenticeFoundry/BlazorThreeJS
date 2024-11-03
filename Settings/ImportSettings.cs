@@ -10,8 +10,9 @@ using BlazorThreeJS.Materials;
 using BlazorThreeJS.Maths;
 using BlazorThreeJS.Core;
 using BlazorThreeJS.Objects;
-using BlazorThreeJS.Scenes;
+
 using System.Text.Json.Serialization;
+using BlazorThreeJS.Viewers;
 
 
 namespace BlazorThreeJS.Settings

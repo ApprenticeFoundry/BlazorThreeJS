@@ -4,33 +4,68 @@
 // MVID: 8589B0D0-D62F-4099-9D8A-332F65D16B15
 // Assembly location: Blazor3D.dll
 
-using System.Security.Cryptography.X509Certificates;
 using System.Text.Json;
 using System.Text.Json.Serialization;
 using BlazorThreeJS.ComponentHelpers;
 using BlazorThreeJS.Core;
 using BlazorThreeJS.Objects;
 using BlazorThreeJS.Settings;
-using FoundryRulesAndUnits.Extensions;
-using FoundryRulesAndUnits.Models;
 using Microsoft.JSInterop;
 
 
 
-namespace BlazorThreeJS.Scenes;
+namespace BlazorThreeJS.Viewers;
 
 public class Scene : Object3D
 {
+    public string Title { get; init; }
+    public bool IsActive { get; set; } = false;
+    
     private IJSRuntime JsRuntime { get; set; }
     private static Dictionary<Guid, ImportSettings> ImportPromises { get; set; } = new();
     private Dictionary<Guid, ImportSettings> LoadedModels { get; set; } = new();
+    public string BackGroundColor { get; set; } = "#505050";
 
-    public Scene(IJSRuntime js) : base(nameof(Scene))
+    private static List<Scene> _AllScenes { get; set; } = new();
+
+    public Scene(string title, IJSRuntime js) : base(nameof(Scene))
     {
         JsRuntime = js;
+        Title = title;
+        _AllScenes.Add(this);
     }
 
-    public string BackGroundColor { get; set; } = "#505050";
+    public static Scene? GetSceneByTitle(string title)
+    {
+        return _AllScenes.FirstOrDefault(scene => scene.Title == title);
+    }
+
+    public static List<Scene> GetAllScenes()
+    {
+        return _AllScenes;
+    }
+
+    public static List<Scene> RemoveScene(Scene scene)
+    {
+        if (scene != null)
+        {
+            _AllScenes.Remove(scene);
+        }
+        return GetAllScenes();
+    }
+
+    public static Scene SetActiveScene(Scene scene)
+    {
+        GetAllScenes().ForEach(s => s.IsActive = false);
+        scene.IsActive = true;
+        return scene;
+    }
+
+    public override string GetTreeNodeTitle()
+    {
+        var baseTitle = base.GetTreeNodeTitle();
+        return $"t:{Title} a:{IsActive} -- {baseTitle}";
+    }
 
     public async Task ClearSceneAsync()
     {
@@ -61,7 +96,7 @@ public class Scene : Object3D
         settings.Scene = this;
         ImportPromises.Add(uuid, settings);
 
-        Console.WriteLine($"Adding settings={uuid}");
+        //Console.WriteLine($"Adding settings={uuid}");
         LoadedModels.Add(uuid, settings);
 
         // settings.Material = settings.Material ?? new MeshStandardMaterial();

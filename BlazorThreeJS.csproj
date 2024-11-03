@@ -10,8 +10,9 @@
     <IsPackable>true</IsPackable>     
     <Version>15.3.0</Version>
     <AssemblyVersion>15.3.0</AssemblyVersion>
+    <EnableDefaultContentItems>false</EnableDefaultContentItems>
     <JsLibRoot>JsLib\</JsLibRoot>
-    <DefaultItemExcludes>$(DefaultItemExcludes);$(JsLibRoot)node_modules\**</DefaultItemExcludes>
+    <!-- <DefaultItemExcludes>$(DefaultItemExcludes);$(JsLibRoot)node_modules\**</DefaultItemExcludes> -->
     <Authors>Stephen Strong</Authors>
     <Company>Stephen Strong</Company>
     <Copyright>Copyright © 2020</Copyright>
@@ -24,17 +25,25 @@
 </PropertyGroup>
 
   <ItemGroup>
+      <Content Include="wwwroot/**/*.js" CopyToOutputDirectory="PreserveNewest" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <SupportedPlatform Include="browser" />
+  </ItemGroup>
+
+  <ItemGroup>
     <!-- <ProjectReference Include="..\FoundryRulesAndUnits\FoundryRulesAndUnits.csproj" /> -->
     <PackageReference Include="ApprenticeFoundryRulesAndUnits" Version="4.3.0" />
     <PackageReference Include="System.Text.Json" Version="8.0.5" />
 
   </ItemGroup>
 
-  <ItemGroup>
+  <!-- <ItemGroup>
     <Content Remove="$(JsLibRoot)**" />
     <None Remove="$(JsLibRoot)**" />
     <None Include="$(JsLibRoot)**" Exclude="$(JsLibRoot)node_modules\**" />
-  </ItemGroup>
+  </ItemGroup> -->
 
 
    <Target Name="DebugEnsureNodeEnv" BeforeTargets="Build" Condition=" '$(Configuration)' == 'Debug' And !Exists('$(JsLibRoot)node_modules') ">

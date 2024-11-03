@@ -1,0 +1,4 @@
+[*.cs]
+
+# BL0007: Component parameters should be auto properties
+dotnet_diagnostic.BL0007.severity = none

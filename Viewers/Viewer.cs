@@ -17,7 +17,7 @@ using BlazorThreeJS.Lights;
 using BlazorThreeJS.Maths;
 using BlazorThreeJS.Menus;
 using BlazorThreeJS.Objects;
-using BlazorThreeJS.Scenes;
+
 using BlazorThreeJS.Settings;
 using FoundryRulesAndUnits.Extensions;
 using FoundryRulesAndUnits.Units;
@@ -27,34 +27,11 @@ using Microsoft.JSInterop;
 
 namespace BlazorThreeJS.Viewers
 {
-    public class SceneDTO
-    {
-        public Scene? Scene { get; set; }
-        public ViewerSettings? ViewerSettings { get; set; }
-        public Camera? Camera { get; set; }
-        public OrbitControls? OrbitControls { get; set; }
-    }
 
     public class Viewer : ComponentBase, IDisposable
     {
         [Inject] private IJSRuntime? JsRuntime { get; set; }
 
-
-        //private static event Viewer.SelectedObjectStaticEventHandler ObjectSelectedStatic;
-
-        //private static event Viewer.LoadedObjectStaticEventHandler ObjectLoadedStatic;
-
-        private static Dictionary<Guid, Button> Buttons { get; set; } = new();
-        private static Dictionary<Guid, ImportSettings> ImportPromises { get; set; } = new();
-        private static Dictionary<Guid, ImportSettings> LoadedModels { get; set; } = new();
-
-        private event LoadedObjectEventHandler? ObjectLoadedPrivate;
-
-        //public event SelectedObjectEventHandler? ObjectSelected;
-
-        public event LoadedObjectEventHandler? ObjectLoaded;
-
-        public event LoadedModuleEventHandler? JsModuleLoaded;
         private JsonSerializerOptions JSONOptions { get; set; } = new JsonSerializerOptions
         {
             PropertyNamingPolicy = JsonNamingPolicy.CamelCase,
@@ -63,39 +40,92 @@ namespace BlazorThreeJS.Viewers
             IgnoreReadOnlyFields = true
         };
 
+        private static Dictionary<Guid, Button> Buttons { get; set; } = new();
+        private static Dictionary<Guid, ImportSettings> ImportPromises { get; set; } = new();
+        private static Dictionary<Guid, ImportSettings> LoadedModels { get; set; } = new();
+
+        private event LoadedObjectEventHandler? ObjectLoadedPrivate;
+        public event LoadedObjectEventHandler? ObjectLoaded;
+        public event LoadedModuleEventHandler? JsModuleLoaded;
+
+        //public event SelectedObjectEventHandler? ObjectSelected;
         //private delegate void SelectedObjectStaticEventHandler(Object3DStaticArgs e);
         //private delegate void LoadedObjectStaticEventHandler(Object3DStaticArgs e);
+        //private static event Viewer.SelectedObjectStaticEventHandler ObjectSelectedStatic;
+        //private static event Viewer.LoadedObjectStaticEventHandler ObjectLoadedStatic;
+
+        private ViewerSettings _viewingSettings = null!;
+        private Scene _activeScene = null!;
 
         [Parameter]
-        public ViewerSettings ViewerSettings { get; set; }
-
-        [Parameter]
-        public Scene ActiveScene { get; set; }
-
-        [Parameter]
-        public bool UseDefaultScene { get; set; }
-
-        [Parameter]
-        public Camera Camera { get; set; }
-
-        public OrbitControls OrbitControls { get; set; }
-
-        public Viewer()
-        {
-            // OrthographicCamera camera = new();
-            var camera = new PerspectiveCamera()
-            {
-                Position = new Vector3(3f, 3f, 3f)
-            };
-            // PerspectiveCamera perspectiveCamera = new PerspectiveCamera();
-            // perspectiveCamera.Position = new Vector3(3f, 3f, 3f);
-            // ISSUE: reference to a compiler-generated field
-            this.Camera = (Camera)camera;
-            // ISSUE: reference to a compiler-generated field
-            this.OrbitControls = new OrbitControls();
-            ActiveScene = new Scene(JsRuntime!);
-            this.ViewerSettings = new ViewerSettings();
+        public ViewerSettings ViewerSettings
+        { 
+            get => ComputeViewingSettings();
+            set => _viewingSettings = value;
         }
+
+        [Parameter]
+        public Scene ActiveScene 
+        { 
+            get => ComputeActiveScene();
+            set => _activeScene = value;
+        }
+
+        [Parameter]
+        public Camera Camera { get; set; } = new PerspectiveCamera()
+        {
+            Position = new Vector3(3f, 3f, 3f)
+        };
+
+        [Parameter] public int CanvasWidth { get; set; } = 1000;
+        [Parameter] public int CanvasHeight { get; set; } = 800;
+
+        public OrbitControls OrbitControls { get; set; } = new OrbitControls();
+
+
+
+        private ViewerSettings ComputeViewingSettings()
+        {
+            if (_viewingSettings != null)
+                return _viewingSettings;
+            
+            _viewingSettings = new ViewerSettings()
+            {
+                containerId = "viewer3d",
+                CanSelect = true,  // default is false
+                SelectedColor = "black",
+                Width = CanvasWidth,
+                Height = CanvasHeight,
+                WebGLRendererSettings = new WebGLRendererSettings()
+                {
+                    Antialias = false
+                }
+            };
+
+ 
+            return _viewingSettings;
+        }
+
+        private Scene ComputeActiveScene()
+        {
+            if (_activeScene != null)
+                return _activeScene;
+
+            _activeScene = new Scene("Viewer", JsRuntime!);
+            _activeScene.Add((Object3D)new AmbientLight());
+
+            PointLight child = new PointLight();
+            child.Position = new Vector3()
+            {
+                X = 1f,
+                Y = 3f,
+                Z = 0.0f
+            };
+            _activeScene.Add((Object3D)child);
+            return _activeScene;
+        }
+
+
 
         protected override async Task OnAfterRenderAsync(bool firstRender)
         {
@@ -105,15 +135,13 @@ namespace BlazorThreeJS.Viewers
 
             //Viewer.ObjectSelectedStatic += new Viewer.SelectedObjectStaticEventHandler(viewer.OnObjectSelectedStatic);
             //Viewer.ObjectLoadedStatic += new Viewer.LoadedObjectStaticEventHandler(viewer.OnObjectLoadedStatic);
+            
             ObjectLoadedPrivate += new LoadedObjectEventHandler(OnObjectLoadedPrivate);
 
             LoadedModels.Clear();
 
             //await JSBridge!.InvokeVoidAsync("import", DotNetObjectReference.Create(this));
 
-
-            if (UseDefaultScene && !ActiveScene.HasChildren())
-                AddDefaultScene();
 
             var dto = new SceneDTO()
             {
@@ -229,20 +257,7 @@ namespace BlazorThreeJS.Viewers
             await Task.WhenAll(taskArray);
         }
 
-        private void AddDefaultScene()
-        {
-            ActiveScene.Add((Object3D)new AmbientLight());
 
-            PointLight child = new PointLight();
-            child.Position = new Vector3()
-            {
-                X = 1f,
-                Y = 3f,
-                Z = 0.0f
-            };
-            ActiveScene.Add((Object3D)child);
-            ActiveScene.Add((Object3D)new Mesh());
-        }
 
         private void OnObjectSelectedStatic(Object3DStaticArgs e)
         {
