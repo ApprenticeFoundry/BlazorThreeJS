@@ -12,7 +12,7 @@ using BlazorThreeJS.Materials;
 
 namespace BlazorThreeJS.Objects
 {
-    public sealed class Mesh : Object3D
+    public class Mesh : Object3D
     {
         public Mesh()
           : base(nameof(Mesh))

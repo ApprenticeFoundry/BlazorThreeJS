@@ -8,10 +8,10 @@ using BlazorThreeJS.Core;
 
 namespace BlazorThreeJS.Objects
 {
-    public sealed class Group : Object3D
+    public class Group3D : Object3D
     {
-        public Group()
-          : base(nameof(Group))
+        public Group3D()
+          : base(nameof(Group3D))
         {
         }
     }

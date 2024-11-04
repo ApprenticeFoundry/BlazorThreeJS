@@ -325,7 +325,7 @@ namespace BlazorThreeJS.Viewers
                     }
                     if (type == "Group")
                     {
-                        var group = new Group()
+                        var group = new Group3D()
                         {
                             Name = name,
                             Uuid = Guid.Parse(type)
@@ -355,7 +355,7 @@ namespace BlazorThreeJS.Viewers
 
             if (type.Matches("Group"))
             {
-                var group = new Group()
+                var group = new Group3D()
                 {
                     Name = name,
                     Uuid = Guid.Parse(uuid),

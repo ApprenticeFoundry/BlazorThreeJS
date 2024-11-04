@@ -40,7 +40,7 @@ public class Scene : Object3D
     {
         found = Scene.GetSceneByTitle(title);
         if ( found == null)
-            found = _AllScenes.First();
+            found = _AllScenes.FirstOrDefault();
         return found != null;
     }
 
@@ -158,7 +158,7 @@ public class Scene : Object3D
         if (ImportPromises.ContainsKey(guid))
         {
             var settings = ImportPromises[guid];
-            Group group = new()
+            Group3D group = new()
             {
                 Name = settings.Uuid.ToString(),
                 Uuid = settings.Uuid,

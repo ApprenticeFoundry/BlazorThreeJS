@@ -18,7 +18,7 @@ using System.Text.Json.Serialization;
 namespace BlazorThreeJS.Core
 {
     [JsonDerivedType(typeof(Mesh))]
-    [JsonDerivedType(typeof(Group))]
+    [JsonDerivedType(typeof(Group3D))]
     [JsonDerivedType(typeof(TextPanel))]
     [JsonDerivedType(typeof(PanelMenu))]
     [JsonDerivedType(typeof(PanelGroup))]
