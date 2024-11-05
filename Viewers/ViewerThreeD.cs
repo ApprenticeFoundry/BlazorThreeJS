@@ -32,6 +32,8 @@ namespace BlazorThreeJS.Viewers
     {
         [Inject] private IJSRuntime? JsRuntime { get; set; }
 
+        [Parameter,EditorRequired] public string SceneName { get; set; }
+
         private JsonSerializerOptions JSONOptions { get; set; } = new JsonSerializerOptions
         {
             PropertyNamingPolicy = JsonNamingPolicy.CamelCase,
@@ -111,15 +113,15 @@ namespace BlazorThreeJS.Viewers
             if (_activeScene != null)
                 return _activeScene;
 
-            var title = "Viewer3d";
-            if ( Scene.FindBestScene(title, out Scene? found))
+
+            if ( Scene.FindBestScene(SceneName, out Scene? found))
             {
                 _activeScene = found!;
             }
             else
             {
 
-                _activeScene = new Scene("Viewer3d", JsRuntime!);
+                _activeScene = new Scene(SceneName, JsRuntime!);
                 _activeScene.Add((Object3D)new AmbientLight() { Name = "Default Light" });
 
                 PointLight child = new PointLight() 

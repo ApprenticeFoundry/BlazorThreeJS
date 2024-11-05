@@ -20,7 +20,6 @@ namespace BlazorThreeJS.Viewers;
 public class Scene : Object3D
 {
     public string Title { get; init; }
-    public bool IsActive { get; set; } = false;
     
     private IJSRuntime JsRuntime { get; set; }
     private static Dictionary<Guid, ImportSettings> ImportPromises { get; set; } = new();
@@ -51,7 +50,9 @@ public class Scene : Object3D
 
     public static List<Scene> GetAllScenes()
     {
-        return _AllScenes;
+        var dummy = new List<Scene>();
+        dummy.AddRange(_AllScenes);
+        return dummy;
     }
 
     public static List<Scene> RemoveScene(Scene scene)
@@ -63,17 +64,12 @@ public class Scene : Object3D
         return GetAllScenes();
     }
 
-    public static Scene SetActiveScene(Scene scene)
-    {
-        GetAllScenes().ForEach(s => s.IsActive = false);
-        scene.IsActive = true;
-        return scene;
-    }
+
 
     public override string GetTreeNodeTitle()
     {
         var baseTitle = base.GetTreeNodeTitle();
-        return $"t:{Title} a:{IsActive} -- {baseTitle}";
+        return $"t:{Title}  -- {baseTitle}";
     }
 
     public async Task ClearSceneAsync()
@@ -89,8 +85,15 @@ public class Scene : Object3D
     }
     public async Task UpdateScene()
     {
-        var json = JsonSerializer.Serialize((object)this, JSONOptions);
-        await JsRuntime!.InvokeVoidAsync("BlazorThreeJS.updateScene", (object)json);
+        try
+        {
+            var json = JsonSerializer.Serialize((object)this, JSONOptions);
+            await JsRuntime!.InvokeVoidAsync("BlazorThreeJS.updateScene", (object)json);
+        }
+        catch (System.Exception ex)
+        {
+            ex.Message.WriteError();
+        }
     }
     private JsonSerializerOptions JSONOptions { get; set; } = new JsonSerializerOptions
     {
