@@ -93,7 +93,7 @@ namespace BlazorThreeJS.Viewers
             
             _viewingSettings = new ViewerSettings()
             {
-                containerId = "viewer3d",
+                containerId = ComputeActiveScene().Title,
                 CanSelect = true,  // default is false
                 SelectedColor = "black",
                 Width = CanvasWidth,
@@ -113,15 +113,11 @@ namespace BlazorThreeJS.Viewers
             if (_activeScene != null)
                 return _activeScene;
 
+            var (success, scene) = Scene.EstablishScene(SceneName, JsRuntime!);
 
-            if ( Scene.FindBestScene(SceneName, out Scene? found))
+            _activeScene = scene;
+            if ( success )
             {
-                _activeScene = found!;
-            }
-            else
-            {
-
-                _activeScene = new Scene(SceneName, JsRuntime!);
                 _activeScene.Add((Object3D)new AmbientLight() { Name = "Default Light" });
 
                 PointLight child = new PointLight() 
@@ -158,6 +154,7 @@ namespace BlazorThreeJS.Viewers
             //await JSBridge!.InvokeVoidAsync("import", DotNetObjectReference.Create(this));
 
 
+            ViewerSettings.containerId = ActiveScene.Title;
             var dto = new SceneDTO()
             {
                 Scene = ActiveScene,
@@ -170,6 +167,8 @@ namespace BlazorThreeJS.Viewers
 
             string str = JsonSerializer.Serialize<SceneDTO>(dto, JSONOptions);
             await JsRuntime!.InvokeVoidAsync("BlazorThreeJS.loadViewer", (object)str);
+                        
+            await JsRuntime!.InvokeVoidAsync($"{ActiveScene.Title}.loadViewer", (object)str);
             await ActiveScene.UpdateScene();
             //SRS  I bet we never load a module  so do not do this!!
             //await ViewerThreeD.OnModuleLoaded();
@@ -397,8 +396,8 @@ namespace BlazorThreeJS.Viewers
         {
             __builder.OpenElement(0, "div");
             __builder.AddAttribute(1, "class", "viewer3dContainer");
-            __builder.AddAttribute(2, "id", this.ViewerSettings.containerId);
-            __builder.AddAttribute(3, "b-h6holr0slw");
+            __builder.AddAttribute(2, "id", this.SceneName);
+           // __builder.AddAttribute(3, "b-h6holr0slw");
             __builder.CloseElement();
         }
 

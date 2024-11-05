@@ -30,23 +30,28 @@ public class Scene : Object3D
 
     public Scene(string title, IJSRuntime js) : base(nameof(Scene))
     {
+         $"Scene {title} creating".WriteInfo();
         JsRuntime = js;
         Title = title;
         _AllScenes.Add(this);
+        $"Scene {Title} created".WriteInfo();
     }
 
-    public static bool FindBestScene(string title, out Scene? found)
+
+    public static (bool success, Scene scene) EstablishScene(string title, IJSRuntime jS)
     {
-        found = Scene.GetSceneByTitle(title);
-        if ( found == null)
-            found = _AllScenes.FirstOrDefault();
-        return found != null;
+        $"EstablishScene {title}".WriteInfo();
+        var found = _AllScenes.FirstOrDefault(scene => scene.Title.Matches(title));   
+        if (found == null)
+        {
+            found = new Scene(title, jS);
+            return (true, found);
+        }
+        return (false, found);
     }
 
-    public static Scene? GetSceneByTitle(string title)
-    {
-        return _AllScenes.FirstOrDefault(scene => scene.Title.Matches(title));
-    }
+
+
 
     public static List<Scene> GetAllScenes()
     {
@@ -88,6 +93,7 @@ public class Scene : Object3D
         try
         {
             var json = JsonSerializer.Serialize((object)this, JSONOptions);
+            $"UpdateScene: {json}".WriteInfo();
             await JsRuntime!.InvokeVoidAsync("BlazorThreeJS.updateScene", (object)json);
         }
         catch (System.Exception ex)
