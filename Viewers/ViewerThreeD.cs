@@ -302,7 +302,7 @@ namespace BlazorThreeJS.Viewers
 
                     if (type == "Mesh")
                     {
-                        var mesh = new Mesh3D()
+                        var mesh = new Mesh()
                         {
                             Name = name,
                             Uuid = Guid.Parse(type)
@@ -351,10 +351,10 @@ namespace BlazorThreeJS.Viewers
                 ActiveScene.Add(group);
             }
 
-            if (type.Matches("Mesh3D"))
+            if (type.Matches("Mesh"))
             {
 
-                var mesh = new Mesh3D()
+                var mesh = new Mesh()
                 {
                     Name = name,
                     Uuid = Guid.Parse(uuid),

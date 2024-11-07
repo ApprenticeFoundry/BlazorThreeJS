@@ -6,10 +6,10 @@ using BlazorThreeJS.Materials;
 
 namespace BlazorThreeJS.Objects;
 
-  public class Mesh3D : Object3D
+  public class Mesh : Object3D
   {
-      public Mesh3D()
-        : base(nameof(Mesh3D))
+      public Mesh()
+        : base(nameof(Mesh))
       {
       }
 
