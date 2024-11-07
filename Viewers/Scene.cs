@@ -6,8 +6,10 @@
 
 using System.Text.Json;
 using System.Text.Json.Serialization;
+using BlazorThreeJS.Cameras;
 using BlazorThreeJS.ComponentHelpers;
 using BlazorThreeJS.Core;
+using BlazorThreeJS.Maths;
 using BlazorThreeJS.Objects;
 using BlazorThreeJS.Settings;
 using FoundryRulesAndUnits.Extensions;
@@ -26,21 +28,26 @@ public class Scene : Object3D
     private Dictionary<Guid, ImportSettings> LoadedModels { get; set; } = new();
     public string BackGroundColor { get; set; } = "#505050";
 
+    public Camera Camera { get; set; } = new PerspectiveCamera()
+    {
+        Position = new Vector3(3f, 3f, 3f)
+    };
+
     private static List<Scene> _AllScenes { get; set; } = new();
 
     public Scene(string title, IJSRuntime js) : base(nameof(Scene))
     {
-         $"Scene {title} creating".WriteInfo();
+        // $"Scene {title} creating".WriteInfo();
         JsRuntime = js;
         Title = title;
         _AllScenes.Add(this);
-        $"Scene {Title} created".WriteInfo();
+        // $"Scene {Title} created".WriteInfo();
     }
 
 
     public static (bool success, Scene scene) EstablishScene(string title, IJSRuntime jS)
     {
-        $"EstablishScene {title}".WriteInfo();
+        //$"EstablishScene {title}".WriteInfo();
         var found = _AllScenes.FirstOrDefault(scene => scene.Title.Matches(title));   
         if (found == null)
         {
@@ -74,19 +81,35 @@ public class Scene : Object3D
     public override string GetTreeNodeTitle()
     {
         var baseTitle = base.GetTreeNodeTitle();
-        return $"t:{Title}  -- {baseTitle}";
+        return $"t:{Title} -- {baseTitle}";
     }
 
     public async Task ClearSceneAsync()
     {
         await JsRuntime!.InvokeVoidAsync("BlazorThreeJS.clearScene");
-        this.GetAllChildren().RemoveAll(item => item.Type.Contains("LabelText") || item.Type.Contains("Mesh"));
+        this.GetAllChildren().RemoveAll(item => item.Type.Contains("LabelText") || item.Type.Contains("Mesh3D"));
     }
 
     public async Task ClearLightsAsync()
     {
         await JsRuntime!.InvokeVoidAsync("BlazorThreeJS.clearScene");
         this.GetAllChildren().Clear();
+    }
+
+    public async Task SetCameraPositionAsync(Vector3 position, Vector3? lookAt = null) => await JsRuntime!.InvokeVoidAsync("BlazorThreeJS.setCameraPosition", (object)position, lookAt);
+
+    public async Task UpdateCamera(Camera camera)
+    {
+        this.Camera = camera;
+        var json = JsonSerializer.Serialize((object)this.Camera, JSONOptions);
+        await JsRuntime!.InvokeVoidAsync("BlazorThreeJS.updateCamera", (object)json);
+    }
+
+    public async Task ShowCurrentCameraInfo() => await JsRuntime!.InvokeVoidAsync("BlazorThreeJS.showCurrentCameraInfo");
+
+    public void ForceSceneRefresh()
+    {
+        Task.Run( async () => await UpdateScene());
     }
     public async Task UpdateScene()
     {
@@ -105,6 +128,7 @@ public class Scene : Object3D
     {
         PropertyNamingPolicy = JsonNamingPolicy.CamelCase,
         DefaultIgnoreCondition = JsonIgnoreCondition.WhenWritingNull,
+        WriteIndented = true,
         IncludeFields = true,
         IgnoreReadOnlyFields = true
     };

@@ -17,10 +17,11 @@ using System.Text.Json.Serialization;
 
 namespace BlazorThreeJS.Core
 {
-    [JsonDerivedType(typeof(Mesh))]
+    [JsonDerivedType(typeof(Mesh3D))]
     [JsonDerivedType(typeof(Group3D))]
     [JsonDerivedType(typeof(TextPanel))]
     [JsonDerivedType(typeof(PanelMenu))]
+    [JsonDerivedType(typeof(Button))]
     [JsonDerivedType(typeof(PanelGroup))]
     [JsonDerivedType(typeof(AmbientLight))]
     [JsonDerivedType(typeof(PointLight))]

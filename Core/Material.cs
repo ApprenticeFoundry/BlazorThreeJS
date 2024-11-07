@@ -6,34 +6,20 @@ using FoundryRulesAndUnits.Models;
 
 
 
-namespace BlazorThreeJS.Core
+namespace BlazorThreeJS.Materials
 {
-    [JsonDerivedType(typeof(BoxGeometry))]
-    [JsonDerivedType(typeof(CapsuleGeometry))]
-    [JsonDerivedType(typeof(CircleGeometry))]
-    [JsonDerivedType(typeof(ConeGeometry))]
-    [JsonDerivedType(typeof(CylinderGeometry))]
-    [JsonDerivedType(typeof(DodecahedronGeometry))]
-    [JsonDerivedType(typeof(IcosahedronGeometry))]
-    [JsonDerivedType(typeof(LineGeometry))]
-    [JsonDerivedType(typeof(OctahedronGeometry))]
-    [JsonDerivedType(typeof(PlaneGeometry))]
-    [JsonDerivedType(typeof(RingGeometry))]
-    [JsonDerivedType(typeof(SphereGeometry))]
-    [JsonDerivedType(typeof(TetrahedronGeometry))]
-    [JsonDerivedType(typeof(TorusGeometry))]
-    [JsonDerivedType(typeof(TorusKnotGeometry))]
-    [JsonDerivedType(typeof(TubeGeometry))]
-    public abstract class BufferGeometry : ITreeNode
+    [JsonDerivedType(typeof(MeshStandardMaterial))]
+    public abstract class Material : ITreeNode
     {
         protected StatusBitArray StatusBits = new();
-        protected BufferGeometry(string type) => this.Type = type;
+
+        protected Material(string type) => this.Type = type;
+
+        public string Type { get; } = nameof(Material);
 
         public string Name { get; set; } = string.Empty;
 
         public Guid Uuid { get; set; } = Guid.NewGuid();
-
-        public string Type { get; } = "Geometry";
 
         public virtual string GetTreeNodeTitle()
         {

@@ -32,7 +32,7 @@ namespace BlazorThreeJS.Viewers
     {
         [Inject] private IJSRuntime? JsRuntime { get; set; }
 
-        [Parameter,EditorRequired] public string SceneName { get; set; }
+        [Parameter,EditorRequired] public string SceneName { get; set; } = "Viewer3D";
 
         private JsonSerializerOptions JSONOptions { get; set; } = new JsonSerializerOptions
         {
@@ -73,11 +73,6 @@ namespace BlazorThreeJS.Viewers
             set => _activeScene = value;
         }
 
-        [Parameter]
-        public Camera Camera { get; set; } = new PerspectiveCamera()
-        {
-            Position = new Vector3(3f, 3f, 3f)
-        };
 
         [Parameter] public int CanvasWidth { get; set; } = 1000;
         [Parameter] public int CanvasHeight { get; set; } = 800;
@@ -159,7 +154,7 @@ namespace BlazorThreeJS.Viewers
             {
                 Scene = ActiveScene,
                 ViewerSettings = ViewerSettings,
-                Camera = Camera,
+                Camera = ActiveScene.Camera,
                 OrbitControls = OrbitControls
             };
 
@@ -168,7 +163,6 @@ namespace BlazorThreeJS.Viewers
             string str = JsonSerializer.Serialize<SceneDTO>(dto, JSONOptions);
             await JsRuntime!.InvokeVoidAsync("BlazorThreeJS.loadViewer", (object)str);
                         
-            await JsRuntime!.InvokeVoidAsync($"{ActiveScene.Title}.loadViewer", (object)str);
             await ActiveScene.UpdateScene();
             //SRS  I bet we never load a module  so do not do this!!
             //await ViewerThreeD.OnModuleLoaded();
@@ -193,16 +187,7 @@ namespace BlazorThreeJS.Viewers
 
 
 
-        public async Task SetCameraPositionAsync(Vector3 position, Vector3? lookAt = null) => await JsRuntime!.InvokeVoidAsync("BlazorThreeJS.setCameraPosition", (object)position, lookAt);
 
-        public async Task UpdateCamera(Camera camera)
-        {
-            this.Camera = camera;
-            var json = JsonSerializer.Serialize((object)this.Camera, JSONOptions);
-            await JsRuntime!.InvokeVoidAsync("BlazorThreeJS.updateCamera", (object)json);
-        }
-
-        public async Task ShowCurrentCameraInfo() => await JsRuntime!.InvokeVoidAsync("BlazorThreeJS.showCurrentCameraInfo");
 
         [JSInvokable]
         public static void ReceiveSelectedObjectUUID(string uuid, Vector3 size)
@@ -317,7 +302,7 @@ namespace BlazorThreeJS.Viewers
 
                     if (type == "Mesh")
                     {
-                        var mesh = new Mesh()
+                        var mesh = new Mesh3D()
                         {
                             Name = name,
                             Uuid = Guid.Parse(type)
@@ -366,10 +351,10 @@ namespace BlazorThreeJS.Viewers
                 ActiveScene.Add(group);
             }
 
-            if (type.Matches("Mesh"))
+            if (type.Matches("Mesh3D"))
             {
 
-                var mesh = new Mesh()
+                var mesh = new Mesh3D()
                 {
                     Name = name,
                     Uuid = Guid.Parse(uuid),
