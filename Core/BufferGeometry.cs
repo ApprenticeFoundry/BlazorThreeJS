@@ -40,9 +40,10 @@ namespace BlazorThreeJS.Core
             return $"{Name} [{Uuid}] => {Type} ({GetType().Name})";
         }
 
-        public IEnumerable<TreeNodeAction>? GetTreeNodeActions()
+        public virtual IEnumerable<TreeNodeAction>? GetTreeNodeActions()
         {
-            return null;
+            var result = new List<TreeNodeAction>();
+            return result;
         }
         public bool GetIsExpanded()
         {

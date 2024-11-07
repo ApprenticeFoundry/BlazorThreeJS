@@ -25,7 +25,7 @@ public abstract class Material : ITreeNode
         return $"{Name} [{Uuid}] => {Type} ({GetType().Name})";
     }
 
-    public IEnumerable<TreeNodeAction>? GetTreeNodeActions()
+    public virtual IEnumerable<TreeNodeAction>? GetTreeNodeActions()
     {
         return null;
     }

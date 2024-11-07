@@ -60,12 +60,13 @@ namespace BlazorThreeJS.Core
             return $"Name: {Name} [{Uuid}] => {Type} c#: ({GetType().Name})";
         }
 
-        public IEnumerable<TreeNodeAction>? GetTreeNodeActions()
+        public virtual IEnumerable<TreeNodeAction>? GetTreeNodeActions()
         {
-            return null;
+            var result = new List<TreeNodeAction>();
+            return result;
         }
 
-        public IEnumerable<ITreeNode> GetTreeChildren()
+        public virtual IEnumerable<ITreeNode> GetTreeChildren()
         {
             var result = new List<ITreeNode>();
             result.AddRange(children);
