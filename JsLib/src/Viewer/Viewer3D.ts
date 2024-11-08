@@ -94,10 +94,11 @@ export class Viewer3D {
         this.onResize();
 
         const animate = () => {
-            requestAnimationFrame(animate);
+            window.requestAnimationFrame(animate);
             this.render();
         };
         animate();
+        //this.render();
     }
 
     private render() {

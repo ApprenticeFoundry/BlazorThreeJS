@@ -12,7 +12,7 @@ namespace JSInterop
         {
             console.log('start window[namespace] ', window[namespace]);
             console.log('calling establishViewer3D ' + namespace);
-            if (Boolean(window[namespace]) == false)
+            if (Boolean(this.ViewerLookup[namespace]) == false)
             {
                 console.log('creating namespace ' + namespace);
                 var viewer = new Viewer3D();
@@ -20,8 +20,8 @@ namespace JSInterop
                 this.ViewerLookup[namespace] = viewer;
                 console.log('manager', this);
             }
-            console.log('finish window[namespace] ', window[namespace]);
-            return window[namespace];
+            console.log('finish window[namespace] ', this.ViewerLookup[namespace]);
+            return this.ViewerLookup[namespace];
         }
     
         public removeViewer3D(namespace: string): Viewer3D
@@ -45,8 +45,8 @@ namespace JSInterop
         var manager = new ViewManager();
         window['ViewManager'] = manager;
 
-        //window['Canvas3DX'] = new Viewer3D();
-        //window['ViewerThreeD'] = new Viewer3D();
+        window['Canvas3DComponent'] = new Viewer3D();
+        window['ViewerThreeD'] = new Viewer3D();
         
         //manager.establishViewer3D('ViewerThreeD');
         //manager.establishViewer3D('Canvas3DX');
