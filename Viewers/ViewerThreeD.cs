@@ -132,9 +132,10 @@ namespace BlazorThreeJS.Viewers
             return _activeScene;
         }
 
-        public string Resolve(string functionName)
+        public string Resolve(string jsNamespace, string functionName)
         {
-            return $"BlazorThreeJS.{functionName}";
+            return $"{jsNamespace}.{functionName}";
+            //return $"BlazorThreeJS.{functionName}";
         }
 
         protected override async Task OnAfterRenderAsync(bool firstRender)
@@ -161,8 +162,11 @@ namespace BlazorThreeJS.Viewers
                 OrbitControls = OrbitControls
             };
 
+            var jsNameSpace = ActiveScene.Title;
+            await JsRuntime!.InvokeVoidAsync("ViewManager.establishViewer3D", (object)jsNameSpace);
 
-            var functionName = Resolve("loadViewer");
+            var functionName = Resolve(jsNameSpace, "loadViewer");
+            $"calling {functionName}".WriteInfo();
 
             string str = JsonSerializer.Serialize<SceneDTO>(dto, JSONOptions);
             await JsRuntime!.InvokeVoidAsync(functionName, (object)str);

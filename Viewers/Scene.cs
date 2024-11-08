@@ -117,7 +117,8 @@ public class Scene : Object3D
 
     public string Resolve(string functionName)
     {
-        return $"BlazorThreeJS.{functionName}";
+        return $"{Title}.{functionName}";
+        //return $"BlazorThreeJS.{functionName}";
     }
 
     public async Task ClearScene()
@@ -166,7 +167,7 @@ public class Scene : Object3D
         {
             var functionName = Resolve("updateScene");
             var json = JsonSerializer.Serialize((object)this, JSONOptions);
-            $"UpdateScene: {functionName} => {json}".WriteInfo();
+            $"UpdateScene: {functionName} => ".WriteInfo();
 
             await JsRuntime!.InvokeVoidAsync(functionName, (object)json);
 
