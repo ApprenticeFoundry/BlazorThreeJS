@@ -163,7 +163,7 @@ export class Viewer3D {
     }
 
     public setScene() {
-        console.log('in setScene this.options=', this.options);
+        // console.log('in setScene this.options=', this.options);
         this.scene.background = new Color(this.options.scene.backGroundColor);
         this.scene.uuid = this.options.scene.uuid;
         // this.addFloor();
@@ -184,7 +184,7 @@ export class Viewer3D {
 
     public updateScene(options: string) {
         const sceneOptions = JSON.parse(options);
-        console.log('updateScene sceneOptions=', sceneOptions);
+        //console.log('updateScene sceneOptions=', sceneOptions);
         this.options.scene = sceneOptions;
         SceneState.refreshScene(this.scene, sceneOptions);
     }

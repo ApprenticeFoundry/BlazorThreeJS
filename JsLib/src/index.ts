@@ -1,4 +1,4 @@
-import { Viewer3D } from './Viewer/Viewer3D';
+
 import { ViewManager } from './Viewer/ViewManager';
 
 namespace JSInterop {
@@ -8,7 +8,7 @@ namespace JSInterop {
         window['ViewManager'] = manager;
         var original = manager.establishViewer3D('BlazorThreeJS');
 
-        console.log('manager', manager);
+
         console.log('original', original);
 
         //window['BlazorThreeJS'] = new Viewer3D();
