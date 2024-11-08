@@ -115,33 +115,46 @@ public class Scene : Object3D
         return result;
     }
 
+    public string Resolve(string functionName)
+    {
+        return $"BlazorThreeJS.{functionName}";
+    }
+
     public async Task ClearScene()
     {
-        await JsRuntime!.InvokeVoidAsync("BlazorThreeJS.clearScene");
+        var functionName = Resolve("clearScene");
+        await JsRuntime!.InvokeVoidAsync(functionName);
         this.GetAllChildren().RemoveAll(item => item.Type.Contains("LabelText") || item.Type.Contains("Mesh"));
         AfterUpdate?.Invoke(this,"");
     }
 
     public async Task ClearAll()
     {
-        await JsRuntime!.InvokeVoidAsync("BlazorThreeJS.clearScene");
+        var functionName = Resolve("clearScene");
+        await JsRuntime!.InvokeVoidAsync(functionName);
         this.GetAllChildren().Clear();
         AfterUpdate?.Invoke(this,"");
     }
 
     public async Task SetCameraPosition(Vector3 position, Vector3? lookAt = null) 
     {
-        await JsRuntime!.InvokeVoidAsync("BlazorThreeJS.setCameraPosition", (object)position, lookAt);
+        var functionName = Resolve("setCameraPosition");
+        await JsRuntime!.InvokeVoidAsync(functionName, (object)position, lookAt);
     }
 
     public async Task UpdateCamera(Camera camera)
     {
+        var functionName = Resolve("updateCamera");
         this.Camera = camera;
         var json = JsonSerializer.Serialize((object)this.Camera, JSONOptions);
-        await JsRuntime!.InvokeVoidAsync("BlazorThreeJS.updateCamera", (object)json);
+        await JsRuntime!.InvokeVoidAsync(functionName, (object)json);
     }
 
-    public async Task ShowCurrentCameraInfo() => await JsRuntime!.InvokeVoidAsync("BlazorThreeJS.showCurrentCameraInfo");
+    public async Task ShowCurrentCameraInfo() 
+    {
+        var functionName = Resolve("showCurrentCameraInfo");
+        await JsRuntime!.InvokeVoidAsync(functionName);
+    }
 
     public void ForceSceneRefresh()
     {
@@ -151,9 +164,11 @@ public class Scene : Object3D
     {
         try
         {
+            var functionName = Resolve("updateScene");
             var json = JsonSerializer.Serialize((object)this, JSONOptions);
-            //$"UpdateScene: {json}".WriteInfo();
-            await JsRuntime!.InvokeVoidAsync("BlazorThreeJS.updateScene", (object)json);
+            $"UpdateScene: {functionName} => {json}".WriteInfo();
+
+            await JsRuntime!.InvokeVoidAsync(functionName, (object)json);
 
             if ( notify == true)
                 AfterUpdate?.Invoke(this,json);
@@ -181,10 +196,11 @@ public class Scene : Object3D
         LoadedModels.Add(uuid, settings);
 
         // settings.Material = settings.Material ?? new MeshStandardMaterial();
+        var functionName = Resolve("import3DModel");
 
         var json = JsonSerializer.Serialize((object)settings, JSONOptions);
         //$"Request3DModel  JSONOptions: {json}".WriteInfo();
-        await JsRuntime!.InvokeVoidAsync("BlazorThreeJS.import3DModel", (object)json);
+        await JsRuntime!.InvokeVoidAsync(functionName, (object)json);
         await UpdateScene();
 
         //$"Request3DModel: {settings} {uuid}".WriteInfo();
@@ -194,7 +210,8 @@ public class Scene : Object3D
 
     public async Task RemoveByUuidAsync(Guid uuid)
     {
-        if (!await JsRuntime!.InvokeAsync<bool>("BlazorThreeJS.deleteByUuid", (object)uuid))
+        var functionName = Resolve("deleteByUuid");
+        if (!await JsRuntime!.InvokeAsync<bool>(functionName, (object)uuid))
             return;
 
         ChildrenHelper.RemoveObjectByUuid(uuid, GetAllChildren());
@@ -203,7 +220,8 @@ public class Scene : Object3D
 
     public async Task MoveObject(Object3D object3D)
     {
-        await JsRuntime!.InvokeAsync<bool>("BlazorThreeJS.moveObject", object3D);
+        var functionName = Resolve("moveObject");
+        await JsRuntime!.InvokeAsync<bool>(functionName, object3D);
     }
 
     public async Task<Guid> Clone3DModel(Guid sourceGuid, List<ImportSettings> settings)
@@ -214,10 +232,10 @@ public class Scene : Object3D
             ImportPromises.Add(setting.Uuid, setting);
         });
 
-
+        var functionName = Resolve("clone3DModel");
         var json = (object)JsonSerializer.Serialize((object)settings, JSONOptions);
         var args = new List<object>() { $"{sourceGuid}", json };
-        await JsRuntime!.InvokeVoidAsync("BlazorThreeJS.clone3DModel", args.ToArray());
+        await JsRuntime!.InvokeVoidAsync(functionName, args.ToArray());
         return sourceGuid;
     }
 
