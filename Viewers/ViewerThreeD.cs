@@ -32,6 +32,7 @@ namespace BlazorThreeJS.Viewers
     {
         [Inject] private IJSRuntime? JsRuntime { get; set; }
 
+
         [Parameter,EditorRequired] public string SceneName { get; set; } = "Viewer3D";
 
         private JsonSerializerOptions JSONOptions { get; set; } = new JsonSerializerOptions

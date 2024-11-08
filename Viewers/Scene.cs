@@ -23,11 +23,15 @@ namespace BlazorThreeJS.Viewers;
 public class Scene : Object3D
 {
     public string Title { get; init; }
-    
-    private IJSRuntime JsRuntime { get; set; }
-    private static Dictionary<Guid, ImportSettings> ImportPromises { get; set; } = new();
-    private Dictionary<Guid, ImportSettings> LoadedModels { get; set; } = new();
     public string BackGroundColor { get; set; } = "#505050";
+
+    
+    private static Dictionary<Guid, ImportSettings> ImportPromises { get; set; } = new();
+    private IJSRuntime JsRuntime { get; set; }
+    private Dictionary<Guid, ImportSettings> LoadedModels { get; set; } = new();
+
+    private Action<Scene,string>? AfterUpdate { get; set; } = (scene,json) => { };
+
 
     public Camera Camera { get; set; } = new PerspectiveCamera()
     {
@@ -46,6 +50,13 @@ public class Scene : Object3D
         // $"Scene {Title} created".WriteInfo();
     }
 
+    public void SetAfterUpdateAction(Action<Scene,string> afterUpdate)
+    {
+        if ( afterUpdate != null)
+            AfterUpdate = afterUpdate;
+        else 
+            AfterUpdate = (scene,json) => { };
+    }
 
     public static (bool success, Scene scene) EstablishScene(string title, IJSRuntime jS)
     {
@@ -108,12 +119,14 @@ public class Scene : Object3D
     {
         await JsRuntime!.InvokeVoidAsync("BlazorThreeJS.clearScene");
         this.GetAllChildren().RemoveAll(item => item.Type.Contains("LabelText") || item.Type.Contains("Mesh"));
+        AfterUpdate?.Invoke(this,"");
     }
 
     public async Task ClearAll()
     {
         await JsRuntime!.InvokeVoidAsync("BlazorThreeJS.clearScene");
         this.GetAllChildren().Clear();
+        AfterUpdate?.Invoke(this,"");
     }
 
     public async Task SetCameraPosition(Vector3 position, Vector3? lookAt = null) 
@@ -134,13 +147,16 @@ public class Scene : Object3D
     {
         Task.Run( async () => await UpdateScene());
     }
-    public async Task UpdateScene()
+    public async Task UpdateScene(bool notify = false)
     {
         try
         {
             var json = JsonSerializer.Serialize((object)this, JSONOptions);
             //$"UpdateScene: {json}".WriteInfo();
             await JsRuntime!.InvokeVoidAsync("BlazorThreeJS.updateScene", (object)json);
+
+            if ( notify == true)
+                AfterUpdate?.Invoke(this,json);
         }
         catch (System.Exception ex)
         {
@@ -187,8 +203,7 @@ public class Scene : Object3D
 
     public async Task MoveObject(Object3D object3D)
     {
-        if (!await JsRuntime!.InvokeAsync<bool>("BlazorThreeJS.moveObject", object3D))
-            return;
+        await JsRuntime!.InvokeAsync<bool>("BlazorThreeJS.moveObject", object3D);
     }
 
     public async Task<Guid> Clone3DModel(Guid sourceGuid, List<ImportSettings> settings)

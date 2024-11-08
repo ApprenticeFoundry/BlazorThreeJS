@@ -69,7 +69,7 @@ namespace BlazorThreeJS.Core
         public virtual IEnumerable<ITreeNode> GetTreeChildren()
         {
             var result = new List<ITreeNode>();
-            result.AddRange(children);
+            result.AddRange(Children);
             return result;
         }
 

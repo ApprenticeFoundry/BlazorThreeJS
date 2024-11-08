@@ -12,7 +12,7 @@
     <AssemblyVersion>15.4.0</AssemblyVersion>
     <EnableDefaultContentItems>false</EnableDefaultContentItems>
     <JsLibRoot>JsLib\</JsLibRoot>
-    <!-- <DefaultItemExcludes>$(DefaultItemExcludes);$(JsLibRoot)node_modules\**</DefaultItemExcludes> -->
+
     <Authors>Stephen Strong</Authors>
     <Company>Stephen Strong</Company>
     <Copyright>Copyright © 2020</Copyright>
@@ -24,9 +24,9 @@
     <PackageProjectUrl>https://apprenticefoundry.github.io/</PackageProjectUrl>
 </PropertyGroup>
 
-  <ItemGroup>
+  <!-- <ItemGroup>
       <Content Include="wwwroot/**/*.js" CopyToOutputDirectory="PreserveNewest" />
-  </ItemGroup>
+  </ItemGroup> -->
 
   <ItemGroup>
     <SupportedPlatform Include="browser" />
@@ -39,28 +39,6 @@
 
   </ItemGroup>
 
-  <!-- <ItemGroup>
-    <Content Remove="$(JsLibRoot)**" />
-    <None Remove="$(JsLibRoot)**" />
-    <None Include="$(JsLibRoot)**" Exclude="$(JsLibRoot)node_modules\**" />
-  </ItemGroup> -->
-
-
-   <Target Name="DebugEnsureNodeEnv" BeforeTargets="Build" Condition=" '$(Configuration)' == 'Debug' And !Exists('$(JsLibRoot)node_modules') ">
-    <!-- Ensure Node.js is installed -->
-    <Exec Command="node --version" ContinueOnError="true">
-      <Output TaskParameter="ExitCode" PropertyName="ErrorCode" />
-    </Exec>
-    <Error Condition="'$(ErrorCode)' != '0'" Text="Node.js is required to build and run this project. To continue, please install Node.js from https://nodejs.org/, and then restart your command prompt or IDE." />
-    <Message Importance="high" Text="Restoring dependencies using 'npm'. This may take several minutes..." />
-    <Exec WorkingDirectory="$(JsLibRoot)" Command="npm install" />
-    <Exec WorkingDirectory="$(JsLibRoot)" Command="npm run build" />
-  </Target>
-
-  <Target Name="PublishRunWebpack" AfterTargets="ComputeFilesToPublish">
-    <!-- As part of publishing, ensure the JS resources are freshly built in production mode -->
-    <Exec WorkingDirectory="$(JsLibRoot)" Command="npm install" />
-    <Exec WorkingDirectory="$(JsLibRoot)" Command="npm run build" />
-  </Target>
-
 </Project>
+
+
