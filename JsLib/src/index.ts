@@ -45,12 +45,13 @@ namespace JSInterop
         var manager = new ViewManager();
         window['ViewManager'] = manager;
 
-        window['Canvas3DComponent'] = new Viewer3D();
-        window['ViewerThreeD'] = new Viewer3D();
+        //window['Canvas3DComponent'] = new Viewer3D();
+        //window['ViewerThreeD'] = new Viewer3D();
+        window['BlazorThreeJS'] = new Viewer3D();
         
         //manager.establishViewer3D('ViewerThreeD');
         //manager.establishViewer3D('Canvas3DX');
-        manager.establishViewer3D('BlazorThreeJS');
+        //manager.establishViewer3D('BlazorThreeJS');
 
         
 

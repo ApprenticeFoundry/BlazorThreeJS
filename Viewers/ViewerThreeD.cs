@@ -134,8 +134,8 @@ namespace BlazorThreeJS.Viewers
 
         public string Resolve(string jsNamespace, string functionName)
         {
-            return $"{jsNamespace}.{functionName}";
-            //return $"BlazorThreeJS.{functionName}";
+            //return $"{jsNamespace}.{functionName}";
+            return $"BlazorThreeJS.{functionName}";
         }
 
         protected override async Task OnAfterRenderAsync(bool firstRender)
@@ -163,7 +163,7 @@ namespace BlazorThreeJS.Viewers
             };
 
             var jsNameSpace = ActiveScene.Title;
-            await JsRuntime!.InvokeVoidAsync("ViewManager.establishViewer3D", (object)jsNameSpace);
+            //await JsRuntime!.InvokeVoidAsync("ViewManager.establishViewer3D", (object)jsNameSpace);
 
             var functionName = Resolve(jsNameSpace, "loadViewer");
             $"calling {functionName}".WriteInfo();

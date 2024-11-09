@@ -41,8 +41,12 @@ export class Viewer3D {
     private clock: Clock;
 
     private INTERSECTED: any = null;
+    private HasLoaded = false;
 
     public loadViewer(json: string) {
+        if ( this.HasLoaded ) return;
+        this.HasLoaded = true;
+
         const options = JSON.parse(json);
         this.clock = new Clock();
 
@@ -316,7 +320,9 @@ export class Viewer3D {
             if (Boolean(this.INTERSECTED) && Boolean(this.INTERSECTED.userData)) {
                 console.log('this.INTERSECTED=', this.INTERSECTED);
                 const size: Vector3 = this.INTERSECTED.userData.size;
-                DotNet.invokeMethodAsync('BlazorThreeJS', 'ReceiveSelectedObjectUUID', this.INTERSECTED.uuid, size);
+
+                // So a better job SRS  2021-09-29
+                //DotNet.invokeMethodAsync('BlazorThreeJS', 'ReceiveSelectedObjectUUID', this.INTERSECTED.uuid, size);
             }
         }
     }

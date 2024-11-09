@@ -117,8 +117,8 @@ public class Scene : Object3D
 
     public string Resolve(string functionName)
     {
-        return $"{Title}.{functionName}";
-        //return $"BlazorThreeJS.{functionName}";
+        //return $"{Title}.{functionName}";
+        return $"BlazorThreeJS.{functionName}";
     }
 
     public async Task ClearScene()

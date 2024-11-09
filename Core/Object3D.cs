@@ -50,6 +50,7 @@ namespace BlazorThreeJS.Core
         private List<Object3D> children = new();
 
         public IEnumerable<Object3D> Children => children;
+
         public List<Object3D> GetAllChildren()
         {
             return children;
@@ -75,7 +76,11 @@ namespace BlazorThreeJS.Core
 
         public Object3D Add(Object3D child)
         {
-            this.children.Add(child);
+            var found = this.Children.Where(x => x == child).FirstOrDefault();
+            if ( found == null )
+            {
+                this.children.Add(child);
+            }
             return child;
         }
 
