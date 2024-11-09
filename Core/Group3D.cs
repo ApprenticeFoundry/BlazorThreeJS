@@ -2,8 +2,8 @@
 
 using BlazorThreeJS.Core;
 
-namespace BlazorThreeJS.Objects
-{
+namespace BlazorThreeJS.Objects;
+
     public class Group3D : Object3D
     {
         public Group3D()
@@ -11,4 +11,4 @@ namespace BlazorThreeJS.Objects
         {
         }
     }
-}
+

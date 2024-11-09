@@ -26,9 +26,9 @@ public class Scene : Object3D
     public string BackGroundColor { get; set; } = "#505050";
 
     
-    private static Dictionary<Guid, ImportSettings> ImportPromises { get; set; } = new();
+    private static Dictionary<string, ImportSettings> ImportPromises { get; set; } = new();
     private IJSRuntime JsRuntime { get; set; }
-    private Dictionary<Guid, ImportSettings> LoadedModels { get; set; } = new();
+    //private Dictionary<string, ImportSettings> LoadedModels { get; set; } = new();
 
     private Action<Scene,string>? AfterUpdate { get; set; } = (scene,json) => { };
 
@@ -187,19 +187,23 @@ public class Scene : Object3D
         IncludeFields = true,
         IgnoreReadOnlyFields = true
     };
-    public async Task<Guid> Request3DModel(ImportSettings settings)
+    public async Task<string> Request3DModel(ImportSettings settings)
     {
-        Guid uuid = settings.Uuid;
-        settings.Scene = this;
+        var uuid = settings.Uuid!;
+        if (ImportPromises.ContainsKey(uuid))
+        {
+            $"Already loaded {uuid}".WriteInfo();
+            return uuid;
+        }
+
+        //settings.Scene = this;
         ImportPromises.Add(uuid, settings);
+        //LoadedModels.Add(uuid, settings);
 
-        //Console.WriteLine($"Adding settings={uuid}");
-        LoadedModels.Add(uuid, settings);
 
-        // settings.Material = settings.Material ?? new MeshStandardMaterial();
         var functionName = Resolve("import3DModel");
-
         var json = JsonSerializer.Serialize((object)settings, JSONOptions);
+
         //$"Request3DModel  JSONOptions: {json}".WriteInfo();
         await JsRuntime!.InvokeVoidAsync(functionName, (object)json);
         await UpdateScene();
@@ -209,7 +213,7 @@ public class Scene : Object3D
         return uuid;
     }
 
-    public async Task RemoveByUuidAsync(Guid uuid)
+    public async Task RemoveByUuidAsync(string uuid)
     {
         var functionName = Resolve("deleteByUuid");
         if (!await JsRuntime!.InvokeAsync<bool>(functionName, (object)uuid))
@@ -225,12 +229,12 @@ public class Scene : Object3D
         await JsRuntime!.InvokeAsync<bool>(functionName, object3D);
     }
 
-    public async Task<Guid> Clone3DModel(Guid sourceGuid, List<ImportSettings> settings)
+    public async Task<string> Clone3DModel(string sourceGuid, List<ImportSettings> settings)
     {
         settings.ForEach((setting) =>
         {
-            setting.Scene = this;
-            ImportPromises.Add(setting.Uuid, setting);
+            //setting.Scene = this;
+            ImportPromises.Add(setting.Uuid!, setting);
         });
 
         var functionName = Resolve("clone3DModel");
@@ -243,23 +247,37 @@ public class Scene : Object3D
     [JSInvokable]
     public static Task ReceiveLoadedObjectUUID(string containerId, string uuid)
     {
-        var guid = Guid.Parse(uuid);
 
-        if (ImportPromises.ContainsKey(guid))
+        if ( ImportPromises.TryGetValue(uuid, out ImportSettings? promise))
         {
-            var settings = ImportPromises[guid];
-            Group3D group = new()
+            ImportPromises.Remove(uuid);
+            var OnComplete = promise.OnComplete;
+            if (promise.OnComplete != null)
             {
-                Name = settings.Uuid.ToString(),
-                Uuid = settings.Uuid,
-            };
-            settings.Scene!.Add(group);
-
-            settings.OnComplete.Invoke(settings.Scene!, group);
-            settings.OnComplete = (Scene s, Object3D o) => { };
-            ImportPromises.Remove(guid);
+                promise.OnComplete.Invoke();
+                promise.OnComplete = () => { };
+            }
         }
-        return Task.CompletedTask;
+        //return Task.CompletedTask;
+        return Task.FromResult(0);
+        // {
+        //     var settings = ImportPromises[uuid];
+        //     ImportPromises.Remove(uuid);
+
+        //     var scene = settings.Scene!;
+
+        //     Group3D group = new()
+        //     {
+        //         Name = settings.Uuid ?? "Group",
+        //         Uuid = settings.Uuid,
+        //     };
+
+        //     scene.AddChild(group);
+
+        //     settings.OnComplete.Invoke(scene, group);
+        //     settings.OnComplete = (Scene s, Object3D o) => { };
+            
+        // }
     }
 }
 

@@ -11,6 +11,7 @@ using BlazorThreeJS.Menus;
 using BlazorThreeJS.Objects;
 using BlazorThreeJS.Viewers;
 using FoundryRulesAndUnits.Models;
+using FoundryRulesAndUnits.Extensions;
 using System.Text.Json.Serialization;
 
 
@@ -30,6 +31,7 @@ namespace BlazorThreeJS.Core
     public abstract class Object3D : ITreeNode
     {
         protected StatusBitArray StatusBits = new();
+        public string? Uuid { get; set; }
 
         protected Object3D(string type) => this.Type = type;
 
@@ -45,7 +47,6 @@ namespace BlazorThreeJS.Core
 
         public string Name { get; set; } = string.Empty;
 
-        public Guid Uuid { get; set; } = Guid.NewGuid();
 
         private List<Object3D> children = new();
 
@@ -74,23 +75,32 @@ namespace BlazorThreeJS.Core
             return result;
         }
 
-        public Object3D Add(Object3D child)
+        public virtual Object3D AddChild(Object3D child)
         {
-            var found = this.Children.Where(x => x == child).FirstOrDefault();
-            if ( found == null )
+            var uuid = child.Uuid;
+            if ( string.IsNullOrEmpty(uuid))
             {
-                this.children.Add(child);
+                $"AddChild missing  Uuid, {child.Name}".WriteError();  
+                return child;
             }
+
+            var found = this.children.Find((item) =>
+            {
+                return item.Uuid == uuid;
+            });
+
+            if ( found != null )
+            {
+                $"AddChild already existing {child.Name} -> {found.Name} {found.Uuid}".WriteError();  
+                return found;
+            }
+
+            this.children.Add(child);
             return child;
         }
 
-        public List<Object3D> AddRange(List<Object3D> newChildren)
-        {
-            this.children.AddRange(newChildren);
-            return newChildren;
-        }
 
-        public Object3D RemoveChild(Object3D child)
+        public virtual Object3D RemoveChild(Object3D child)
         {
             this.children.Remove(child);
             return child;
@@ -103,8 +113,6 @@ namespace BlazorThreeJS.Core
 
 
 
-        public bool Remove(Object3D child) => this.children.Remove(child);
-
         public Object3D Update(Object3D child)
         {
             var obj = this.children.Find((item) =>
@@ -114,10 +122,10 @@ namespace BlazorThreeJS.Core
 
             if (obj != null)
             {
-                this.children.Remove(obj);
+                this.RemoveChild(obj);
             }
 
-            this.Add(child);
+            this.AddChild(child);
             return child;
         }
 

@@ -6,6 +6,7 @@
 
 using BlazorThreeJS.Enums;
 using BlazorThreeJS.Maths;
+using FoundryRulesAndUnits.Models;
 using System;
 
 
@@ -13,9 +14,10 @@ namespace BlazorThreeJS.Textures
 {
     public class Texture
     {
-        public Texture()
-        {
-        }
+        protected StatusBitArray StatusBits = new();
+        public string? Uuid { get; set; }
+
+        public Texture() {}
 
         protected Texture(string type) => this.Type = type;
 
@@ -23,7 +25,6 @@ namespace BlazorThreeJS.Textures
 
         public string Name { get; set; } = string.Empty;
 
-        public Guid Uuid { get; set; } = Guid.NewGuid();
 
         public string TextureUrl { get; set; } = string.Empty;
 

@@ -22,19 +22,19 @@ namespace BlazorThreeJS.Settings
         [JsonConverter(typeof(JsonStringEnumConverter))]
         public Import3DFormats Format { get; set; }
         public string? FileURL { get; set; }
-        public string? TextureURL { get; set; }
-        public Guid Uuid { get; set; }
+        //public string? TextureURL { get; set; }
+        public string? Uuid { get; set; }
         public Vector3 Position { get; set; } = new Vector3();
         public Vector3 Pivot { get; set; } = new Vector3();
         public Vector3 Scale { get; set; } = new Vector3(1.0, 1.0, 1.0);
         public Euler Rotation { get; set; } = new Euler();
-        public Scene? Scene { get; set; }
+
         public Vector3? ComputedSize { get; set; }
 
         [JsonIgnore]
         public MeshStandardMaterial? Material { get; set; }
         [JsonIgnore]
-        public Action<Scene, Object3D> OnComplete { get; set; } = (Scene scene, Object3D object3D) => { };
+        public Action? OnComplete { get; set; }
         [JsonIgnore]
         public Action<ImportSettings> OnClick { get; set; } = (ImportSettings model3D) => { };
         [JsonIgnore]

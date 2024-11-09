@@ -43,9 +43,9 @@ namespace BlazorThreeJS.Viewers
             IgnoreReadOnlyFields = true
         };
 
-        private static Dictionary<Guid, Button> Buttons { get; set; } = new();
-        private static Dictionary<Guid, ImportSettings> ImportPromises { get; set; } = new();
-        private static Dictionary<Guid, ImportSettings> LoadedModels { get; set; } = new();
+        private static Dictionary<string, Button> Buttons { get; set; } = new();
+        private static Dictionary<string, ImportSettings> ImportPromises { get; set; } = new();
+        private static Dictionary<string, ImportSettings> LoadedModels { get; set; } = new();
 
         // private event LoadedObjectEventHandler? ObjectLoadedPrivate;
         // public event LoadedObjectEventHandler? ObjectLoaded;
@@ -114,11 +114,17 @@ namespace BlazorThreeJS.Viewers
             _activeScene = scene;
             if ( success )
             {
-                _activeScene.Add((Object3D)new AmbientLight() { Name = "Default Light" });
-
-                PointLight child = new PointLight() 
+                var ambient = new AmbientLight()
                 { 
-                    Name = "Default Light" ,
+                    Name = "Ambient Light",
+                    Uuid = Guid.NewGuid().ToString(),
+                };
+                _activeScene.AddChild(ambient);
+
+                var point = new PointLight() 
+                { 
+                    Name = "Point Light" ,
+                    Uuid = Guid.NewGuid().ToString(),
                     Position = new Vector3()
                     {
                         X = 1f,
@@ -126,7 +132,7 @@ namespace BlazorThreeJS.Viewers
                         Z = 0.0f
                     }
                 };
-                _activeScene.Add((Object3D)child);
+                _activeScene.AddChild(point);
             }
 
             return _activeScene;
@@ -185,8 +191,10 @@ namespace BlazorThreeJS.Viewers
             {
                 foreach (var button in ((PanelMenu)menu).Buttons)
                 {
-                    Console.WriteLine($"From FoundryBlazor Button UUID={button.Uuid}");
-                    if (!ViewerThreeD.Buttons.ContainsKey(button.Uuid)) ViewerThreeD.Buttons.Add(button.Uuid, button);
+                    var uuid = button.Uuid!;
+                    $"From FoundryBlazor Button UUID={uuid}".WriteInfo();
+                    if (!ViewerThreeD.Buttons.ContainsKey(uuid)) 
+                        ViewerThreeD.Buttons.Add(uuid, button);
                 }
             }
             //Console.WriteLine($"PopulateButtonsDict menus Count ={menus.Count}");
@@ -200,12 +208,12 @@ namespace BlazorThreeJS.Viewers
         [JSInvokable]
         public static void ReceiveSelectedObjectUUID(string uuid, Vector3 size)
         {
-            Guid guid = string.IsNullOrWhiteSpace(uuid) ? Guid.Empty : Guid.Parse(uuid);
+
             Console.WriteLine($"ReceiveSelectedObjectUUID size={size.X}, {size.Y}, {size.Z}");
 
             try
             {
-                var item = LoadedModels[guid];
+                var item = LoadedModels[uuid];
                 Console.WriteLine($"item={item}");
                 if (item != null)
                 {
@@ -234,21 +242,23 @@ namespace BlazorThreeJS.Viewers
         [JSInvokable]
         public static Task OnClickButton(string containerId, string uuid)
         {
-            var guid = Guid.Parse(uuid);
 
             Console.WriteLine($"OnClickButton containerId, uuid={containerId}, {uuid}");
-            Console.WriteLine($"After OnClickButton, ViewerThreeD.Buttons ContainsKey ={ViewerThreeD.Buttons.ContainsKey(guid)}");
+            Console.WriteLine($"After OnClickButton, ViewerThreeD.Buttons ContainsKey ={ViewerThreeD.Buttons.ContainsKey(uuid)}");
 
-            if (ViewerThreeD.Buttons.ContainsKey(guid))
+            if (ViewerThreeD.Buttons.ContainsKey(uuid))
             {
-                var button = ViewerThreeD.Buttons[guid];
+                var button = ViewerThreeD.Buttons[uuid];
                 var parms = new List<String>();
                 button.OnClick?.Invoke(button);
             }
             return Task.CompletedTask;
         }
 
-        public static Object3D? GetObjectByUuid(Guid uuid, List<Object3D> children) => ChildrenHelper.GetObjectByUuid(uuid, children);
+        public static Object3D? GetObjectByUuid(string uuid, List<Object3D> children) 
+        {
+            return ChildrenHelper.GetObjectByUuid(uuid, children);
+        }
 
 
 

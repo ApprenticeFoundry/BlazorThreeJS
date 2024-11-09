@@ -6,6 +6,6 @@ namespace BlazorThreeJS.Events
     {
         public string? ContainerId { get; set; }
 
-        public Guid UUID { get; set; }
+        public string? Uuid { get; set; }
     }
 }
