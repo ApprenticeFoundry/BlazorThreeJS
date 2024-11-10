@@ -5,6 +5,6 @@ namespace BlazorThreeJS.Events
 {
     public class Object3DArgs
     {
-        public Guid UUID { get; set; }
+        public string? Uuid { get; set; }
     }
 }

@@ -27,11 +27,11 @@ namespace BlazorThreeJS.Core
     public abstract class BufferGeometry : ITreeNode
     {
         protected StatusBitArray StatusBits = new();
+        public string? Uuid { get; set; }
         protected BufferGeometry(string type) => this.Type = type;
 
         public string Name { get; set; } = string.Empty;
 
-        public Guid Uuid { get; set; } = Guid.NewGuid();
 
         public string Type { get; } = "Geometry";
 

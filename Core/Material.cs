@@ -11,6 +11,7 @@ namespace BlazorThreeJS.Materials;
 public abstract class Material : ITreeNode
 {
     protected StatusBitArray StatusBits = new();
+    public string? Uuid { get; set; }
 
     protected Material(string type) => this.Type = type;
 
@@ -18,7 +19,6 @@ public abstract class Material : ITreeNode
 
     public string Name { get; set; } = string.Empty;
 
-    public Guid Uuid { get; set; } = Guid.NewGuid();
 
     public virtual string GetTreeNodeTitle()
     {

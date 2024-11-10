@@ -41,8 +41,12 @@ export class Viewer3D {
     private clock: Clock;
 
     private INTERSECTED: any = null;
+    private HasLoaded = false;
 
     public loadViewer(json: string) {
+        if ( this.HasLoaded ) return;
+        this.HasLoaded = true;
+
         const options = JSON.parse(json);
         this.clock = new Clock();
 
@@ -94,10 +98,11 @@ export class Viewer3D {
         this.onResize();
 
         const animate = () => {
-            requestAnimationFrame(animate);
+            window.requestAnimationFrame(animate);
             this.render();
         };
         animate();
+        //this.render();
     }
 
     private render() {
@@ -163,7 +168,7 @@ export class Viewer3D {
     }
 
     public setScene() {
-        console.log('in setScene this.options=', this.options);
+        // console.log('in setScene this.options=', this.options);
         this.scene.background = new Color(this.options.scene.backGroundColor);
         this.scene.uuid = this.options.scene.uuid;
         // this.addFloor();
@@ -184,7 +189,7 @@ export class Viewer3D {
 
     public updateScene(options: string) {
         const sceneOptions = JSON.parse(options);
-        console.log('updateScene sceneOptions=', sceneOptions);
+        //console.log('updateScene sceneOptions=', sceneOptions);
         this.options.scene = sceneOptions;
         SceneState.refreshScene(this.scene, sceneOptions);
     }
@@ -315,7 +320,9 @@ export class Viewer3D {
             if (Boolean(this.INTERSECTED) && Boolean(this.INTERSECTED.userData)) {
                 console.log('this.INTERSECTED=', this.INTERSECTED);
                 const size: Vector3 = this.INTERSECTED.userData.size;
-                DotNet.invokeMethodAsync('BlazorThreeJS', 'ReceiveSelectedObjectUUID', this.INTERSECTED.uuid, size);
+
+                // So a better job SRS  2021-09-29
+                //DotNet.invokeMethodAsync('BlazorThreeJS', 'ReceiveSelectedObjectUUID', this.INTERSECTED.uuid, size);
             }
         }
     }

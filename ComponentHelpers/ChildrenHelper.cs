@@ -10,14 +10,14 @@ namespace BlazorThreeJS.ComponentHelpers
     internal static class ChildrenHelper
     {
 
-        internal static void RemoveObjectByUuid(Guid uuid, List<Object3D> children)
+        internal static void RemoveObjectByUuid(string uuid, List<Object3D> children)
         {
             var object3D = GetObjectByUuid(uuid, children);
             if (object3D != null)
                 children.Remove(object3D);
         }
 
-        internal static Object3D? GetObjectByUuid(Guid uuid, List<Object3D> children)
+        internal static Object3D? GetObjectByUuid(string uuid, List<Object3D> children)
         {
     
             foreach (Object3D child in children)

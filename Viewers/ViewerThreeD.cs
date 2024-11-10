@@ -43,13 +43,13 @@ namespace BlazorThreeJS.Viewers
             IgnoreReadOnlyFields = true
         };
 
-        private static Dictionary<Guid, Button> Buttons { get; set; } = new();
-        private static Dictionary<Guid, ImportSettings> ImportPromises { get; set; } = new();
-        private static Dictionary<Guid, ImportSettings> LoadedModels { get; set; } = new();
+        private static Dictionary<string, Button> Buttons { get; set; } = new();
+        private static Dictionary<string, ImportSettings> ImportPromises { get; set; } = new();
+        private static Dictionary<string, ImportSettings> LoadedModels { get; set; } = new();
 
-        private event LoadedObjectEventHandler? ObjectLoadedPrivate;
-        public event LoadedObjectEventHandler? ObjectLoaded;
-        public event LoadedModuleEventHandler? JsModuleLoaded;
+        // private event LoadedObjectEventHandler? ObjectLoadedPrivate;
+        // public event LoadedObjectEventHandler? ObjectLoaded;
+        // public event LoadedModuleEventHandler? JsModuleLoaded;
 
         //public event SelectedObjectEventHandler? ObjectSelected;
         //private delegate void SelectedObjectStaticEventHandler(Object3DStaticArgs e);
@@ -114,11 +114,17 @@ namespace BlazorThreeJS.Viewers
             _activeScene = scene;
             if ( success )
             {
-                _activeScene.Add((Object3D)new AmbientLight() { Name = "Default Light" });
-
-                PointLight child = new PointLight() 
+                var ambient = new AmbientLight()
                 { 
-                    Name = "Default Light" ,
+                    Name = "Ambient Light",
+                    Uuid = Guid.NewGuid().ToString(),
+                };
+                _activeScene.AddChild(ambient);
+
+                var point = new PointLight() 
+                { 
+                    Name = "Point Light" ,
+                    Uuid = Guid.NewGuid().ToString(),
                     Position = new Vector3()
                     {
                         X = 1f,
@@ -126,13 +132,17 @@ namespace BlazorThreeJS.Viewers
                         Z = 0.0f
                     }
                 };
-                _activeScene.Add((Object3D)child);
+                _activeScene.AddChild(point);
             }
 
             return _activeScene;
         }
 
-
+        public string Resolve(string jsNamespace, string functionName)
+        {
+            //return $"{jsNamespace}.{functionName}";
+            return $"BlazorThreeJS.{functionName}";
+        }
 
         protected override async Task OnAfterRenderAsync(bool firstRender)
         {
@@ -142,12 +152,11 @@ namespace BlazorThreeJS.Viewers
 
             //ViewerThreeD.ObjectSelectedStatic += new ViewerThreeD.SelectedObjectStaticEventHandler(ViewerThreeD.OnObjectSelectedStatic);
             //ViewerThreeD.ObjectLoadedStatic += new ViewerThreeD.LoadedObjectStaticEventHandler(ViewerThreeD.OnObjectLoadedStatic);
-            
-            ObjectLoadedPrivate += new LoadedObjectEventHandler(OnObjectLoadedPrivate);
+            //ObjectLoadedPrivate += new LoadedObjectEventHandler(OnObjectLoadedPrivate);
 
             LoadedModels.Clear();
 
-            //await JSBridge!.InvokeVoidAsync("import", DotNetObjectReference.Create(this));
+            //await JsRuntime!.InvokeVoidAsync("import", DotNetObjectReference.Create(this));
 
 
             ViewerSettings.containerId = ActiveScene.Title;
@@ -159,10 +168,14 @@ namespace BlazorThreeJS.Viewers
                 OrbitControls = OrbitControls
             };
 
+            var jsNameSpace = ActiveScene.Title;
+            //await JsRuntime!.InvokeVoidAsync("ViewManager.establishViewer3D", (object)jsNameSpace);
 
+            var functionName = Resolve(jsNameSpace, "loadViewer");
+            $"calling {functionName}".WriteInfo();
 
             string str = JsonSerializer.Serialize<SceneDTO>(dto, JSONOptions);
-            await JsRuntime!.InvokeVoidAsync("BlazorThreeJS.loadViewer", (object)str);
+            await JsRuntime!.InvokeVoidAsync(functionName, (object)str);
                         
             await ActiveScene.UpdateScene();
             //SRS  I bet we never load a module  so do not do this!!
@@ -178,8 +191,10 @@ namespace BlazorThreeJS.Viewers
             {
                 foreach (var button in ((PanelMenu)menu).Buttons)
                 {
-                    Console.WriteLine($"From FoundryBlazor Button UUID={button.Uuid}");
-                    if (!ViewerThreeD.Buttons.ContainsKey(button.Uuid)) ViewerThreeD.Buttons.Add(button.Uuid, button);
+                    var uuid = button.Uuid!;
+                    $"From FoundryBlazor Button UUID={uuid}".WriteInfo();
+                    if (!ViewerThreeD.Buttons.ContainsKey(uuid)) 
+                        ViewerThreeD.Buttons.Add(uuid, button);
                 }
             }
             //Console.WriteLine($"PopulateButtonsDict menus Count ={menus.Count}");
@@ -193,12 +208,12 @@ namespace BlazorThreeJS.Viewers
         [JSInvokable]
         public static void ReceiveSelectedObjectUUID(string uuid, Vector3 size)
         {
-            Guid guid = string.IsNullOrWhiteSpace(uuid) ? Guid.Empty : Guid.Parse(uuid);
+
             Console.WriteLine($"ReceiveSelectedObjectUUID size={size.X}, {size.Y}, {size.Z}");
 
             try
             {
-                var item = LoadedModels[guid];
+                var item = LoadedModels[uuid];
                 Console.WriteLine($"item={item}");
                 if (item != null)
                 {
@@ -227,155 +242,145 @@ namespace BlazorThreeJS.Viewers
         [JSInvokable]
         public static Task OnClickButton(string containerId, string uuid)
         {
-            var guid = Guid.Parse(uuid);
 
             Console.WriteLine($"OnClickButton containerId, uuid={containerId}, {uuid}");
-            Console.WriteLine($"After OnClickButton, ViewerThreeD.Buttons ContainsKey ={ViewerThreeD.Buttons.ContainsKey(guid)}");
+            Console.WriteLine($"After OnClickButton, ViewerThreeD.Buttons ContainsKey ={ViewerThreeD.Buttons.ContainsKey(uuid)}");
 
-            if (ViewerThreeD.Buttons.ContainsKey(guid))
+            if (ViewerThreeD.Buttons.ContainsKey(uuid))
             {
-                var button = ViewerThreeD.Buttons[guid];
+                var button = ViewerThreeD.Buttons[uuid];
                 var parms = new List<String>();
                 button.OnClick?.Invoke(button);
             }
             return Task.CompletedTask;
         }
 
-        public static Object3D? GetObjectByUuid(Guid uuid, List<Object3D> children) => ChildrenHelper.GetObjectByUuid(uuid, children);
-
-        private async Task OnModuleLoaded()
+        public static Object3D? GetObjectByUuid(string uuid, List<Object3D> children) 
         {
-            if (JsModuleLoaded == null)
-                return;
-
-            Delegate[] invocationList = JsModuleLoaded.GetInvocationList();
-            Task[] taskArray = new Task[invocationList.Length];
-
-            for (int index = 0; index < invocationList.Length; ++index)
-                taskArray[index] = ((LoadedModuleEventHandler)invocationList[index])();
-
-            await Task.WhenAll(taskArray);
+            return ChildrenHelper.GetObjectByUuid(uuid, children);
         }
 
 
 
-        private void OnObjectSelectedStatic(Object3DStaticArgs e)
-        {
-            if (!(this.ViewerSettings.containerId == e.ContainerId))
-                return;
+
+        // private void OnObjectSelectedStatic(Object3DStaticArgs e)
+        // {
+        //     if (!(this.ViewerSettings.containerId == e.ContainerId))
+        //         return;
 
 
-            ObjectLoaded?.Invoke(new Object3DArgs() { UUID = e.UUID });
-        }
+        //     ObjectLoaded?.Invoke(new Object3DArgs() { UUID = e.UUID });
+        // }
 
-        private void OnObjectLoadedStatic(Object3DStaticArgs e)
-        {
-            if (!(this.ViewerSettings.containerId == e.ContainerId))
-                return;
+        // private void OnObjectLoadedStatic(Object3DStaticArgs e)
+        // {
+        //     if (!(this.ViewerSettings.containerId == e.ContainerId))
+        //         return;
 
-            this.ObjectLoadedPrivate?.Invoke(new Object3DArgs()
-            {
-                UUID = e.UUID
-            });
-
-
-            this.ObjectLoaded?.Invoke(new Object3DArgs()
-            {
-                UUID = e.UUID
-            });
-
-        }
-
-        private List<Object3D> ParseChildren(JsonArray? source)
-        {
-            var children = new List<Object3D>();
-            if (source == null)
-                return children;
-
-            foreach (var child in source)
-            {
-                if (child is JsonNode jobject)
-                {
-                    var name = jobject["name"]?.GetValue<string>() ?? string.Empty;
-                    var uuid = jobject["uuid"]?.GetValue<string>() ?? string.Empty;
-                    var type = jobject["type"]?.GetValue<string>() ?? string.Empty;
-                    var children1 = this.ParseChildren(jobject["children"]?.AsArray());
-
-                    if (type == "Mesh")
-                    {
-                        var mesh = new Mesh()
-                        {
-                            Name = name,
-                            Uuid = Guid.Parse(type)
-                        };
-                        children1.Add((Object3D)mesh);
-                    }
-                    if (type == "Group")
-                    {
-                        var group = new Group3D()
-                        {
-                            Name = name,
-                            Uuid = Guid.Parse(type)
-                        };
-
-                        group.AddRange(children1);
-                    }
-                }
-            }
-            return children;
-        }
-
-        private async Task OnObjectLoadedPrivate(Object3DArgs e)
-        {
-            var options = UnitSpec.JsonHydrateOptions(false);
-            string json = await JsRuntime!.InvokeAsync<string>("BlazorThreeJS.getSceneItemByGuid", (object)e.UUID);
+        //     this.ObjectLoadedPrivate?.Invoke(new Object3DArgs()
+        //     {
+        //         UUID = e.UUID
+        //     });
 
 
-            var jobject = JsonNode.Parse(json);
-            if (jobject == null)
-                return;
+        //     this.ObjectLoaded?.Invoke(new Object3DArgs()
+        //     {
+        //         UUID = e.UUID
+        //     });
 
-            var name = jobject["name"]?.GetValue<string>() ?? string.Empty;
-            var uuid = jobject["uuid"]?.GetValue<string>() ?? string.Empty;
-            var type = jobject["type"]?.GetValue<string>() ?? string.Empty;
-            var children = this.ParseChildren(jobject["children"]?.AsArray());
+        // }
 
-            if (type.Matches("Group"))
-            {
-                var group = new Group3D()
-                {
-                    Name = name,
-                    Uuid = Guid.Parse(uuid),
-                };
+        // private List<Object3D> ParseChildren(JsonArray? source)
+        // {
+        //     var children = new List<Object3D>();
+        //     if (source == null)
+        //         return children;
 
-                group.AddRange(children);
-                ActiveScene.Add(group);
-            }
+        //     foreach (var child in source)
+        //     {
+        //         if (child is JsonNode jobject)
+        //         {
+        //             var name = jobject["name"]?.GetValue<string>() ?? string.Empty;
+        //             var uuid = jobject["uuid"]?.GetValue<string>() ?? string.Empty;
+        //             var type = jobject["type"]?.GetValue<string>() ?? string.Empty;
+        //             var children1 = this.ParseChildren(jobject["children"]?.AsArray());
 
-            if (type.Matches("Mesh"))
-            {
+        //             if (type == "Mesh")
+        //             {
+        //                 var mesh = new Mesh()
+        //                 {
+        //                     Name = name,
+        //                     Uuid = Guid.Parse(type)
+        //                 };
+        //                 children1.Add((Object3D)mesh);
+        //             }
+        //             if (type == "Group")
+        //             {
+        //                 var group = new Group3D()
+        //                 {
+        //                     Name = name,
+        //                     Uuid = Guid.Parse(type)
+        //                 };
 
-                var mesh = new Mesh()
-                {
-                    Name = name,
-                    Uuid = Guid.Parse(uuid),
-                };
+        //                 group.AddRange(children1);
+        //             }
+        //         }
+        //     }
+        //     return children;
+        // }
 
-                mesh.AddRange(children);
-                ActiveScene.Add(mesh);
-            }
+        // private async Task OnObjectLoadedPrivate(Object3DArgs e)
+        // {
+        //     var functionName = Resolve("getSceneItemByGuid");
+        //     var options = UnitSpec.JsonHydrateOptions(false);
+        //     string json = await JsRuntime!.InvokeAsync<string>(functionName, (object)e.UUID);
 
-            this.ObjectLoaded?.Invoke(new Object3DArgs()
-            {
-                UUID = e.UUID
-            });
-        }
+
+        //     var jobject = JsonNode.Parse(json);
+        //     if (jobject == null)
+        //         return;
+
+        //     var name = jobject["name"]?.GetValue<string>() ?? string.Empty;
+        //     var uuid = jobject["uuid"]?.GetValue<string>() ?? string.Empty;
+        //     var type = jobject["type"]?.GetValue<string>() ?? string.Empty;
+        //     var children = this.ParseChildren(jobject["children"]?.AsArray());
+
+        //     if (type.Matches("Group"))
+        //     {
+        //         var group = new Group3D()
+        //         {
+        //             Name = name,
+        //             Uuid = Guid.Parse(uuid),
+        //         };
+
+        //         group.AddRange(children);
+        //         ActiveScene.Add(group);
+        //     }
+
+        //     if (type.Matches("Mesh"))
+        //     {
+
+        //         var mesh = new Mesh()
+        //         {
+        //             Name = name,
+        //             Uuid = Guid.Parse(uuid),
+        //         };
+
+        //         mesh.AddRange(children);
+        //         ActiveScene.Add(mesh);
+        //     }
+
+        //     this.ObjectLoaded?.Invoke(new Object3DArgs()
+        //     {
+        //         UUID = e.UUID
+        //     });
+        // }
 
         public void Dispose()
         {
             //ViewerThreeDObjectSelectedStatic -= new ViewerThreeDSelectedObjectStaticEventHandler(this.OnObjectSelectedStatic);
             //ViewerThreeDObjectLoadedStatic -= new ViewerThreeDLoadedObjectStaticEventHandler(this.OnObjectLoadedStatic);
-            this.ObjectLoadedPrivate -= new LoadedObjectEventHandler(this.OnObjectLoadedPrivate);
+            //this.ObjectLoadedPrivate -= new LoadedObjectEventHandler(this.OnObjectLoadedPrivate);
         }
 
         protected override void BuildRenderTree(RenderTreeBuilder __builder)

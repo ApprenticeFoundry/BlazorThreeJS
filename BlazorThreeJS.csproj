@@ -8,8 +8,8 @@
     <DockerDefaultTargetOS>Linux</DockerDefaultTargetOS>
     <DockerfileContext>.</DockerfileContext>
     <IsPackable>true</IsPackable>     
-    <Version>15.4.0</Version>
-    <AssemblyVersion>15.4.0</AssemblyVersion>
+    <Version>16.0.0</Version>
+    <AssemblyVersion>16.0.0</AssemblyVersion>
     <EnableDefaultContentItems>false</EnableDefaultContentItems>
     <JsLibRoot>JsLib\</JsLibRoot>
 
