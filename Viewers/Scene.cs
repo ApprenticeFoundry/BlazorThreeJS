@@ -213,7 +213,26 @@ public class Scene : Object3D
         return uuid;
     }
 
-    public async Task RemoveByUuidAsync(string uuid)
+    public override Object3D AddChild(Object3D child)
+    {
+        //var scene = this;
+        child.OnDelete = (Object3D item) =>
+        {
+            this.RemoveChild(item);
+        };
+        return base.AddChild(child);
+    }
+
+    public override Object3D RemoveChild(Object3D child)
+    {
+        if (child == null) return child!;
+
+        var uuid = child.Uuid ?? "";
+        Task.Run(async () => { await RemoveByUuid(uuid); });
+        return base.RemoveChild(child);
+    }
+
+    public async Task RemoveByUuid(string uuid)
     {
         var functionName = Resolve("deleteByUuid");
         if (!await JsRuntime!.InvokeAsync<bool>(functionName, (object)uuid))

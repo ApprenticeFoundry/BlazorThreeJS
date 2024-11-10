@@ -13,6 +13,9 @@ using BlazorThreeJS.Viewers;
 using FoundryRulesAndUnits.Models;
 using FoundryRulesAndUnits.Extensions;
 using System.Text.Json.Serialization;
+using Microsoft.AspNetCore.Mvc.ViewFeatures;
+using static System.Formats.Asn1.AsnWriter;
+using static System.Net.Mime.MediaTypeNames;
 
 
 
@@ -33,7 +36,11 @@ namespace BlazorThreeJS.Core
         protected StatusBitArray StatusBits = new();
         public string? Uuid { get; set; }
 
+        [JsonIgnore]
+        public Action<Object3D>? OnDelete { get; set; }
+
         protected Object3D(string type) => this.Type = type;
+
 
         public Vector3 Position { get; set; } = new Vector3();
 
@@ -62,9 +69,16 @@ namespace BlazorThreeJS.Core
             return $"Name: {Name} [{Uuid}] => {Type} c#: ({GetType().Name})";
         }
 
-        public virtual IEnumerable<TreeNodeAction>? GetTreeNodeActions()
+
+        public virtual IEnumerable<TreeNodeAction> GetTreeNodeActions()
         {
             var result = new List<TreeNodeAction>();
+
+            if (OnDelete != null)
+                result.AddAction("Del", "btn-danger", () =>
+                {
+                    Delete();
+                });
             return result;
         }
 
@@ -73,6 +87,12 @@ namespace BlazorThreeJS.Core
             var result = new List<ITreeNode>();
             result.AddRange(Children);
             return result;
+        }
+
+        public virtual void Delete()
+        {
+            $"Deleting {GetTreeNodeTitle()}".WriteWarning();
+            OnDelete?.Invoke(this);
         }
 
         public virtual Object3D AddChild(Object3D child)
