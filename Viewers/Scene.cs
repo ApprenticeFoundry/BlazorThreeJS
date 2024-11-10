@@ -97,9 +97,9 @@ public class Scene : Object3D
         return $"t:{Title} -- {baseTitle}";
     }
 
-    public override IEnumerable<TreeNodeAction>? GetTreeNodeActions()
+    public override IEnumerable<TreeNodeAction> GetTreeNodeActions()
     {
-        var result = base.GetTreeNodeActions()!.ToList();
+        var result = base.GetTreeNodeActions().ToList();
 
         result.AddAction("Clear", "btn-warning", () => 
         {
