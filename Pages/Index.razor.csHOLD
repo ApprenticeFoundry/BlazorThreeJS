@@ -2,22 +2,26 @@
 using BlazorThreeJS.Core;
 using BlazorThreeJS.Viewers;
 using BlazorThreeJS.Settings;
-using BlazorThreeJS.Scenes;
+
 using BlazorThreeJS.Lights;
 using BlazorThreeJS.Maths;
 using BlazorThreeJS.Objects;
 using BlazorThreeJS.Geometires;
 using BlazorThreeJS.Materials;
-using BlazorThreeJS.Events;
+
 using BlazorThreeJS.Labels;
 using BlazorThreeJS.Enums;
 using BlazorThreeJS.Menus;
+using FoundryRulesAndUnits.Extensions;
+using Microsoft.JSInterop;
 
 namespace BlazorThreeJS.Pages;
 
 public class IndexPage : ComponentBase, IDisposable
 {
-    public Viewer View3D1 = null!;
+    [Inject] private IJSRuntime? jsRuntime { get; set; }
+
+
     public Guid objGuid;
     public string Msg = string.Empty;
 
@@ -28,45 +32,54 @@ public class IndexPage : ComponentBase, IDisposable
     public TextPanel TextPanel2 { get; set; } = new();
     public PanelGroup PanelGroup1 { get; set; } = new();
 
+
     public ViewerSettings settings = new ViewerSettings()
     {
-        ContainerId = "example1",
+        containerId = "example1",
         CanSelect = true,// default is false
         SelectedColor = "#808080",
+        Width = 900,
+        Height = 600,
         WebGLRendererSettings = new WebGLRendererSettings
         {
             Antialias = false // if you need poor quality for some reasons
         }
     };
 
-    public Scene scene = new Scene();
+    protected override void OnInitialized()
+    {
+        scene = new("Index Scene", jsRuntime!);
+        base.OnInitialized();
+    }
 
     public void Dispose()
     {
         // View3D1.ObjectSelected -= OnObjectSelected;
         // View3D1.ObjectLoaded -= OnObjectLoaded;
-        View3D1.JsModuleLoaded -= OnJsModuleLoaded;
+        // View3D1.JsModuleLoaded -= OnJsModuleLoaded;
     }
 
-    protected override Task OnAfterRenderAsync(bool firstRender)
+    protected override async Task OnAfterRenderAsync(bool firstRender)
     {
         if (firstRender)
         {
+            //this.scene = new(jsRuntime!);
             // subscribe events only once
             // View3D1.ObjectSelected += OnObjectSelected;
             // View3D1.ObjectLoaded += OnObjectLoaded;
-            View3D1.JsModuleLoaded += OnJsModuleLoaded;
+            // View3D1.JsModuleLoaded += OnJsModuleLoaded;
+            await DisplayItems();
 
         }
 
-        return base.OnAfterRenderAsync(firstRender);
+        await base.OnAfterRenderAsync(firstRender);
     }
 
-    public async Task OnJsModuleLoaded()
+    public async Task DisplayItems()
     {
 
-        await View3D1.SetCameraPositionAsync(new Vector3(0, 3, 6), new Vector3(0, 0, 0));
-        // await View3D1.UpdateScene();
+       // await View3D1.SetCameraPositionAsync(new Vector3(0, 3, 6), new Vector3(0, 0, 0));
+        // await scene.UpdateScene();
 
         // await View3D1.Request3DModel(model1);
         // await RenderLegoMan();
@@ -74,7 +87,7 @@ public class IndexPage : ComponentBase, IDisposable
         var model2Pos = new Vector3(2.5, 3, 0);
         var model2Guid = Guid.NewGuid();
         // var model2Guid = new Guid("66ca8b5b-970e-448c-b695-ee4c3fdfe65f");
-        Console.WriteLine($"model2Guid={model2Guid}");
+        Console.WriteLine($"in DisplayItems model2Guid={model2Guid}");
         var model2 = new ImportSettings
         {
             Uuid = model2Guid,
@@ -106,7 +119,7 @@ public class IndexPage : ComponentBase, IDisposable
 
                 Task.Run(async () =>
                 {
-                    await View3D1.UpdateScene();
+                    await scene.UpdateScene();
                 });
             }
             // OnComplete = (Scene scene, Object3D object3D) =>
@@ -128,7 +141,7 @@ public class IndexPage : ComponentBase, IDisposable
             // }
         };
 
-        await View3D1.Request3DModel(model2);
+        await scene.Request3DModel(model2);
 
         // var settings = new List<ImportSettings>() { model1, model2 };
 
@@ -178,7 +191,7 @@ public class IndexPage : ComponentBase, IDisposable
             }
         };
 
-        await View3D1.Request3DModel(sourceModel);
+        await scene.Request3DModel(sourceModel);
 
 
 
@@ -187,9 +200,9 @@ public class IndexPage : ComponentBase, IDisposable
         {
             Uuid = Guid.NewGuid(),
             Format = Import3DFormats.Gltf,
-            // FileURL = "https://localhost:5001/storage/StaticFiles/jet.glb",
+            FileURL = "https://localhost:5001/storage/StaticFiles/jet.glb",
             // FileURL = "https://localhost:5001/storage/StaticFiles/block_large.glb",
-            FileURL = "https://localhost:5001/storage/StaticFiles/block_small.glb",
+            // FileURL = "https://localhost:5001/storage/StaticFiles/block_small.glb",
 
             // FileURL = "https://localhost:5001/storage/StaticFiles/pr_H64_wheel_H187_0048_inst_0.glb",
             Position = model3Pos,
@@ -212,7 +225,7 @@ public class IndexPage : ComponentBase, IDisposable
             }
         };
 
-        await View3D1.Request3DModel(model3);
+        await scene.Request3DModel(model3);
 
     }
 
@@ -223,7 +236,7 @@ public class IndexPage : ComponentBase, IDisposable
 
         var settings = new List<ImportSettings>() { m1, m2 };
         // var settings = new List<ImportSettings>() { m1 };
-        await View3D1.Clone3DModel(sourceGuid, settings);
+        await scene.Clone3DModel(sourceGuid, settings);
     }
 
     private async Task<ImportSettings> RenderLegoMan()
@@ -294,13 +307,13 @@ public class IndexPage : ComponentBase, IDisposable
 
 
 
-        await View3D1.Request3DModel(body);
-        await View3D1.Request3DModel(head);
-        await View3D1.Request3DModel(armLeft);
-        await View3D1.Request3DModel(armRight);
-        await View3D1.Request3DModel(pelvis);
-        await View3D1.Request3DModel(legLeft);
-        await View3D1.Request3DModel(legRight);
+        await scene.Request3DModel(body);
+        await scene.Request3DModel(head);
+        await scene.Request3DModel(armLeft);
+        await scene.Request3DModel(armRight);
+        await scene.Request3DModel(pelvis);
+        await scene.Request3DModel(legLeft);
+        await scene.Request3DModel(legRight);
         return body;
     }
 
@@ -383,27 +396,27 @@ public class IndexPage : ComponentBase, IDisposable
             Position = new Vector3(1, 3, 0)
         });
 
-        // var height = 4;
+        var height = 4;
 
-        // var piv = new Vector3(-1, -height / 2, -3);
-        // var pos = new Vector3(0, height, 0);
-        // var rot = new Euler(0, Math.PI * 45 / 180, 0);
+        var piv = new Vector3(-1, -height / 2, -3);
+        var pos = new Vector3(0, height, 0);
+        var rot = new Euler(0, Math.PI * 45 / 180, 0);
 
         // var realPos = new Vector3(piv.X + pos.X, piv.Y + pos.Y, piv.Z + pos.Z);
 
-        // scene.Add(new Mesh
-        // {
-        //     Geometry = new BoxGeometry(width: 2, height: height, depth: 6),
-        //     Position = pos,
-        //     Rotation = rot,
-        //     Pivot = piv,
-        //     Material = new MeshStandardMaterial()
-        //     {
-        //         Color = "magenta"
-        //     }
-        // });
+        scene.Add(new Mesh
+        {
+            Geometry = new BoxGeometry(width: 2, height: height, depth: 6),
+            Position = pos,
+            Rotation = rot,
+            Pivot = piv,
+            Material = new MeshStandardMaterial()
+            {
+                Color = "magenta"
+            }
+        });
 
-        // TestText = scene.Add(new LabelText("My First Text") { Position = new Vector3(0, 3, 0), Color = "#33333a" }) as LabelText;
+        TestText = scene.Add(new LabelText("My First Text") { Position = new Vector3(0, 3, 0), Color = "#33333a" }) as LabelText;
 
         // scene.Add(new Mesh
         // {
@@ -426,15 +439,17 @@ public class IndexPage : ComponentBase, IDisposable
         var menuPos = new Vector3(-4, 3, -2);
         var menuRot = new Euler(-1 * Math.PI * 30 / 180, 0, 0);
 
-        scene.Add(new PanelMenu
+        var panel = new PanelMenu
         {
             Name = "MENU1",
             Width = 1.0,
             Height = 3.0,
-            Buttons = buttons,
             Position = menuPos,
             Rotation = menuRot
-        });
+        };
+
+        panel.Buttons.AddRange(buttons);
+        scene.Add(panel);
 
         // scene.Add(BuildTextPanel());
         scene.Add(BuildPanelGroup());
@@ -638,10 +653,10 @@ public class IndexPage : ComponentBase, IDisposable
             Name = "MENU2",
             Width = 2.5,
             Height = 3.0,
-            Buttons = buttons,
             Position = menuPos,
             Rotation = menuRot
         };
+        MenuBtn1.Buttons.AddRange(buttons);
         return MenuBtn1;
     }
 
@@ -792,7 +807,7 @@ public class IndexPage : ComponentBase, IDisposable
         // });
         Task.Run(async () =>
         {
-            await View3D1.UpdateScene();
+            await scene.UpdateScene();
         });
 
     }
@@ -830,7 +845,7 @@ public class IndexPage : ComponentBase, IDisposable
     {
         if (SelectedObject != null)
         {
-            await View3D1.RemoveByUuidAsync(SelectedObject.Uuid);
+            await scene.RemoveByUuidAsync(SelectedObject.Uuid);
             SelectedObject = null;
         }
     }
@@ -838,7 +853,7 @@ public class IndexPage : ComponentBase, IDisposable
     public async Task OnClearScene()
     {
         SelectedObject = null;
-        await View3D1.ClearSceneAsync();
+        await scene.ClearSceneAsync();
         // await View3D1.UpdateScene();
     }
 
@@ -859,7 +874,7 @@ public class IndexPage : ComponentBase, IDisposable
             if (axis == 2) SelectedObject.Position.Z = pos.Z + moveBy;
 
             // await View3D1.MoveObject(SelectedObject);
-            await View3D1.UpdateScene();
+            await scene.UpdateScene();
 
         }
     }
@@ -876,7 +891,7 @@ public class IndexPage : ComponentBase, IDisposable
             }
         });
 
-        await View3D1.UpdateScene();
+        await scene.UpdateScene();
     }
 
     public async Task OnUpdateText()
@@ -893,9 +908,12 @@ public class IndexPage : ComponentBase, IDisposable
 
         var sec = DateTime.Now.Second;
 
-        if (TestText != null) TestText.Text = $"Second {sec}";
+        var newText = $"Second {sec}";
+        $"newText={newText}".WriteInfo();
 
-        await View3D1.UpdateScene();
+        if (TestText != null) TestText.Text = newText;
+
+        await scene.UpdateScene();
     }
 
 }

@@ -175,9 +175,13 @@ export class SceneStateClass {
     }
 
     private itemsToUpdate(sceneOptions: any): any[] {
-        const options = sceneOptions.children.filter((childOptions: any) => {
-            return 'LabelText|Mesh|Group'.indexOf(childOptions.type) >= 0;
-        });
+
+        let options = [];
+        if (Boolean(sceneOptions.children)) {
+            options = sceneOptions.children.filter((childOptions: any) => {
+                return 'LabelText|Mesh|Group'.indexOf(childOptions.type) >= 0;
+            });
+        }
         return options;
     }
 
@@ -205,7 +209,7 @@ export class SceneStateClass {
     private refresh(scene: Scene, refreshList: Array<Text | Object3D | Group>) {
         refreshList.forEach((updatedOption: any) => {
             if (this.isExist(updatedOption.uuid)) {
-                // SceneBuilder.UpdateChild(updatedOption, scene);
+                SceneBuilder.UpdateChild(updatedOption, scene);
             } else {
                 const item = SceneBuilder.BuildChild(scene, updatedOption);
                 if (Boolean(item)) this.addToScene(scene, item);

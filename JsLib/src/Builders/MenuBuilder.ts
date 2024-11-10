@@ -126,9 +126,11 @@ class MenuBuilderClass {
 
     private GetMenuOptionss(options: any) {
         const filterOptions = Boolean(options.scene) ? options.scene : options;
-        this.Menus = filterOptions.children.filter((item: any) => {
-            return item.type === 'Menu';
-        });
+        if (Boolean(filterOptions.children)) {
+            this.Menus = filterOptions.children.filter((item: any) => {
+                return item.type === 'Menu';
+            });
+        }
     }
 
     public BuildMenus(scene: Scene, options: any) {

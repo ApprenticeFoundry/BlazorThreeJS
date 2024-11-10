@@ -41,8 +41,12 @@ export class Viewer3D {
     private clock: Clock;
 
     private INTERSECTED: any = null;
+    private HasLoaded = false;
 
     public loadViewer(json: string) {
+        if ( this.HasLoaded ) return;
+        this.HasLoaded = true;
+
         const options = JSON.parse(json);
         this.clock = new Clock();
 
@@ -64,10 +68,18 @@ export class Viewer3D {
 
         this.renderer = new WebGLRenderer({
             antialias: this.options.viewerSettings.webGLRendererSettings.antialias,
-            preserveDrawingBuffer: true,
+            preserveDrawingBuffer: true
         });
-        this.renderer.domElement.style.width = '100%';
-        this.renderer.domElement.style.height = '100%';
+
+        const requestedWidth = this.options.viewerSettings.width;
+        const requestedHeight = this.options.viewerSettings.height;
+        if (Boolean(requestedWidth) && Boolean(requestedHeight)) {
+            this.renderer.setSize(requestedWidth, requestedHeight, true);
+        }
+        else {
+            this.renderer.domElement.style.width = '100%';
+            this.renderer.domElement.style.height = '100%';
+        }
 
         // this.renderer.domElement.onclick = (event) => {
         //     if (this.options.viewerSettings.canSelect == true) {
@@ -86,10 +98,11 @@ export class Viewer3D {
         this.onResize();
 
         const animate = () => {
-            requestAnimationFrame(animate);
+            window.requestAnimationFrame(animate);
             this.render();
         };
         animate();
+        //this.render();
     }
 
     private render() {
@@ -155,26 +168,28 @@ export class Viewer3D {
     }
 
     public setScene() {
-        console.log('in setScene this.options=', this.options);
+        // console.log('in setScene this.options=', this.options);
         this.scene.background = new Color(this.options.scene.backGroundColor);
         this.scene.uuid = this.options.scene.uuid;
         // this.addFloor();
         // this.addAxes();  we should control this from FoundryBlazor by default
         this.addRoom();
 
-        this.options.scene.children.forEach((childOptions: any) => {
-            const child = SceneBuilder.BuildPeripherals(this.scene, childOptions);
-            if (child) {
-                this.scene.add(child);
-            }
-        });
+        if (Boolean(this.options.scene.children)) {
+            this.options.scene.children.forEach((childOptions: any) => {
+                const child = SceneBuilder.BuildPeripherals(this.scene, childOptions);
+                if (child) {
+                    this.scene.add(child);
+                }
+            });
+        }
         // Add cached meshes.
         SceneState.renderToScene(this.scene, this.options);
     }
 
     public updateScene(options: string) {
         const sceneOptions = JSON.parse(options);
-        console.log('updateScene sceneOptions=', sceneOptions);
+        //console.log('updateScene sceneOptions=', sceneOptions);
         this.options.scene = sceneOptions;
         SceneState.refreshScene(this.scene, sceneOptions);
     }
@@ -305,7 +320,9 @@ export class Viewer3D {
             if (Boolean(this.INTERSECTED) && Boolean(this.INTERSECTED.userData)) {
                 console.log('this.INTERSECTED=', this.INTERSECTED);
                 const size: Vector3 = this.INTERSECTED.userData.size;
-                DotNet.invokeMethodAsync('BlazorThreeJS', 'ReceiveSelectedObjectUUID', this.INTERSECTED.uuid, size);
+
+                // So a better job SRS  2021-09-29
+                //DotNet.invokeMethodAsync('BlazorThreeJS', 'ReceiveSelectedObjectUUID', this.INTERSECTED.uuid, size);
             }
         }
     }

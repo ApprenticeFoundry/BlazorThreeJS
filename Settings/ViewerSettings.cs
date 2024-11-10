@@ -10,14 +10,12 @@ namespace BlazorThreeJS.Settings
 {
     public sealed class ViewerSettings
     {
-        public string ContainerId { get; set; } = "blazorview3d";
-
+        public string containerId { get; set; } = "blazorview3d";
         public bool CanSelect { get; set; }
-
         public bool CanSelectHelpers { get; set; }
-
         public string SelectedColor { get; set; } = "lime";
-
+        public int Width = 0;
+        public int Height = 0;
         public WebGLRendererSettings WebGLRendererSettings { get; set; } = new WebGLRendererSettings();
     }
 }

@@ -1,8 +1,4 @@
-﻿// Decompiled with JetBrains decompiler
-// Type: Blazor3D.Helpers.ArrowHelper
-// Assembly: Blazor3D, Version=0.1.24.0, Culture=neutral, PublicKeyToken=null
-// MVID: 8589B0D0-D62F-4099-9D8A-332F65D16B15
-// Assembly location: Blazor3D.dll
+﻿
 
 using BlazorThreeJS.Core;
 using BlazorThreeJS.Maths;
@@ -19,12 +15,12 @@ namespace BlazorThreeJS.Helpers
         }
 
         public ArrowHelper(
-          Vector3 dir = null,
-          Vector3 origin = null,
+          Vector3 dir,
+          Vector3 origin,
           double length = 1.0,
           string color = "0xffff00",
           double headLength = 0.2,
-          double headWidth = 0.040000000000000008)
+          double headWidth = 0.04)
           : this()
         {
             this.Dir = dir ?? new Vector3(0.0f, 0.0f, 1f);
@@ -45,6 +41,6 @@ namespace BlazorThreeJS.Helpers
 
         public double HeadLength { get; set; } = 0.2;
 
-        public double HeadWidth { get; set; } = 0.040000000000000008;
+        public double HeadWidth { get; set; } = 0.04;
     }
 }

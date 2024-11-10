@@ -1,48 +1,44 @@
 <Project Sdk="Microsoft.NET.Sdk.Web">
 
   <PropertyGroup>
-    <TargetFramework>net7.0</TargetFramework>
+    <TargetFrameworks>net6.0;net8.0</TargetFrameworks>
     <Nullable>enable</Nullable>
     <ImplicitUsings>enable</ImplicitUsings>
     <UserSecretsId>aa47adb6-d26c-4dde-b866-1ce704d22b3e</UserSecretsId>
     <DockerDefaultTargetOS>Linux</DockerDefaultTargetOS>
     <DockerfileContext>.</DockerfileContext>
     <IsPackable>true</IsPackable>     
-    <Version>1.5.0</Version>
+    <Version>16.0.0</Version>
+    <AssemblyVersion>16.0.0</AssemblyVersion>
+    <EnableDefaultContentItems>false</EnableDefaultContentItems>
     <JsLibRoot>JsLib\</JsLibRoot>
-    <DefaultItemExcludes>$(DefaultItemExcludes);$(JsLibRoot)node_modules\**</DefaultItemExcludes>
+
+    <Authors>Stephen Strong</Authors>
+    <Company>Stephen Strong</Company>
+    <Copyright>Copyright © 2020</Copyright>
+    <Title>Blazor ThreeJS</Title>
+    <RepositoryUrl>https://github.com/ApprenticeFoundry/BlazorThreeJS</RepositoryUrl>
+    <PackageLicenseExpression>MIT</PackageLicenseExpression>
+    <PackageId>ApprenticeFoundryBlazorThreeJS</PackageId>
+    <PlatformTarget>AnyCPU</PlatformTarget>
+    <PackageProjectUrl>https://apprenticefoundry.github.io/</PackageProjectUrl>
 </PropertyGroup>
 
+  <!-- <ItemGroup>
+      <Content Include="wwwroot/**/*.js" CopyToOutputDirectory="PreserveNewest" />
+  </ItemGroup> -->
+
   <ItemGroup>
-    <PackageReference Include="Microsoft.AspNetCore.Mvc.NewtonsoftJson" Version="7.0.2" />
-    <PackageReference Include="Microsoft.VisualStudio.Azure.Containers.Tools.Targets" Version="1.17.2" />
+    <SupportedPlatform Include="browser" />
   </ItemGroup>
 
   <ItemGroup>
-    <Content Remove="$(JsLibRoot)**" />
-    <None Remove="$(JsLibRoot)**" />
-    <None Include="$(JsLibRoot)**" Exclude="$(JsLibRoot)node_modules\**" />
+    <!-- <ProjectReference Include="..\FoundryRulesAndUnits\FoundryRulesAndUnits.csproj" /> -->
+    <PackageReference Include="ApprenticeFoundryRulesAndUnits" Version="4.3.0" />
+    <PackageReference Include="System.Text.Json" Version="8.0.5" />
+
   </ItemGroup>
-
-  <ItemGroup>
-    <ProjectReference Include="..\FoundryRulesAndUnits\FoundryRulesAndUnits.csproj" />
-  </ItemGroup>
-
-   <Target Name="DebugEnsureNodeEnv" BeforeTargets="Build" Condition=" '$(Configuration)' == 'Debug' And !Exists('$(JsLibRoot)node_modules') ">
-    <!-- Ensure Node.js is installed -->
-    <Exec Command="node --version" ContinueOnError="true">
-      <Output TaskParameter="ExitCode" PropertyName="ErrorCode" />
-    </Exec>
-    <Error Condition="'$(ErrorCode)' != '0'" Text="Node.js is required to build and run this project. To continue, please install Node.js from https://nodejs.org/, and then restart your command prompt or IDE." />
-    <Message Importance="high" Text="Restoring dependencies using 'npm'. This may take several minutes..." />
-    <Exec WorkingDirectory="$(JsLibRoot)" Command="npm install" />
-    <Exec WorkingDirectory="$(JsLibRoot)" Command="npm run build" />
-  </Target>
-
-  <Target Name="PublishRunWebpack" AfterTargets="ComputeFilesToPublish">
-    <!-- As part of publishing, ensure the JS resources are freshly built in production mode -->
-    <Exec WorkingDirectory="$(JsLibRoot)" Command="npm install" />
-    <Exec WorkingDirectory="$(JsLibRoot)" Command="npm run build" />
-  </Target>
 
 </Project>
+
+
