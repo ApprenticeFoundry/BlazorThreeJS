@@ -58,7 +58,7 @@ namespace BlazorThreeJS.Viewers
         //private static event ViewerThreeDLoadedObjectStaticEventHandler ObjectLoadedStatic;
 
         private ViewerSettings _viewingSettings = null!;
-        private Scene _activeScene = null!;
+        private Scene3D _activeScene = null!;
 
         [Parameter]
         public ViewerSettings ViewerSettings
@@ -68,7 +68,7 @@ namespace BlazorThreeJS.Viewers
         }
 
         [Parameter]
-        public Scene ActiveScene 
+        public Scene3D ActiveScene 
         { 
             get => ComputeActiveScene();
             set => _activeScene = value;
@@ -104,12 +104,12 @@ namespace BlazorThreeJS.Viewers
             return _viewingSettings;
         }
 
-        private Scene ComputeActiveScene()
+        private Scene3D ComputeActiveScene()
         {
             if (_activeScene != null)
                 return _activeScene;
 
-            var (success, scene) = Scene.EstablishScene(SceneName, JsRuntime!);
+            var (success, scene) = Scene3D.EstablishScene(SceneName, JsRuntime!);
 
             _activeScene = scene;
             if ( success )

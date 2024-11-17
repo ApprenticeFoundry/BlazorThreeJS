@@ -30,7 +30,7 @@ namespace BlazorThreeJS.Core
     [JsonDerivedType(typeof(AmbientLight))]
     [JsonDerivedType(typeof(PointLight))]
     [JsonDerivedType(typeof(LabelText))]
-    [JsonDerivedType(typeof(Scene))]
+    [JsonDerivedType(typeof(Scene3D))]
     public abstract class Object3D : ITreeNode
     {
         protected StatusBitArray StatusBits = new();
