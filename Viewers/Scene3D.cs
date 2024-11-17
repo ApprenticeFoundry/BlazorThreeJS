@@ -10,7 +10,6 @@ using BlazorThreeJS.Cameras;
 using BlazorThreeJS.ComponentHelpers;
 using BlazorThreeJS.Core;
 using BlazorThreeJS.Maths;
-using BlazorThreeJS.Objects;
 using BlazorThreeJS.Settings;
 using FoundryRulesAndUnits.Extensions;
 using FoundryRulesAndUnits.Models;
