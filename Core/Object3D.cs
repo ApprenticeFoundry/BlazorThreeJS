@@ -21,7 +21,7 @@ using static System.Net.Mime.MediaTypeNames;
 
 namespace BlazorThreeJS.Core
 {
-    [JsonDerivedType(typeof(Mesh))]
+    [JsonDerivedType(typeof(Mesh3D))]
     [JsonDerivedType(typeof(Group3D))]
     [JsonDerivedType(typeof(TextPanel))]
     [JsonDerivedType(typeof(PanelMenu))]
@@ -66,7 +66,7 @@ namespace BlazorThreeJS.Core
 
         public virtual string GetTreeNodeTitle()
         {
-            return $"Name: {Name} [{Uuid}] => {Type} c#: ({GetType().Name})";
+            return $"{Name} [{Uuid}] => {Type} C#: ({GetType().Name})";
         }
 
 
@@ -85,7 +85,7 @@ namespace BlazorThreeJS.Core
         public virtual IEnumerable<ITreeNode> GetTreeChildren()
         {
             var result = new List<ITreeNode>();
-            result.AddRange(Children);
+            result.AddRange(GetAllChildren());
             return result;
         }
 
@@ -104,16 +104,13 @@ namespace BlazorThreeJS.Core
                 return child;
             }
 
-            var found = this.children.Find((item) =>
-            {
-                return item.Uuid == uuid;
-            });
-
+            var found = this.children.Find((item) => item.Uuid == uuid);
             if ( found != null )
             {
-                $"AddChild already existing {child.Name} -> {found.Name} {found.Uuid}".WriteError();  
+                $"Object3D AddChild already existing {child.Name} -> {found.Name} {found.Uuid}".WriteError();  
                 return found;
             }
+            $"Object3D AddChild {child.Name} -> {this.Name} {this.Uuid}".WriteInfo();
 
             this.children.Add(child);
             return child;
@@ -135,14 +132,17 @@ namespace BlazorThreeJS.Core
 
         public Object3D Update(Object3D child)
         {
-            var obj = this.children.Find((item) =>
+            var uuid = child.Uuid;
+            if ( string.IsNullOrEmpty(uuid))
             {
-                return item.Uuid == child.Uuid;
-            });
+                $"AddChild missing  Uuid, {child.Name}".WriteError();  
+                return child;
+            }
 
-            if (obj != null)
+            var found = this.children.Find((item) => item.Uuid == uuid);
+            if (found != null)
             {
-                this.RemoveChild(obj);
+                this.RemoveChild(found);
             }
 
             this.AddChild(child);

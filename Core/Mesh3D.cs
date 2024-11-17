@@ -7,10 +7,10 @@ using FoundryRulesAndUnits.Models;
 
 namespace BlazorThreeJS.Objects;
 
-public class Mesh : Object3D
+public class Mesh3D : Object3D
 {
-    public Mesh()
-      : base(nameof(Mesh))
+    public Mesh3D()
+      : base("Mesh")
     {
     }
 
@@ -21,8 +21,8 @@ public class Mesh : Object3D
     public override IEnumerable<ITreeNode> GetTreeChildren()
     {
         var result = base.GetTreeChildren().ToList();
-        result.Add(Geometry);
-        result.Add(Material);
+        //result.Add(Geometry);
+        //result.Add(Material);
         return result;
     }
 

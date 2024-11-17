@@ -16,6 +16,10 @@ export class SceneStateClass {
 
     public addPrimitive(key: string, value: Object3D) {
         this.primitives.set(key, value);
+
+        value.children.forEach((child) => {
+            this.addPrimitive(child.uuid, child);
+        });
     }
 
     public deletePrimitive(key: string) {

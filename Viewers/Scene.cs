@@ -167,7 +167,11 @@ public class Scene : Object3D
         {
             var functionName = Resolve("updateScene");
             var json = JsonSerializer.Serialize((object)this, JSONOptions);
-            $"UpdateScene: {functionName} => ".WriteInfo();
+            $"UpdateScene: {json} ".WriteInfo();
+            
+            //var dir = System.IO.Directory.GetCurrentDirectory();
+            //FileHelpers.WriteData("sceneData.json", dir,json);
+
 
             await JsRuntime!.InvokeVoidAsync(functionName, (object)json);
 
@@ -192,7 +196,7 @@ public class Scene : Object3D
         var uuid = settings.Uuid!;
         if (ImportPromises.ContainsKey(uuid))
         {
-            $"Already loaded {uuid}".WriteInfo();
+            $"Request3DModel Already loaded {uuid} {settings.FileURL}".WriteInfo();
             return uuid;
         }
 
@@ -277,8 +281,8 @@ public class Scene : Object3D
                 promise.OnComplete = () => { };
             }
         }
-        //return Task.CompletedTask;
         return Task.FromResult(0);
+
         // {
         //     var settings = ImportPromises[uuid];
         //     ImportPromises.Remove(uuid);

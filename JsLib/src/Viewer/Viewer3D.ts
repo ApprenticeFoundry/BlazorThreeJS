@@ -21,6 +21,7 @@ import {
     WebGLRenderer,
     Event as ThreeEvent,
 } from 'three';
+
 import { SceneState } from '../Utils/SceneState';
 import ThreeMeshUI from 'three-mesh-ui';
 import { MenuBuilder } from '../Builders/MenuBuilder';
@@ -171,9 +172,9 @@ export class Viewer3D {
         // console.log('in setScene this.options=', this.options);
         this.scene.background = new Color(this.options.scene.backGroundColor);
         this.scene.uuid = this.options.scene.uuid;
-        // this.addFloor();
+        this.addFloor();
         // this.addAxes();  we should control this from FoundryBlazor by default
-        this.addRoom();
+        //this.addRoom();
 
         if (Boolean(this.options.scene.children)) {
             this.options.scene.children.forEach((childOptions: any) => {
@@ -336,14 +337,14 @@ export class Viewer3D {
         }
     }
 
-    private getFirstNonHelper(intersects: any) {
-        for (let i = 0; i < intersects.length; i++) {
-            if (!intersects[i].object.type.includes('Helper')) {
-                return intersects[i].object;
-            }
-        }
-        return null;
-    }
+    // private getFirstNonHelper(intersects: any) {
+    //     for (let i = 0; i < intersects.length; i++) {
+    //         if (!intersects[i].object.type.includes('Helper')) {
+    //             return intersects[i].object;
+    //         }
+    //     }
+    //     return null;
+    // }
 
     public deleteByUuid(uuid: string) {
         return SceneState.removeItem(this.scene, uuid);
@@ -365,10 +366,10 @@ export class Viewer3D {
         this.scene.add(room);
     }
 
-    // private addFloor() {
-    //     const grid = new GridHelper(30, 30, 0x848484, 0x848484);
-    //     this.scene.add(grid);
-    // }
+    private addFloor() {
+        const grid = new GridHelper(30, 30, 0x848484, 0x848484);
+        this.scene.add(grid);
+    }
 
     private addAxes() {
         // const axesHelper = new AxesHelper(3);
