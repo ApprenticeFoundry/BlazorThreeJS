@@ -10,7 +10,6 @@ using BlazorThreeJS.Cameras;
 using BlazorThreeJS.ComponentHelpers;
 using BlazorThreeJS.Core;
 using BlazorThreeJS.Maths;
-using BlazorThreeJS.Objects;
 using BlazorThreeJS.Settings;
 using FoundryRulesAndUnits.Extensions;
 using FoundryRulesAndUnits.Models;
@@ -20,7 +19,7 @@ using Microsoft.JSInterop;
 
 namespace BlazorThreeJS.Viewers;
 
-public class Scene : Object3D
+public class Scene3D : Object3D
 {
     public string Title { get; init; }
     public string BackGroundColor { get; set; } = "#505050";
@@ -30,7 +29,7 @@ public class Scene : Object3D
     private IJSRuntime JsRuntime { get; set; }
     //private Dictionary<string, ImportSettings> LoadedModels { get; set; } = new();
 
-    private Action<Scene,string>? AfterUpdate { get; set; } = (scene,json) => { };
+    private Action<Scene3D,string>? AfterUpdate { get; set; } = (scene,json) => { };
 
 
     public Camera Camera { get; set; } = new PerspectiveCamera()
@@ -38,9 +37,9 @@ public class Scene : Object3D
         Position = new Vector3(5f, 5f, 5f)
     };
 
-    private static List<Scene> _AllScenes { get; set; } = new();
+    private static List<Scene3D> _AllScenes { get; set; } = new();
 
-    public Scene(string title, IJSRuntime js) : base(nameof(Scene))
+    public Scene3D(string title, IJSRuntime js) : base("Scene")
     {
         // $"Scene {title} creating".WriteInfo();
         JsRuntime = js;
@@ -50,7 +49,7 @@ public class Scene : Object3D
         // $"Scene {Title} created".WriteInfo();
     }
 
-    public void SetAfterUpdateAction(Action<Scene,string> afterUpdate)
+    public void SetAfterUpdateAction(Action<Scene3D,string> afterUpdate)
     {
         if ( afterUpdate != null)
             AfterUpdate = afterUpdate;
@@ -58,13 +57,13 @@ public class Scene : Object3D
             AfterUpdate = (scene,json) => { };
     }
 
-    public static (bool success, Scene scene) EstablishScene(string title, IJSRuntime jS)
+    public static (bool success, Scene3D scene) EstablishScene(string title, IJSRuntime jS)
     {
         //$"EstablishScene {title}".WriteInfo();
         var found = _AllScenes.FirstOrDefault(scene => scene.Title.Matches(title));   
         if (found == null)
         {
-            found = new Scene(title, jS);
+            found = new Scene3D(title, jS);
             return (true, found);
         }
         return (false, found);
@@ -73,14 +72,14 @@ public class Scene : Object3D
 
 
 
-    public static List<Scene> GetAllScenes()
+    public static List<Scene3D> GetAllScenes()
     {
-        var dummy = new List<Scene>();
+        var dummy = new List<Scene3D>();
         dummy.AddRange(_AllScenes);
         return dummy;
     }
 
-    public static List<Scene> RemoveScene(Scene scene)
+    public static List<Scene3D> RemoveScene(Scene3D scene)
     {
         if (scene != null)
         {
@@ -167,7 +166,11 @@ public class Scene : Object3D
         {
             var functionName = Resolve("updateScene");
             var json = JsonSerializer.Serialize((object)this, JSONOptions);
-            $"UpdateScene: {functionName} => ".WriteInfo();
+            $"UpdateScene: {json} ".WriteInfo();
+            
+            //var dir = System.IO.Directory.GetCurrentDirectory();
+            //FileHelpers.WriteData("sceneData.json", dir,json);
+
 
             await JsRuntime!.InvokeVoidAsync(functionName, (object)json);
 
@@ -192,7 +195,7 @@ public class Scene : Object3D
         var uuid = settings.Uuid!;
         if (ImportPromises.ContainsKey(uuid))
         {
-            $"Already loaded {uuid}".WriteInfo();
+            $"Request3DModel Already loaded {uuid} {settings.FileURL}".WriteInfo();
             return uuid;
         }
 
@@ -277,8 +280,8 @@ public class Scene : Object3D
                 promise.OnComplete = () => { };
             }
         }
-        //return Task.CompletedTask;
         return Task.FromResult(0);
+
         // {
         //     var settings = ImportPromises[uuid];
         //     ImportPromises.Remove(uuid);

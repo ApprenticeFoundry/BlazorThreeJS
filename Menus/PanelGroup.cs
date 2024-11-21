@@ -19,6 +19,6 @@ namespace BlazorThreeJS.Menus
         public string Color { get; set; } = "#333333";
         public List<string> TextLines { get; set; } = new();
         public List<TextPanel> TextPanels { get; set; } = new();
-        public List<Mesh> Meshes { get; set; } = new();
+        public List<Object3D> Meshes { get; set; } = new();
     }
 }

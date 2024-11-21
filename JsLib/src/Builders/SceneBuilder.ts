@@ -53,6 +53,10 @@ export class SceneBuilder {
             return MeshBuilder.BuildMesh(options, scene);
         }
 
+        if (options.type == 'Group') {
+            return MeshBuilder.BuildMesh(options, scene);
+        }
+
         if (options.type === 'Menu') {
             console.log('BuildChild We have a menu');
             return null;
@@ -60,9 +64,6 @@ export class SceneBuilder {
 
         return null;
 
-        // if (options.type.includes('Group')) {
-        //     return;
-        // }
     }
 
     static UpdateChild(options: any, scene: Scene) {

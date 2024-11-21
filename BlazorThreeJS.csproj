@@ -8,8 +8,8 @@
     <DockerDefaultTargetOS>Linux</DockerDefaultTargetOS>
     <DockerfileContext>.</DockerfileContext>
     <IsPackable>true</IsPackable>     
-    <Version>16.0.0</Version>
-    <AssemblyVersion>16.0.0</AssemblyVersion>
+    <Version>16.2.0</Version>
+    <AssemblyVersion>16.2.0</AssemblyVersion>
     <EnableDefaultContentItems>false</EnableDefaultContentItems>
     <JsLibRoot>JsLib\</JsLibRoot>
 
@@ -34,7 +34,7 @@
 
   <ItemGroup>
     <!-- <ProjectReference Include="..\FoundryRulesAndUnits\FoundryRulesAndUnits.csproj" /> -->
-    <PackageReference Include="ApprenticeFoundryRulesAndUnits" Version="4.3.0" />
+    <PackageReference Include="ApprenticeFoundryRulesAndUnits" Version="4.4.0" />
     <PackageReference Include="System.Text.Json" Version="8.0.5" />
 
   </ItemGroup>
