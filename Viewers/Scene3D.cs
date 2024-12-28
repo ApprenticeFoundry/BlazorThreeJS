@@ -166,7 +166,7 @@ public class Scene3D : Object3D
         {
             var functionName = Resolve("updateScene");
             var json = JsonSerializer.Serialize((object)this, JSONOptions);
-            $"UpdateScene: {json} ".WriteInfo();
+            //$"UpdateScene: {json} ".WriteInfo();
             
             //var dir = System.IO.Directory.GetCurrentDirectory();
             //FileHelpers.WriteData("sceneData.json", dir,json);
