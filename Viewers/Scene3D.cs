@@ -57,16 +57,23 @@ public class Scene3D : Object3D
             AfterUpdate = (scene,json) => { };
     }
 
-    public static (bool success, Scene3D scene) EstablishScene(string title, IJSRuntime jS)
+    public static (bool success, Scene3D scene) FindScene(string title)
+    {
+        //$"FindScene {title}".WriteInfo();
+        var found = _AllScenes.FirstOrDefault(scene => scene.Title.Matches(title));
+        return (found != null, found!);
+    }
+
+    public static Scene3D EstablishScene(string title, IJSRuntime jS, Action<Scene3D>? OnCreate)
     {
         //$"EstablishScene {title}".WriteInfo();
-        var found = _AllScenes.FirstOrDefault(scene => scene.Title.Matches(title));   
-        if (found == null)
-        {
-            found = new Scene3D(title, jS);
-            return (true, found);
-        }
-        return (false, found);
+        var (found, scene) = FindScene(title);
+        if (found) return scene;
+
+        var result = new Scene3D(title, jS);
+        OnCreate?.Invoke(result);
+        return result;
+
     }
 
 

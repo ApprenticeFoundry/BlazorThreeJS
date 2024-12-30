@@ -104,26 +104,28 @@ namespace BlazorThreeJS.Viewers
             return _viewingSettings;
         }
 
+        public Scene3D GetActiveScene()
+        {
+            return ComputeActiveScene();
+        }
+
         private Scene3D ComputeActiveScene()
         {
             if (_activeScene != null)
                 return _activeScene;
 
-            var (success, scene) = Scene3D.EstablishScene(SceneName, JsRuntime!);
-
-            _activeScene = scene;
-            if ( success )
+            _activeScene = Scene3D.EstablishScene(SceneName, JsRuntime!, (scene) =>
             {
                 var ambient = new AmbientLight()
-                { 
+                {
                     Name = "Ambient Light",
                     Uuid = Guid.NewGuid().ToString(),
                 };
-                _activeScene.AddChild(ambient);
+                scene.AddChild(ambient);
 
-                var point = new PointLight() 
-                { 
-                    Name = "Point Light" ,
+                var point = new PointLight()
+                {
+                    Name = "Point Light",
                     Uuid = Guid.NewGuid().ToString(),
                     Position = new Vector3()
                     {
@@ -132,8 +134,8 @@ namespace BlazorThreeJS.Viewers
                         Z = 0.0f
                     }
                 };
-                _activeScene.AddChild(point);
-            }
+                scene.AddChild(point);
+            });
 
             return _activeScene;
         }
@@ -158,26 +160,29 @@ namespace BlazorThreeJS.Viewers
 
             //await JsRuntime!.InvokeVoidAsync("import", DotNetObjectReference.Create(this));
 
+            var scene = ActiveScene;
+            var jsNameSpace = scene.Title;
 
-            ViewerSettings.containerId = ActiveScene.Title;
+            ViewerSettings.containerId = jsNameSpace;
             var dto = new SceneDTO()
             {
-                Scene = ActiveScene,
+                Scene = scene,
                 ViewerSettings = ViewerSettings,
-                Camera = ActiveScene.Camera,
+                Camera = scene.Camera,
                 OrbitControls = OrbitControls
             };
 
-            var jsNameSpace = ActiveScene.Title;
             //await JsRuntime!.InvokeVoidAsync("ViewManager.establishViewer3D", (object)jsNameSpace);
 
+            //this is all about having a seperate namespace in javascript to render
+            //more than one view
             var functionName = Resolve(jsNameSpace, "loadViewer");
-            $"calling {functionName}".WriteInfo();
+            $"ViewerThreeD calling {functionName}".WriteInfo();
 
             string str = JsonSerializer.Serialize<SceneDTO>(dto, JSONOptions);
             await JsRuntime!.InvokeVoidAsync(functionName, (object)str);
                         
-            await ActiveScene.UpdateScene();
+            await scene.UpdateScene();
             //SRS  I bet we never load a module  so do not do this!!
             //await ViewerThreeD.OnModuleLoaded();
         }
