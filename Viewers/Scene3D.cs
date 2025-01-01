@@ -212,14 +212,15 @@ public class Scene3D : Object3D
         //LoadedModels.Add(uuid, settings);
 
 
-        var functionName = Resolve("import3DModel");
-        var json = JsonSerializer.Serialize((object)settings, JSONOptions);
-
         try
         {
-           // $"Request3DModel  JSONOptions: {json}".WriteInfo();
+            var functionName = Resolve("import3DModel");
+            var json = JsonSerializer.Serialize((object)settings, JSONOptions);
+            WriteToFolder("Data", "Scene3D_Request3DModel.json", json); 
+           //$"Request3DModel calling {functionName} with {json}".WriteInfo();
             await JsRuntime!.InvokeVoidAsync(functionName, (object)json);
             await UpdateScene();  
+            $"Request3DModel:Scene3D {functionName} {settings.FileURL} {uuid}".WriteInfo();
         }
         catch (System.Exception ex)
         {  
@@ -229,6 +230,19 @@ public class Scene3D : Object3D
         //$"Request3DModel: {settings} {uuid}".WriteInfo();
 
         return uuid;
+    }
+
+    public string WriteToFolder(string folder, string filename, string result)
+    {
+        try
+        {
+            FileHelpers.WriteData(folder, filename, result);
+            return result;
+        }
+        catch (Exception ex)
+        {
+            return ex.Message;
+        }
     }
 
     public override Object3D AddChild(Object3D child)
@@ -284,6 +298,7 @@ public class Scene3D : Object3D
     [JSInvokable]
     public static Task ReceiveLoadedObjectUUID(string containerId, string uuid)
     {
+        $"ReceiveLoadedObjectUUID {containerId} {uuid}".WriteInfo();
 
         if ( ImportPromises.TryGetValue(uuid, out ImportSettings? promise))
         {

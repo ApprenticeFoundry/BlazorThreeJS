@@ -28,10 +28,10 @@ using Microsoft.JSInterop;
 namespace BlazorThreeJS.Viewers
 {
 
-    public class ViewerThreeD : ComponentBase, IDisposable
+    public class ViewerThreeD : ComponentBase, IAsyncDisposable
     {
+        private bool HasRendered = false;
         [Inject] private IJSRuntime? JsRuntime { get; set; }
-
 
         [Parameter,EditorRequired] public string SceneName { get; set; } = "Viewer3D";
 
@@ -39,12 +39,13 @@ namespace BlazorThreeJS.Viewers
         {
             PropertyNamingPolicy = JsonNamingPolicy.CamelCase,
             DefaultIgnoreCondition = JsonIgnoreCondition.WhenWritingNull,
+            WriteIndented = true,
             IncludeFields = true,
             IgnoreReadOnlyFields = true
         };
 
         private static Dictionary<string, Button> Buttons { get; set; } = new();
-        private static Dictionary<string, ImportSettings> ImportPromises { get; set; } = new();
+        //private static Dictionary<string, ImportSettings> ImportPromises { get; set; } = new();
         private static Dictionary<string, ImportSettings> LoadedModels { get; set; } = new();
 
         // private event LoadedObjectEventHandler? ObjectLoadedPrivate;
@@ -140,7 +141,7 @@ namespace BlazorThreeJS.Viewers
             return _activeScene;
         }
 
-        public string Resolve(string jsNamespace, string functionName)
+        public string ResolveFunction(string jsNamespace, string functionName)
         {
             //return $"{jsNamespace}.{functionName}";
             return $"BlazorThreeJS.{functionName}";
@@ -151,24 +152,19 @@ namespace BlazorThreeJS.Viewers
 
             if (firstRender)
             {
+                //ViewerThreeD.ObjectSelectedStatic += new ViewerThreeD.SelectedObjectStaticEventHandler(ViewerThreeD.OnObjectSelectedStatic);
+                //ViewerThreeD.ObjectLoadedStatic += new ViewerThreeD.LoadedObjectStaticEventHandler(ViewerThreeD.OnObjectLoadedStatic);
+                //ObjectLoadedPrivate += new LoadedObjectEventHandler(OnObjectLoadedPrivate);
 
-                
-            //ViewerThreeD.ObjectSelectedStatic += new ViewerThreeD.SelectedObjectStaticEventHandler(ViewerThreeD.OnObjectSelectedStatic);
-            //ViewerThreeD.ObjectLoadedStatic += new ViewerThreeD.LoadedObjectStaticEventHandler(ViewerThreeD.OnObjectLoadedStatic);
-            //ObjectLoadedPrivate += new LoadedObjectEventHandler(OnObjectLoadedPrivate);
-
-
+                HasRendered = true;
                 LoadedModels.Clear();
 
-                var scene = ActiveScene;
+                var scene = GetActiveScene();
                 var jsNameSpace = scene.Title;
 
                 //await JsRuntime!.InvokeVoidAsync("import", DotNetObjectReference.Create(this));
                 //await JsRuntime!.InvokeVoidAsync("ViewManager.establishViewer3D", (object)jsNameSpace);
 
-
-
-                ViewerSettings.containerId = jsNameSpace;
                 var dto = new SceneDTO()
                 {
                     Scene = scene,
@@ -179,16 +175,66 @@ namespace BlazorThreeJS.Viewers
 
                 //this is all about having a seperate namespace in javascript to render
                 //more than one view
-                var functionName = Resolve(jsNameSpace, "loadViewer");
-                $"ViewerThreeD calling {functionName}".WriteInfo();
+                var functionName = ResolveFunction(jsNameSpace, "Initialize3DViewer");
 
-                string str = JsonSerializer.Serialize<SceneDTO>(dto, JSONOptions);
-                await JsRuntime!.InvokeVoidAsync(functionName, (object)str);
+                try
+                {
+                    string json = JsonSerializer.Serialize<SceneDTO>(dto, JSONOptions);
+                    //$"ViewerThreeD calling {functionName} with {json}".WriteInfo();
+                    WriteToFolder("Data", "ViewerThreeD_OnAfterRenderAsync.json", json);  
+                    await JsRuntime!.InvokeVoidAsync(functionName, (object)json);
+                    await scene.UpdateScene();
+                }
+                catch (System.Exception ex)
+                {
+                    $"ViewerThreeD Error {ex.Message} OnAfterRenderAsync".WriteError();
+                }
                             
-                await scene.UpdateScene();
             }
             await base.OnAfterRenderAsync(firstRender);
 
+        }
+
+
+        public async ValueTask DisposeAsync()
+        {
+                        //ViewerThreeDObjectSelectedStatic -= new ViewerThreeDSelectedObjectStaticEventHandler(this.OnObjectSelectedStatic);
+            //ViewerThreeDObjectLoadedStatic -= new ViewerThreeDLoadedObjectStaticEventHandler(this.OnObjectLoadedStatic);
+            //this.ObjectLoadedPrivate -= new LoadedObjectEventHandler(this.OnObjectLoadedPrivate);
+
+            try
+            {
+                $"ViewerThreeD {SceneName} TRY DisposeAsync".WriteWarning();
+                if (!HasRendered)
+                    return;
+                    
+                var scene = GetActiveScene();
+                var jsNameSpace = scene.Title;
+                var functionName = ResolveFunction(jsNameSpace, "Finalize3DViewer");
+                $"ViewerThreeD {SceneName} DisposeAsync".WriteInfo();
+                await JsRuntime!.InvokeVoidAsync(functionName);
+
+
+                //await _jsRuntime!.InvokeVoidAsync("AppBrowser.Finalize");
+
+            }
+            catch (Exception ex)
+            {
+                $"ViewerThreeD DisposeAsync Exception {ex.Message}".WriteError();
+            }
+        }
+
+        public string WriteToFolder(string folder, string filename, string result)
+        {
+            try
+            {
+                FileHelpers.WriteData(folder, filename, result);
+                return result;
+            }
+            catch (Exception ex)
+            {
+                return ex.Message;
+            }
         }
 
         private void PopulateButtonsDict()
@@ -209,9 +255,6 @@ namespace BlazorThreeJS.Viewers
             //Console.WriteLine($"PopulateButtonsDict menus Count ={menus.Count}");
             //Console.WriteLine($"ViewerThreeD.Buttons Count ={ViewerThreeD.Buttons.Count}");
         }
-
-
-
 
 
         [JSInvokable]
@@ -379,12 +422,7 @@ namespace BlazorThreeJS.Viewers
         //     });
         // }
 
-        public void Dispose()
-        {
-            //ViewerThreeDObjectSelectedStatic -= new ViewerThreeDSelectedObjectStaticEventHandler(this.OnObjectSelectedStatic);
-            //ViewerThreeDObjectLoadedStatic -= new ViewerThreeDLoadedObjectStaticEventHandler(this.OnObjectLoadedStatic);
-            //this.ObjectLoadedPrivate -= new LoadedObjectEventHandler(this.OnObjectLoadedPrivate);
-        }
+
 
         protected override void BuildRenderTree(RenderTreeBuilder __builder)
         {

@@ -10,6 +10,7 @@ export class SceneStateClass {
     private primitives = new Map<string, Object3D>();
     private gltfs = new Map<string, Group>();
     private gltfURLs = new Map<string, Group>();
+    
     // private gltfs = new Map<string, GLTF>();
     // private gltfURLs = new Map<string, GLTF>();
     private labels = new Map<string, Text>();
@@ -42,12 +43,18 @@ export class SceneStateClass {
         return this.labels.get(key) || null;
     }
 
-    public isExist(key: string): boolean {
+    public doesKeyExist(key: string): boolean 
+    {
         const primitive = this.findPrimitive(key);
-        const label = this.findLabel(key);
-        const gltf = this.findGLTFByGuid(key);
+        if (Boolean(primitive)) return true;
 
-        return Boolean(primitive) || Boolean(label) || Boolean(gltf);
+        const label = this.findLabel(key);
+        if (Boolean(label)) return true;
+
+        const gltf = this.findGLTFByGuid(key);
+        if (Boolean(gltf)) return true;
+
+        return false;
     }
 
     public addToScene(scene: Scene, item: Object3D | Text) {
@@ -212,7 +219,7 @@ export class SceneStateClass {
 
     private refresh(scene: Scene, refreshList: Array<Text | Object3D | Group>) {
         refreshList.forEach((updatedOption: any) => {
-            if (this.isExist(updatedOption.uuid)) {
+            if (this.doesKeyExist(updatedOption.uuid)) {
                 SceneBuilder.UpdateChild(updatedOption, scene);
             } else {
                 const item = SceneBuilder.BuildChild(scene, updatedOption);

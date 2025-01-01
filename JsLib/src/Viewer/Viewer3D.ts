@@ -43,10 +43,15 @@ export class Viewer3D {
 
     private INTERSECTED: any = null;
     private HasLoaded = false;
+    public AnimationRequest: any = null;
 
-    public loadViewer(json: string) {
+
+
+    public Initialize3DViewer(json: string) {
         if ( this.HasLoaded ) return;
         this.HasLoaded = true;
+
+        console.log('In Initialize3DViewer');
 
         const options = JSON.parse(json);
         this.clock = new Clock();
@@ -98,12 +103,51 @@ export class Viewer3D {
         this.setOrbitControls();
         this.onResize();
 
-        const animate = () => {
-            window.requestAnimationFrame(animate);
-            this.render();
-        };
-        animate();
+        // const animate = () => {
+        //     window.requestAnimationFrame(animate);
+        //     this.render();
+        // };
+        // animate();
+
+        this.StartAnimation();
+        console.log('Exit Initialize3DViewer');
+        
         //this.render();
+    }
+
+    //clear out animation
+    public Finalize3DViewer() 
+    {
+        console.log('In Finalize3DViewer');
+        this.StopAnimation();
+    }
+
+    private RenderJS(self: any) 
+    {
+        if ( self.AnimationRequest == null ) return;
+        // request another animation frame
+        try {
+            self.AnimationRequest = window.requestAnimationFrame(() => self.RenderJS(self));
+            self.render();
+        } catch (error) {
+            console.log('Error in RenderJS', error); 
+        }
+    }
+
+    public StartAnimation() {
+        console.log('In StartAnimation');
+        if (this.AnimationRequest == null)
+            this.AnimationRequest = window.requestAnimationFrame(() => {
+                this.RenderJS(this);
+            });
+    }
+
+    public StopAnimation() {
+        console.log('In StopAnimation');
+        if (this.AnimationRequest != null) 
+            window.cancelAnimationFrame(this.AnimationRequest);
+
+        this.AnimationRequest = null;
     }
 
     private render() {

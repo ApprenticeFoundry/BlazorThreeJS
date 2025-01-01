@@ -6,9 +6,10 @@ import { STLLoader } from 'three/examples/jsm/loaders/STLLoader.js';
 import { MaterialBuilder } from '../Builders/MaterialBuilder';
 import { Box3, Group, LoadingManager, Mesh, Object3D, Scene, TextureLoader, Vector3 } from 'three';
 import { SceneState } from '../Utils/SceneState';
-// import { GUI } from 'dat.gui';
+import { GUI } from 'dat.gui';
 
-// const gui = new GUI();
+const gui = new GUI();
+
 export class Loaders {
     private assignPosition(object: Group | Object3D, options: any) {
         const { x, y, z } = options.position;
@@ -45,14 +46,14 @@ export class Loaders {
         return gltfScene;
     }
 
-    // private addDebuggerWindow(url: string, group: Group) {
-    //     const guiName = url.split('/').reverse()[0];
-    //     const gltfFolder = gui.addFolder(guiName);
-    //     gltfFolder.add(group.rotation, 'x', 0, Math.PI * 2);
-    //     gltfFolder.add(group.rotation, 'y', 0, Math.PI * 2);
-    //     gltfFolder.add(group.rotation, 'z', 0, Math.PI * 2);
-    //     gltfFolder.open();
-    // }
+    private addDebuggerWindow(url: string, group: Group) {
+        const guiName = url.split('/').reverse()[0];
+        const gltfFolder = gui.addFolder(guiName);
+        gltfFolder.add(group.rotation, 'x', 0, Math.PI * 2);
+        gltfFolder.add(group.rotation, 'y', 0, Math.PI * 2);
+        gltfFolder.add(group.rotation, 'z', 0, Math.PI * 2);
+        gltfFolder.open();
+    }
 
     private loadGltf(
         scene: Scene,
@@ -71,7 +72,7 @@ export class Loaders {
                 const size = box.getSize(new Vector3());
 
                 group.userData = { isGLTFGroup: true, url, uuid: guid, size };
-                // this.addDebuggerWindow(url, group);
+                //this.addDebuggerWindow(url, group);
                 SceneState.establishGLTF(scene, url, guid, group);
                 animationCallBack(gltf);
                 this.callDotNet(containerId, guid);
@@ -81,7 +82,7 @@ export class Loaders {
             const gltf = SceneState.findGLTFByURL(url);
             if (Boolean(gltf)) {
                 const clone = gltf.clone();
-                // this.addDebuggerWindow(url, clone);
+                //this.addDebuggerWindow(url, clone);
                 this.setGLTFSceneProps(clone, guid, options);
                 SceneState.establishClone(scene, guid, clone);
                 this.callDotNet(containerId, guid);
