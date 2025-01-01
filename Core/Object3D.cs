@@ -35,11 +35,13 @@ namespace BlazorThreeJS.Core
     {
         protected StatusBitArray StatusBits = new();
         public string? Uuid { get; set; }
+        public static int Object3DCount { get; set; } = 0;
+
 
         [JsonIgnore]
         public Action<Object3D>? OnDelete { get; set; }
 
-        protected Object3D(string type) => this.Type = type;
+
 
 
         public Vector3 Position { get; set; } = new Vector3();
@@ -59,6 +61,12 @@ namespace BlazorThreeJS.Core
 
         public IEnumerable<Object3D> Children => children;
 
+        protected Object3D(string type) 
+        {
+            Object3DCount++;
+            this.Type = type;
+            Uuid = Object3DCount.ToString();
+        }
         public List<Object3D> GetAllChildren()
         {
             return children;

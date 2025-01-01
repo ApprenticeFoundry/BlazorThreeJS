@@ -217,7 +217,7 @@ public class Scene3D : Object3D
 
         try
         {
-            $"Request3DModel  JSONOptions: {json}".WriteInfo();
+           // $"Request3DModel  JSONOptions: {json}".WriteInfo();
             await JsRuntime!.InvokeVoidAsync(functionName, (object)json);
             await UpdateScene();  
         }
