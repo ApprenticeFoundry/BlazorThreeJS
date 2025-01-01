@@ -34,7 +34,7 @@ public class Scene3D : Object3D
 
     public Camera Camera { get; set; } = new PerspectiveCamera()
     {
-        Position = new Vector3(5f, 5f, 5f)
+        Position = new Vector3(10f, 10f, 10f)
     };
 
     private static List<Scene3D> _AllScenes { get; set; } = new();
@@ -167,7 +167,7 @@ public class Scene3D : Object3D
     {
         Task.Run( async () => await UpdateScene());
     }
-    public async Task UpdateScene(bool notify = false)
+    public async Task UpdateScene(bool notify = true)
     {
         try
         {
@@ -186,8 +186,9 @@ public class Scene3D : Object3D
         }
         catch (System.Exception ex)
         {
-            ex.Message.WriteError();
+            $"UpdateScene {ex.Message}".WriteError();
         }
+
     }
     private JsonSerializerOptions JSONOptions { get; set; } = new JsonSerializerOptions
     {
@@ -214,9 +215,16 @@ public class Scene3D : Object3D
         var functionName = Resolve("import3DModel");
         var json = JsonSerializer.Serialize((object)settings, JSONOptions);
 
-        //$"Request3DModel  JSONOptions: {json}".WriteInfo();
-        await JsRuntime!.InvokeVoidAsync(functionName, (object)json);
-        await UpdateScene();
+        try
+        {
+            $"Request3DModel  JSONOptions: {json}".WriteInfo();
+            await JsRuntime!.InvokeVoidAsync(functionName, (object)json);
+            await UpdateScene();  
+        }
+        catch (System.Exception ex)
+        {  
+           $"Request3DModel: {ex.Message}".WriteError();
+        }
 
         //$"Request3DModel: {settings} {uuid}".WriteInfo();
 

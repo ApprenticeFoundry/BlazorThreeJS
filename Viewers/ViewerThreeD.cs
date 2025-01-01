@@ -149,42 +149,46 @@ namespace BlazorThreeJS.Viewers
         protected override async Task OnAfterRenderAsync(bool firstRender)
         {
 
-            if (!firstRender)
-                return;
+            if (firstRender)
+            {
 
+                
             //ViewerThreeD.ObjectSelectedStatic += new ViewerThreeD.SelectedObjectStaticEventHandler(ViewerThreeD.OnObjectSelectedStatic);
             //ViewerThreeD.ObjectLoadedStatic += new ViewerThreeD.LoadedObjectStaticEventHandler(ViewerThreeD.OnObjectLoadedStatic);
             //ObjectLoadedPrivate += new LoadedObjectEventHandler(OnObjectLoadedPrivate);
 
-            LoadedModels.Clear();
 
-            //await JsRuntime!.InvokeVoidAsync("import", DotNetObjectReference.Create(this));
+                LoadedModels.Clear();
 
-            var scene = ActiveScene;
-            var jsNameSpace = scene.Title;
+                var scene = ActiveScene;
+                var jsNameSpace = scene.Title;
 
-            ViewerSettings.containerId = jsNameSpace;
-            var dto = new SceneDTO()
-            {
-                Scene = scene,
-                ViewerSettings = ViewerSettings,
-                Camera = scene.Camera,
-                OrbitControls = OrbitControls
-            };
+                //await JsRuntime!.InvokeVoidAsync("import", DotNetObjectReference.Create(this));
+                //await JsRuntime!.InvokeVoidAsync("ViewManager.establishViewer3D", (object)jsNameSpace);
 
-            //await JsRuntime!.InvokeVoidAsync("ViewManager.establishViewer3D", (object)jsNameSpace);
 
-            //this is all about having a seperate namespace in javascript to render
-            //more than one view
-            var functionName = Resolve(jsNameSpace, "loadViewer");
-            $"ViewerThreeD calling {functionName}".WriteInfo();
 
-            string str = JsonSerializer.Serialize<SceneDTO>(dto, JSONOptions);
-            await JsRuntime!.InvokeVoidAsync(functionName, (object)str);
-                        
-            await scene.UpdateScene();
-            //SRS  I bet we never load a module  so do not do this!!
-            //await ViewerThreeD.OnModuleLoaded();
+                ViewerSettings.containerId = jsNameSpace;
+                var dto = new SceneDTO()
+                {
+                    Scene = scene,
+                    ViewerSettings = ViewerSettings,
+                    Camera = scene.Camera,
+                    OrbitControls = OrbitControls
+                };
+
+                //this is all about having a seperate namespace in javascript to render
+                //more than one view
+                var functionName = Resolve(jsNameSpace, "loadViewer");
+                $"ViewerThreeD calling {functionName}".WriteInfo();
+
+                string str = JsonSerializer.Serialize<SceneDTO>(dto, JSONOptions);
+                await JsRuntime!.InvokeVoidAsync(functionName, (object)str);
+                            
+                await scene.UpdateScene();
+            }
+            await base.OnAfterRenderAsync(firstRender);
+
         }
 
         private void PopulateButtonsDict()
@@ -214,12 +218,12 @@ namespace BlazorThreeJS.Viewers
         public static void ReceiveSelectedObjectUUID(string uuid, Vector3 size)
         {
 
-            Console.WriteLine($"ReceiveSelectedObjectUUID size={size.X}, {size.Y}, {size.Z}");
+            $"ReceiveSelectedObjectUUID size={size.X}, {size.Y}, {size.Z}".WriteInfo();
 
             try
             {
                 var item = LoadedModels[uuid];
-                Console.WriteLine($"item={item}");
+                $"LoadedModels {uuid} item={item}".WriteInfo();
                 if (item != null)
                 {
                     item.ComputedSize = size;
@@ -227,21 +231,15 @@ namespace BlazorThreeJS.Viewers
                 }
                 else
                 {
-                    Console.WriteLine($"uuid={uuid} not found in LoadedModels");
+                    $"uuid={uuid} not found in LoadedModels".WriteError();
                 }
             }
             catch (Exception ex)
             {
-                Console.WriteLine($"uuid={uuid} problem (could be a problem in onClick callback). Message={ex.Message}");
+                $"uuid={uuid} problem (could be a problem in onClick callback). Message={ex.Message}".WriteError();
             }
 
         }
-
-
-
-
-
-
 
 
         [JSInvokable]
