@@ -141,9 +141,10 @@ namespace BlazorThreeJS.Viewers
             return _activeScene;
         }
 
-        public string ResolveFunction(string jsNamespace, string functionName)
+        public string ResolveFunction(string functionName)
         {
             //return $"{jsNamespace}.{functionName}";
+            $"BlazorThreeJS.{functionName}".WriteInfo();
             return $"BlazorThreeJS.{functionName}";
         }
 
@@ -160,7 +161,7 @@ namespace BlazorThreeJS.Viewers
                 LoadedModels.Clear();
 
                 var scene = GetActiveScene();
-                var jsNameSpace = scene.Title;
+                //var jsNameSpace = scene.Title;
 
                 //await JsRuntime!.InvokeVoidAsync("import", DotNetObjectReference.Create(this));
                 //await JsRuntime!.InvokeVoidAsync("ViewManager.establishViewer3D", (object)jsNameSpace);
@@ -175,7 +176,7 @@ namespace BlazorThreeJS.Viewers
 
                 //this is all about having a seperate namespace in javascript to render
                 //more than one view
-                var functionName = ResolveFunction(jsNameSpace, "Initialize3DViewer");
+                var functionName = ResolveFunction("Initialize3DViewer");
 
                 try
                 {
@@ -204,19 +205,16 @@ namespace BlazorThreeJS.Viewers
 
             try
             {
-                $"ViewerThreeD {SceneName} TRY DisposeAsync".WriteWarning();
+                //$"ViewerThreeD [{SceneName}] TRY DisposeAsync".WriteWarning();
                 if (!HasRendered)
                     return;
                     
-                var scene = GetActiveScene();
-                var jsNameSpace = scene.Title;
-                var functionName = ResolveFunction(jsNameSpace, "Finalize3DViewer");
-                $"ViewerThreeD {SceneName} DisposeAsync".WriteInfo();
+                //var scene = GetActiveScene();
+                //var jsNameSpace = scene.Title;
+                $"ViewerThreeD [{SceneName}] DisposeAsync".WriteInfo();
+                
+                var functionName = ResolveFunction("Finalize3DViewer");
                 await JsRuntime!.InvokeVoidAsync(functionName);
-
-
-                //await _jsRuntime!.InvokeVoidAsync("AppBrowser.Finalize");
-
             }
             catch (Exception ex)
             {
@@ -424,13 +422,13 @@ namespace BlazorThreeJS.Viewers
 
 
 
-        protected override void BuildRenderTree(RenderTreeBuilder __builder)
+        protected override void BuildRenderTree(RenderTreeBuilder builder)
         {
-            __builder.OpenElement(0, "div");
-            __builder.AddAttribute(1, "class", "viewer3dContainer");
-            __builder.AddAttribute(2, "id", this.SceneName);
+            builder.OpenElement(0, "div");
+            builder.AddAttribute(1, "class", "viewer3dContainer");
+            builder.AddAttribute(2, "id", this.SceneName);
            // __builder.AddAttribute(3, "b-h6holr0slw");
-            __builder.CloseElement();
+            builder.CloseElement();
         }
 
 

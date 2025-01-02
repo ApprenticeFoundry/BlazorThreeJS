@@ -6,9 +6,9 @@ import { STLLoader } from 'three/examples/jsm/loaders/STLLoader.js';
 import { MaterialBuilder } from '../Builders/MaterialBuilder';
 import { Box3, Group, LoadingManager, Mesh, Object3D, Scene, TextureLoader, Vector3 } from 'three';
 import { SceneState } from '../Utils/SceneState';
-import { GUI } from 'dat.gui';
+//import { GUI } from 'dat.gui';
 
-const gui = new GUI();
+//const gui = new GUI();
 
 export class Loaders {
     private assignPosition(object: Group | Object3D, options: any) {
@@ -46,14 +46,14 @@ export class Loaders {
         return gltfScene;
     }
 
-    private addDebuggerWindow(url: string, group: Group) {
-        const guiName = url.split('/').reverse()[0];
-        const gltfFolder = gui.addFolder(guiName);
-        gltfFolder.add(group.rotation, 'x', 0, Math.PI * 2);
-        gltfFolder.add(group.rotation, 'y', 0, Math.PI * 2);
-        gltfFolder.add(group.rotation, 'z', 0, Math.PI * 2);
-        gltfFolder.open();
-    }
+    // private addDebuggerWindow(url: string, group: Group) {
+    //     const guiName = url.split('/').reverse()[0];
+    //     const gltfFolder = gui.addFolder(guiName);
+    //     gltfFolder.add(group.rotation, 'x', 0, Math.PI * 2);
+    //     gltfFolder.add(group.rotation, 'y', 0, Math.PI * 2);
+    //     gltfFolder.add(group.rotation, 'z', 0, Math.PI * 2);
+    //     gltfFolder.open();
+    // }
 
     private loadGltf(
         scene: Scene,
@@ -75,7 +75,7 @@ export class Loaders {
                 //this.addDebuggerWindow(url, group);
                 SceneState.establishGLTF(scene, url, guid, group);
                 animationCallBack(gltf);
-                this.callDotNet(containerId, guid);
+                this.ReceiveLoadedCallback(containerId, guid);
             });
         } else {
             // Found GLTF by URL or GUID so we don't want to load it again.
@@ -85,7 +85,7 @@ export class Loaders {
                 //this.addDebuggerWindow(url, clone);
                 this.setGLTFSceneProps(clone, guid, options);
                 SceneState.establishClone(scene, guid, clone);
-                this.callDotNet(containerId, guid);
+                this.ReceiveLoadedCallback(containerId, guid);
             }
         }
     }
@@ -98,7 +98,7 @@ export class Loaders {
                 const cloneGuid = options.uuid;
                 const group = this.setGLTFSceneProps(clone, cloneGuid, options);
                 SceneState.establishClone(scene, cloneGuid, group);
-                this.callDotNet(containerId, cloneGuid);
+                this.ReceiveLoadedCallback(containerId, cloneGuid);
             });
         } else {
             console.log('CloneGLTF: GLTF not found in SceneState sourceGuid, cloneOptions=', sourceGuid, cloneOptions);
@@ -113,7 +113,7 @@ export class Loaders {
             this.assignPosition(object, options);
             this.assignRotation(object, options);
 
-            this.callDotNet(containerId, guid);
+            this.ReceiveLoadedCallback(containerId, guid);
         });
     }
 
@@ -122,7 +122,7 @@ export class Loaders {
         const manager = new LoadingManager(() => {
             scene.add(object);
             object.uuid = guid;
-            this.callDotNet(containerId, guid);
+            this.ReceiveLoadedCallback(containerId, guid);
         });
         const loader = new ColladaLoader(manager);
         loader.load(url, (obj) => {
@@ -140,7 +140,7 @@ export class Loaders {
             }
             scene.add(object);
             object.uuid = guid;
-            this.callDotNet(containerId, guid);
+            this.ReceiveLoadedCallback(containerId, guid);
         });
 
         const textureLoader = new TextureLoader(manager);
@@ -231,7 +231,7 @@ export class Loaders {
         // return null;
     }
 
-    private callDotNet(containerId: string, uuid: string) {
+    private ReceiveLoadedCallback(containerId: string, uuid: string) {
         DotNet.invokeMethodAsync('BlazorThreeJS', 'ReceiveLoadedObjectUUID', containerId, uuid);
     }
 }

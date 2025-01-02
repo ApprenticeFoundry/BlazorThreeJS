@@ -30,6 +30,7 @@ import { GLTF, GLTFLoader } from 'three/examples/jsm/loaders/GLTFLoader';
 export class Viewer3D {
     private options: any;
     private container: any;
+    private settings: any;
     private renderer: WebGLRenderer;
     private scene: Scene;
     private camera: OrthographicCamera | PerspectiveCamera;
@@ -57,8 +58,9 @@ export class Viewer3D {
         this.clock = new Clock();
 
         this.setListeners();
+        this.settings = options.viewerSettings;
 
-        let container = document.getElementById(options.viewerSettings.containerId) as HTMLDivElement;
+        let container = document.getElementById(this.settings.containerId) as HTMLDivElement;
 
         if (!container) {
             console.warn('Container not found');
@@ -73,12 +75,12 @@ export class Viewer3D {
         this.setCamera();
 
         this.renderer = new WebGLRenderer({
-            antialias: this.options.viewerSettings.webGLRendererSettings.antialias,
+            antialias: this.settings.webGLRendererSettings.antialias,
             preserveDrawingBuffer: true
         });
 
-        const requestedWidth = this.options.viewerSettings.width;
-        const requestedHeight = this.options.viewerSettings.height;
+        const requestedWidth = this.settings.width;
+        const requestedHeight = this.settings.height;
         if (Boolean(requestedWidth) && Boolean(requestedHeight)) {
             this.renderer.setSize(requestedWidth, requestedHeight, true);
         }
@@ -216,9 +218,9 @@ export class Viewer3D {
         // console.log('in setScene this.options=', this.options);
         this.scene.background = new Color(this.options.scene.backGroundColor);
         this.scene.uuid = this.options.scene.uuid;
-        this.addFloor();
+        //this.addFloor();
         // this.addAxes();  we should control this from FoundryBlazor by default
-        //this.addRoom();
+        this.addRoom();
 
         if (Boolean(this.options.scene.children)) {
             this.options.scene.children.forEach((childOptions: any) => {
@@ -282,17 +284,17 @@ export class Viewer3D {
     }
 
     public import3DModel(options: string) {
-        const settings = JSON.parse(options);
+        const modelOptions = JSON.parse(options);
         const loaders = new Loaders();
-        return loaders.import3DModel(this.scene, settings, this.options.viewerSettings.containerId, (model: GLTF) => {
+        return loaders.import3DModel(this.scene, modelOptions, this.settings.containerId, (model: GLTF) => {
             this.playGltfAnimation(model);
         });
     }
 
     public clone3DModel(sourceGuid: string, options: string) {
-        const settings = JSON.parse(options);
+        const modelOptions = JSON.parse(options);
         const loaders = new Loaders();
-        return loaders.clone3DModel(this.scene, sourceGuid, settings, this.options.viewerSettings.containerId);
+        return loaders.clone3DModel(this.scene, sourceGuid, modelOptions, this.settings.containerId);
     }
 
     public moveObject(object3D: Object3D): boolean {
@@ -429,7 +431,7 @@ export class Viewer3D {
     }
 
     private onObjectSelected(uuid: string) {
-        DotNet.invokeMethodAsync('BlazorThreeJS', 'OnClickButton', this.options.viewerSettings.containerId, uuid);
+        DotNet.invokeMethodAsync('BlazorThreeJS', 'OnClickButton', this.settings.containerId, uuid);
     }
 
     private updateUIElements() {

@@ -109,7 +109,7 @@ public class Scene3D : Object3D
 
         result.AddAction("Clear", "btn-warning", () => 
         {
-            Task.Run(async () => await ClearScene());
+            ClearScene();
         });
         
         result.AddAction("Clear All", "btn-warning", () => 
@@ -127,10 +127,13 @@ public class Scene3D : Object3D
         return $"BlazorThreeJS.{functionName}";
     }
 
-    public async Task ClearScene()
+    public void ClearScene()
     {
-        var functionName = Resolve("clearScene");
-        await JsRuntime!.InvokeVoidAsync(functionName);
+        Task.Run(async () => {
+            var functionName = Resolve("clearScene");
+            await JsRuntime!.InvokeVoidAsync(functionName);
+        });
+
         this.GetAllChildren().RemoveAll(item => item.Type.Contains("LabelText") || item.Type.Contains("Mesh"));
         AfterUpdate?.Invoke(this,"");
     }
