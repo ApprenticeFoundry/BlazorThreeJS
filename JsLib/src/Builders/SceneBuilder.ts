@@ -45,7 +45,7 @@ export class SceneBuilder {
             // Update the rendering:
             label.uuid = options.uuid;
             label.sync();
-            SceneState.addLabel(label.uuid, label);
+            //SceneState.addLabel(label.uuid, label);
             return label;
         }
         
@@ -70,19 +70,19 @@ export class SceneBuilder {
     }
 
     static UpdateChild(options: any, scene: Scene) {
-        if (options.type == 'LabelText') {
-            const label = SceneState.findLabel(options.uuid);
+        // if (options.type == 'LabelText') {
+        //     const label = SceneState.findLabel(options.uuid);
 
-            const { position: pos } = options;
-            label.position.x = pos.x;
-            label.position.y = pos.y;
-            label.position.z = pos.z;
-            label.color = options.color;
-            label.text = options.text;
-            // label.sync();
+        //     const { position: pos } = options;
+        //     label.position.x = pos.x;
+        //     label.position.y = pos.y;
+        //     label.position.z = pos.z;
+        //     label.color = options.color;
+        //     label.text = options.text;
+        //     // label.sync();
 
-            return null;
-        }
+        //     return null;
+        // }
 
         // if (options.type == 'Mesh') {
         //     const object3D = SceneState.findPrimitive(options.uuid);

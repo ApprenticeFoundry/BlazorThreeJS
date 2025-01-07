@@ -27,8 +27,8 @@ public class Scene3D : Object3D
     
     private static Dictionary<string, ImportSettings> ImportPromises { get; set; } = new();
     private IJSRuntime JsRuntime { get; set; }
-    //private Dictionary<string, ImportSettings> LoadedModels { get; set; } = new();
-
+    //private static ComponentBus Publish { get; set; } = null!;
+    private static DateTime _lastRender;
     private Action<Scene3D,string>? AfterUpdate { get; set; } = (scene,json) => { };
 
 
@@ -193,6 +193,19 @@ public class Scene3D : Object3D
         }
 
     }
+
+    [JSInvokable]
+    public static async void TriggerAnimationFrame()
+    {
+        //if (Publish != null)
+        //{
+        await Task.CompletedTask;
+        var framerate = 1.0 / (DateTime.Now - _lastRender).TotalSeconds;
+        _lastRender = DateTime.Now; // update for the next time 
+        $"Scene TriggerAnimationFrame  {framerate}".WriteSuccess();
+            //await Publish.Publish<AnimationEvent>(new AnimationEvent() { fps = framerate });
+        //}
+    }
     private JsonSerializerOptions JSONOptions { get; set; } = new JsonSerializerOptions
     {
         PropertyNamingPolicy = JsonNamingPolicy.CamelCase,
@@ -206,21 +219,19 @@ public class Scene3D : Object3D
         var uuid = settings.Uuid!;
         if (ImportPromises.ContainsKey(uuid))
         {
-            $"Request3DModel Already loaded {uuid} {settings.FileURL}".WriteInfo();
+            $"Request3DModel waiting on {uuid} to load {settings.FileURL}".WriteInfo();
             return uuid;
         }
 
-        //settings.Scene = this;
         ImportPromises.Add(uuid, settings);
-        //LoadedModels.Add(uuid, settings);
-
 
         try
         {
-            var functionName = Resolve("import3DModel");
+            var functionName = Resolve("request3DModel");
             var json = JsonSerializer.Serialize((object)settings, JSONOptions);
             WriteToFolder("Data", "Scene3D_Request3DModel.json", json); 
             $"Request3DModel calling {functionName} with {json}".WriteInfo();
+
             await JsRuntime!.InvokeVoidAsync(functionName, (object)json);
             //await UpdateScene();  
             $"Request3DModel:Scene3D {functionName} {settings.FileURL} {uuid}".WriteInfo();
@@ -229,8 +240,6 @@ public class Scene3D : Object3D
         {  
            $"Request3DModel: {ex.Message}".WriteError();
         }
-
-        //$"Request3DModel: {settings} {uuid}".WriteInfo();
 
         return uuid;
     }
@@ -248,7 +257,8 @@ public class Scene3D : Object3D
         }
     }
 
-    public override Object3D AddChild(Object3D child)
+
+    public override (bool success, Object3D result) AddChild(Object3D child)
     {
         //var scene = this;
         child.OnDelete = (Object3D item) =>
@@ -258,9 +268,10 @@ public class Scene3D : Object3D
         return base.AddChild(child);
     }
 
-    public override Object3D RemoveChild(Object3D child)
+    public override (bool success, Object3D result) RemoveChild(Object3D child)
     {
-        if (child == null) return child!;
+        if (child == null) 
+            return (false, child!);
 
         var uuid = child.Uuid ?? "";
         Task.Run(async () => { await RemoveByUuid(uuid); });
@@ -269,8 +280,9 @@ public class Scene3D : Object3D
 
     public async Task RemoveByUuid(string uuid)
     {
-        var functionName = Resolve("deleteByUuid");
-        if (!await JsRuntime!.InvokeAsync<bool>(functionName, (object)uuid))
+        var functionName = Resolve("deleteFromScene");
+        var success = await JsRuntime!.InvokeAsync<bool>(functionName, (object)uuid);
+        if ( !success)
             return;
 
         ChildrenHelper.RemoveObjectByUuid(uuid, GetAllChildren());
@@ -283,25 +295,11 @@ public class Scene3D : Object3D
         await JsRuntime!.InvokeAsync<bool>(functionName, object3D);
     }
 
-    public async Task<string> Clone3DModel(string sourceGuid, List<ImportSettings> settings)
-    {
-        settings.ForEach((setting) =>
-        {
-            //setting.Scene = this;
-            ImportPromises.Add(setting.Uuid!, setting);
-        });
-
-        var functionName = Resolve("clone3DModel");
-        var json = (object)JsonSerializer.Serialize((object)settings, JSONOptions);
-        var args = new List<object>() { $"{sourceGuid}", json };
-        await JsRuntime!.InvokeVoidAsync(functionName, args.ToArray());
-        return sourceGuid;
-    }
 
     [JSInvokable]
-    public static Task ReceiveLoadedObjectUUID(string containerId, string uuid)
+    public static Task LoadedObjectComplete(string uuid)
     {
-        $"CALLBACK ReceiveLoadedObjectUUID {containerId} {uuid}".WriteWarning();
+        $"CALLBACK LoadedObjectComplete  {uuid}".WriteWarning();
 
         if ( ImportPromises.TryGetValue(uuid, out ImportSettings? promise))
         {

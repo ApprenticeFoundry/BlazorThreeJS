@@ -103,32 +103,38 @@ namespace BlazorThreeJS.Core
             OnDelete?.Invoke(this);
         }
 
-        public virtual Object3D AddChild(Object3D child)
+        public virtual (bool success, Object3D result) AddChild(Object3D child)
         {
             var uuid = child.Uuid;
             if ( string.IsNullOrEmpty(uuid))
             {
                 $"AddChild missing  Uuid, {child.Name}".WriteError();  
-                return child;
+                return (false, child);
             }
 
-            var found = this.children.Find((item) => item.Uuid == uuid);
-            if ( found != null )
+            var (found, item) = FindChild(uuid);
+            if ( found )
             {
-                $"Object3D AddChild already existing {child.Name} -> {found.Name} {found.Uuid}".WriteError();  
-                return found;
+                $"Object3D AddChild Exist: returning existing {child.Name} -> {item.Name} {item.Uuid}".WriteError();  
+                return (false, item!);
             }
             $"Object3D AddChild {child.Name} -> {this.Name} {this.Uuid}".WriteInfo();
 
             this.children.Add(child);
-            return child;
+            return (true, child);
         }
 
 
-        public virtual Object3D RemoveChild(Object3D child)
+        public virtual (bool success, Object3D result) RemoveChild(Object3D child)
         {
+            var found = this.children.Find((item) => item == child);
+            if (found == null)
+            {
+                $"Object3D RemoveChild missing {child.Name} -> {this.Name} {this.Uuid}".WriteError();  
+                return (false, child);
+            }
             this.children.Remove(child);
-            return child;
+            return (true, child);
         }
 
         public bool HasChildren()
@@ -137,25 +143,30 @@ namespace BlazorThreeJS.Core
         }
 
 
-
-        public Object3D Update(Object3D child)
+        public (bool success, Object3D child) FindChild(string uuid)
         {
-            var uuid = child.Uuid;
-            if ( string.IsNullOrEmpty(uuid))
-            {
-                $"AddChild missing  Uuid, {child.Name}".WriteError();  
-                return child;
-            }
-
             var found = this.children.Find((item) => item.Uuid == uuid);
-            if (found != null)
-            {
-                this.RemoveChild(found);
-            }
-
-            this.AddChild(child);
-            return child;
+            return (found != null, found!);
         }
+
+        // public Object3D Update(Object3D child)
+        // {
+        //     var uuid = child.Uuid;
+        //     if ( string.IsNullOrEmpty(uuid))
+        //     {
+        //         $"AddChild missing  Uuid, {child.Name}".WriteError();  
+        //         return child;
+        //     }
+
+        //     var found = this.children.Find((item) => item.Uuid == uuid);
+        //     if (found != null)
+        //     {
+        //         this.RemoveChild(found);
+        //     }
+
+        //     this.AddChild(child);
+        //     return child;
+        // }
 
         public bool GetIsExpanded()
         {

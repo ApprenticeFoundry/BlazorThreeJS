@@ -9,9 +9,7 @@ import { PanelGroupBuilder } from '../Builders/PanelGroupBuilder';
 
 export class SceneStateClass {
     private primitives = new Map<string, Object3D>();
-    private gltfGroups = new Map<string, Group>();
-    private gltfURLs = new Map<string, GLTF>();
-    private labels = new Map<string, Text>();
+
 
     public addPrimitive(key: string, value: Object3D) {
         this.primitives.set(key, value);
@@ -29,28 +27,15 @@ export class SceneStateClass {
         return this.primitives.get(key) || null;
     }
 
-    public addLabel(key: string, value: Text) {
-        this.labels.set(key, value);
-    }
 
-    public deleteLabel(key: string) {
-        this.labels.delete(key);
-    }
-
-    public findLabel(key: string): Text {
-        return this.labels.get(key) || null;
-    }
 
     public doesKeyExist(key: string): boolean 
     {
         const primitive = this.findPrimitive(key);
         if (Boolean(primitive)) return true;
 
-        const label = this.findLabel(key);
-        if (Boolean(label)) return true;
-
-        const gltf = this.findGLTFByGuid(key);
-        if (Boolean(gltf)) return true;
+        // const label = this.findLabel(key);
+        // if (Boolean(label)) return true;
 
         return false;
     }
@@ -59,61 +44,32 @@ export class SceneStateClass {
         scene.add(item);
     }
 
-    public getLoadedGLTF(url: string): GLTF | null {
-        return this.gltfURLs.get(url) || null;
-    }
 
-    public casheGLTF(url: string, obj: GLTF) {
-        this.gltfURLs.set(url, obj);
-        console.log('casheGLTF url=', url, ' obj=', obj);
-    }
 
-    public casheGroup(guid: string, obj: Group) {
-        this.gltfGroups.set(guid, obj);
-    }
 
-    // public establishGLTF(scene: Scene, url: string, guid: string, group: Group) {
-    //     group.uuid = guid;
-    //     this.gltfs.set(guid, group);
-
-    //     // const gltfScene = this.findGLTFByGuid(guid).scene;
-    //     const gltfScene = this.findGLTFByGuid(guid);
-    //     scene.add(gltfScene);
+    // public establishClone(scene: Scene, guid: string, clone: Group) {
+    //     clone.uuid = guid;
+    //     scene.add(clone);
     // }
 
-    // public establishGLTF(scene: Scene, url: string, guid: string, object: GLTF) {
-    //     object.scene.uuid = guid;
-    //     this.gltfs.set(guid, object);
-    //     this.gltfURLs.set(url, object);
-    //     const gltfScene = this.findGLTFByGuid(guid).scene;
-    //     scene.add(gltfScene);
+    // public findGLTFByGuid(guid: string): Group | null {
+    //     return this.gltfGroups.get(guid) || null;
     // }
 
-    public establishClone(scene: Scene, guid: string, clone: Group) {
-        clone.uuid = guid;
-        scene.add(clone);
-    }
-
-    public findGLTFByGuid(guid: string): Group | null {
-        return this.gltfGroups.get(guid) || null;
-    }
-
-    public findGLTFToCloneByGuid(guid: string): Group | null {
-        const groupedGltf = this.gltfGroups.get(guid);
-        if (Boolean(groupedGltf)) {
-            const gltf = groupedGltf.children[0].children[0] as Group;
-            return gltf;
-        }
-        return null;
-    }
+    // public findGLTFToCloneByGuid(guid: string): Group | null {
+    //     const groupedGltf = this.gltfGroups.get(guid);
+    //     if (Boolean(groupedGltf)) {
+    //         const gltf = groupedGltf.children[0].children[0] as Group;
+    //         return gltf;
+    //     }
+    //     return null;
+    // }
 
     // public findGLTFByGuid(guid: string): GLTF | null {
     //     return this.gltfs.get(guid) || null;
     // }
 
-    public findGLTFByURL(url: string): GLTF | null {
-        return this.gltfURLs.get(url) || null;
-    }
+
 
     // public findGLTFByURL(url: string): GLTF | null {
     //     return this.gltfURLs.get(url) || null;
@@ -125,35 +81,33 @@ export class SceneStateClass {
     //     return !Boolean(foundByGuid) && !Boolean(foundByURL);
     // }
 
-    public deleteGLTF(key: string) {
-        this.gltfGroups.delete(key);
-    }
+
 
     public renderToScene(scene: Scene, options: any) {
         this.primitives.forEach((value) => {
             scene.add(value);
         });
-        this.gltfGroups.forEach((value) => {
-            // scene.add(value.scene);
-            scene.add(value);
-        });
-        this.labels.forEach((value) => {
-            scene.add(value);
-        });
+        // this.gltfGroups.forEach((value) => {
+        //     // scene.add(value.scene);
+        //     scene.add(value);
+        // });
+        // this.labels.forEach((value) => {
+        //     scene.add(value);
+        // });
         SceneBuilder.BuildMenus(scene, options);
     }
 
-    public removeItem(scene: Scene, uuid: string) {
-        let obj = scene.getObjectByProperty('uuid', uuid);
-        console.log('removeItem obj=', obj);
-        if (obj) {
-            scene.remove(obj);
-        }
-        this.deleteLabel(uuid);
-        this.deletePrimitive(uuid);
-        this.deleteGLTF(uuid);
-        return true;
-    }
+    // public removeItem(scene: Scene, uuid: string) {
+    //     let obj = scene.getObjectByProperty('uuid', uuid);
+    //     console.log('removeItem obj=', obj);
+    //     if (obj) {
+    //         scene.remove(obj);
+    //     }
+    //     this.deleteLabel(uuid);
+    //     this.deletePrimitive(uuid);
+    //     //this.deleteGLTF(uuid);
+    //     return true;
+    // }
 
     public clearScene(scene: Scene, sceneOptions: any, onClearScene: Function) {
         // const removalList: Array<Text | Object3D> = [];
@@ -168,9 +122,9 @@ export class SceneStateClass {
 
         scene.clear();
 
-        this.labels.clear();
+        //this.labels.clear();
         this.primitives.clear();
-        this.gltfGroups.clear();
+        //this.gltfGroups.clear();
         onClearScene();
     }
 
@@ -207,26 +161,26 @@ export class SceneStateClass {
         return options;
     }
 
-    private queueItemRemoval(scene: Scene, option: any, removalList: Array<Text | Object3D>) {
-        const { type } = option;
-        if (type === 'LabelText') {
-            this.queueLabelTextRemoval(scene, option.uuid, removalList);
-        } else if (type === 'Mesh') {
-            this.queueMeshRemoval(scene, option.uuid, removalList);
-        }
-    }
+    // private queueItemRemoval(scene: Scene, option: any, removalList: Array<Text | Object3D>) {
+    //     const { type } = option;
+    //     if (type === 'LabelText') {
+    //         this.queueLabelTextRemoval(scene, option.uuid, removalList);
+    //     } else if (type === 'Mesh') {
+    //         this.queueMeshRemoval(scene, option.uuid, removalList);
+    //     }
+    // }
 
-    private queueLabelTextRemoval(scene: Scene, uuid: string, removalList: Array<Text | Object3D>) {
-        const item = this.findLabel(uuid);
-        removalList.push(item);
-        this.deleteLabel(uuid);
-    }
+    // private queueLabelTextRemoval(scene: Scene, uuid: string, removalList: Array<Text | Object3D>) {
+    //     const item = this.findLabel(uuid);
+    //     removalList.push(item);
+    //     this.deleteLabel(uuid);
+    // }
 
-    private queueMeshRemoval(scene: Scene, uuid: string, removalList: Array<Text | Object3D>) {
-        const item = this.findPrimitive(uuid);
-        removalList.push(item);
-        this.deletePrimitive(uuid);
-    }
+    // private queueMeshRemoval(scene: Scene, uuid: string, removalList: Array<Text | Object3D>) {
+    //     const item = this.findPrimitive(uuid);
+    //     removalList.push(item);
+    //     this.deletePrimitive(uuid);
+    // }
 
     private refresh(scene: Scene, refreshList: Array<Text | Object3D | Group>) {
         refreshList.forEach((updatedOption: any) => {

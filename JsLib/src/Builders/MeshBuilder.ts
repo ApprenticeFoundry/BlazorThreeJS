@@ -5,7 +5,7 @@ import { MaterialBuilder } from './MaterialBuilder';
 import { SceneState } from '../Utils/SceneState';
 
 export class MeshBuilder {
-    static BuildMesh(options: any, parent: Object3D) {
+    public static BuildMesh(options: any, parent: Object3D): BufferGeometry | Group | null {
         const geometry = GeometryBuilder.buildGeometry(options.geometry, options.material);
         const material = MaterialBuilder.buildMaterial(options.material);
         const children = options.children || [];
@@ -45,5 +45,6 @@ export class MeshBuilder {
         children.forEach((child: any) => {
             MeshBuilder.BuildMesh(child, result);
         });
+        return result;
     }
 }

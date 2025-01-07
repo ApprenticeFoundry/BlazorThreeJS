@@ -1,9 +1,12 @@
 import { OrbitControls } from 'three/examples/jsm/controls/OrbitControls';
 import { BoxLineGeometry } from 'three/examples/jsm/geometries/BoxLineGeometry';
 import { Loaders } from './Loaders';
+import { ObjectLookup } from '../Utils/ObjectLookup';
 import { SceneBuilder } from '../Builders/SceneBuilder';
 import { CameraBuilder } from '../Builders/CameraBuilder';
 import { Transforms } from '../Utils/Transforms';
+import { Text } from 'troika-three-text';
+import { MeshBuilder } from '../Builders/MeshBuilder';
 import {
     AnimationMixer,
     Clock,
@@ -31,7 +34,7 @@ export class Viewer3D {
     private options: any;
     private container: any;
     private settings: any;
-    private renderer: WebGLRenderer;
+    private webGLRenderer: WebGLRenderer;
     private scene: Scene;
     private camera: OrthographicCamera | PerspectiveCamera;
     private controls: OrbitControls;
@@ -48,13 +51,13 @@ export class Viewer3D {
 
 
 
-    public Initialize3DViewer(json: string) {
+    public Initialize3DViewer(spec: string) {
         if ( this.HasLoaded ) return;
         this.HasLoaded = true;
 
         console.log('In Initialize3DViewer');
 
-        const options = JSON.parse(json);
+        const options = JSON.parse(spec);
         this.clock = new Clock();
 
         this.setListeners();
@@ -74,7 +77,7 @@ export class Viewer3D {
         this.setScene();
         this.setCamera();
 
-        this.renderer = new WebGLRenderer({
+        this.webGLRenderer = new WebGLRenderer({
             antialias: this.settings.webGLRendererSettings.antialias,
             preserveDrawingBuffer: true
         });
@@ -82,11 +85,11 @@ export class Viewer3D {
         const requestedWidth = this.settings.width;
         const requestedHeight = this.settings.height;
         if (Boolean(requestedWidth) && Boolean(requestedHeight)) {
-            this.renderer.setSize(requestedWidth, requestedHeight, true);
+            this.webGLRenderer.setSize(requestedWidth, requestedHeight, true);
         }
         else {
-            this.renderer.domElement.style.width = '100%';
-            this.renderer.domElement.style.height = '100%';
+            this.webGLRenderer.domElement.style.width = '100%';
+            this.webGLRenderer.domElement.style.height = '100%';
         }
 
         // this.renderer.domElement.onclick = (event) => {
@@ -98,23 +101,16 @@ export class Viewer3D {
         //     }
         // };
 
-        this.container.appendChild(this.renderer.domElement);
+        this.container.appendChild(this.webGLRenderer.domElement);
 
         // this.addTestText('How do we pass text values?');
 
         this.setOrbitControls();
         this.onResize();
 
-        // const animate = () => {
-        //     window.requestAnimationFrame(animate);
-        //     this.render();
-        // };
-        // animate();
 
         this.StartAnimation();
         console.log('Exit Initialize3DViewer');
-        
-        //this.render();
     }
 
     //clear out animation
@@ -129,6 +125,7 @@ export class Viewer3D {
         if ( self.AnimationRequest == null ) return;
         // request another animation frame
         try {
+            DotNet.invokeMethodAsync('BlazorThreeJS', 'TriggerAnimationFrame');  
             self.AnimationRequest = window.requestAnimationFrame(() => self.RenderJS(self));
             self.render();
         } catch (error) {
@@ -152,6 +149,16 @@ export class Viewer3D {
         this.AnimationRequest = null;
     }
 
+    public deleteFromScene(uuid: string):boolean {
+        let obj = this.scene.getObjectByProperty('uuid', uuid);
+        console.log('deleteFromScene obj=', obj);
+        if (obj) {
+            this.scene.remove(obj);
+            return true;
+        }
+        return false
+    }
+
     private render() {
         ThreeMeshUI.update();
         this.updateUIElements();
@@ -170,12 +177,12 @@ export class Viewer3D {
                 mixer.update(delta);
             }
         }
-        this.renderer.render(this.scene, this.camera);
+        this.webGLRenderer.render(this.scene, this.camera);
     }
 
     private setListeners() {
         window.addEventListener('pointermove', (event: PointerEvent) => {
-            let canvas = this.renderer.domElement;
+            let canvas = this.webGLRenderer.domElement;
 
             this.mouse.x = (event.offsetX / canvas.clientWidth) * 2 - 1;
             this.mouse.y = -(event.offsetY / canvas.clientHeight) * 2 + 1;
@@ -207,7 +214,7 @@ export class Viewer3D {
 
         this.camera.updateProjectionMatrix();
 
-        this.renderer.setSize(
+        this.webGLRenderer.setSize(
             this.container.offsetWidth,
             this.container.offsetHeight,
             false // required
@@ -218,9 +225,9 @@ export class Viewer3D {
         // console.log('in setScene this.options=', this.options);
         this.scene.background = new Color(this.options.scene.backGroundColor);
         this.scene.uuid = this.options.scene.uuid;
-        //this.addFloor();
+        this.addFloor();
         // this.addAxes();  we should control this from FoundryBlazor by default
-        this.addRoom();
+        //this.addRoom();
 
         if (Boolean(this.options.scene.children)) {
             this.options.scene.children.forEach((childOptions: any) => {
@@ -262,7 +269,7 @@ export class Viewer3D {
     }
 
     private setOrbitControls() {
-        this.controls = new OrbitControls(this.camera, this.renderer.domElement);
+        this.controls = new OrbitControls(this.camera, this.webGLRenderer.domElement);
         this.controls.screenSpacePanning = true;
         this.controls.minDistance = this.options.orbitControls.minDistance;
         this.controls.maxDistance = this.options.orbitControls.maxDistance;
@@ -283,28 +290,64 @@ export class Viewer3D {
         });
     }
 
-    public request3DModel(options: string) {
-        const modelOptions = JSON.parse(options);
-        console.log('request3DModel modelOptions=', modelOptions);
+    public request3DGeometry(spec: string): Text | null {
+        const options = JSON.parse(spec);
+        console.log('request3DGeometry modelOptions=', options);
+
+        if ( Boolean(options.geometry) && Boolean(options.material) ) {
+            if (options.type == 'Mesh') {
+                return MeshBuilder.BuildMesh(options, this.scene);
+            }
+    
+            if (options.type == 'Group') {
+                return MeshBuilder.BuildMesh(options, this.scene);
+            }
+        }
+
+    }
+
+    public request3DTextLabel(spec: string): Text | null {
+        const options = JSON.parse(spec);
+        console.log('request3DTextLabel modelOptions=', options);
+
+        const label = new Text();
+
+        label.text = options.text;
+        label.fontSize = options.fontSize;
+        label.userData = {
+            isTextLabel: true,
+        };
+
+        const { position: pos } = options;
+        label.position.x = pos.x;
+        label.position.y = pos.y;
+        label.position.z = pos.z;
+        label.color = options.color;
+
+        // Update the rendering:
+        label.uuid = options.uuid;
+        label.sync();
+        ObjectLookup.addLabel(label.uuid, label);
+        return label;
+    }
+
+    public request3DModel(spec: string) {
+        const options = JSON.parse(spec);
+        console.log('request3DModel modelOptions=', options);
         
         const loaders = new Loaders();
-        return loaders.import3DModel(this.scene, modelOptions, this.settings.containerId, (model: GLTF) => {
+        loaders.import3DModel(this.scene, options, this.settings.containerId, (model: GLTF) => {
             this.playGltfAnimation(model);
         });
     }
 
-    public clone3DModel(sourceGuid: string, options: string) {
-        const modelOptions = JSON.parse(options);
-        const loaders = new Loaders();
-        return loaders.clone3DModel(this.scene, sourceGuid, modelOptions, this.settings.containerId);
-    }
 
     public moveObject(object3D: Object3D): boolean {
         const moved = SceneState.moveObject(this.scene, object3D);
         return Boolean(moved);
     }
 
-    public getSceneItemByGuid(guid: string) {
+    public getSceneItemByGuid(guid: string):string {
         let item = this.scene.getObjectByProperty('uuid', guid);
         const json = {
             uuid: item.uuid,
@@ -394,9 +437,7 @@ export class Viewer3D {
     //     return null;
     // }
 
-    public deleteByUuid(uuid: string) {
-        return SceneState.removeItem(this.scene, uuid);
-    }
+
 
     public clearScene() {
         const self = this;
