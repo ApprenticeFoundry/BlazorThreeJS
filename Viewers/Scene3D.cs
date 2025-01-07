@@ -124,6 +124,7 @@ public class Scene3D : Object3D
     public string Resolve(string functionName)
     {
         //return $"{Title}.{functionName}";
+        $"BlazorThreeJS.{functionName}".WriteInfo();
         return $"BlazorThreeJS.{functionName}";
     }
 
@@ -178,9 +179,8 @@ public class Scene3D : Object3D
             var json = JsonSerializer.Serialize((object)this, JSONOptions);
             //$"UpdateScene: {json} ".WriteInfo();
             
-            //var dir = System.IO.Directory.GetCurrentDirectory();
-            //FileHelpers.WriteData("sceneData.json", dir,json);
 
+            WriteToFolder("Data", "Scene3D_UpdateScene.json", json); 
 
             await JsRuntime!.InvokeVoidAsync(functionName, (object)json);
 
@@ -189,7 +189,7 @@ public class Scene3D : Object3D
         }
         catch (System.Exception ex)
         {
-            $"UpdateScene {ex.Message}".WriteError();
+            $"Scene3D UpdateScene {ex.Message}".WriteError();
         }
 
     }
@@ -220,9 +220,9 @@ public class Scene3D : Object3D
             var functionName = Resolve("import3DModel");
             var json = JsonSerializer.Serialize((object)settings, JSONOptions);
             WriteToFolder("Data", "Scene3D_Request3DModel.json", json); 
-           //$"Request3DModel calling {functionName} with {json}".WriteInfo();
+            $"Request3DModel calling {functionName} with {json}".WriteInfo();
             await JsRuntime!.InvokeVoidAsync(functionName, (object)json);
-            await UpdateScene();  
+            //await UpdateScene();  
             $"Request3DModel:Scene3D {functionName} {settings.FileURL} {uuid}".WriteInfo();
         }
         catch (System.Exception ex)
@@ -301,38 +301,21 @@ public class Scene3D : Object3D
     [JSInvokable]
     public static Task ReceiveLoadedObjectUUID(string containerId, string uuid)
     {
-        $"ReceiveLoadedObjectUUID {containerId} {uuid}".WriteInfo();
+        $"CALLBACK ReceiveLoadedObjectUUID {containerId} {uuid}".WriteWarning();
 
         if ( ImportPromises.TryGetValue(uuid, out ImportSettings? promise))
         {
-            ImportPromises.Remove(uuid);
             var OnComplete = promise.OnComplete;
-            if (promise.OnComplete != null)
+            
+            promise.OnComplete = () => { };
+            ImportPromises.Remove(uuid);
+            if (OnComplete != null)
             {
-                promise.OnComplete.Invoke();
-                promise.OnComplete = () => { };
+                OnComplete.Invoke();
+                $"ImportPromises  {promise.FileURL} completed".WriteWarning();
             }
         }
         return Task.FromResult(0);
-
-        // {
-        //     var settings = ImportPromises[uuid];
-        //     ImportPromises.Remove(uuid);
-
-        //     var scene = settings.Scene!;
-
-        //     Group3D group = new()
-        //     {
-        //         Name = settings.Uuid ?? "Group",
-        //         Uuid = settings.Uuid,
-        //     };
-
-        //     scene.AddChild(group);
-
-        //     settings.OnComplete.Invoke(scene, group);
-        //     settings.OnComplete = (Scene s, Object3D o) => { };
-            
-        // }
     }
 }
 

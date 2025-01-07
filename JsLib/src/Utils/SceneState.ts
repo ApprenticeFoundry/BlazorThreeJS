@@ -1,6 +1,7 @@
 import { Group, Object3D, Scene } from 'three';
 import { Text } from 'troika-three-text';
 import { SceneBuilder } from '../Builders/SceneBuilder';
+import { GLTF, GLTFLoader } from 'three/examples/jsm/loaders/GLTFLoader';
 import { Transforms } from './Transforms';
 import { MenuBuilder } from '../Builders/MenuBuilder';
 import { TextPanelBuilder } from '../Builders/TextPanelBuilder';
@@ -8,11 +9,8 @@ import { PanelGroupBuilder } from '../Builders/PanelGroupBuilder';
 
 export class SceneStateClass {
     private primitives = new Map<string, Object3D>();
-    private gltfs = new Map<string, Group>();
-    private gltfURLs = new Map<string, Group>();
-    
-    // private gltfs = new Map<string, GLTF>();
-    // private gltfURLs = new Map<string, GLTF>();
+    private gltfGroups = new Map<string, Group>();
+    private gltfURLs = new Map<string, GLTF>();
     private labels = new Map<string, Text>();
 
     public addPrimitive(key: string, value: Object3D) {
@@ -61,14 +59,27 @@ export class SceneStateClass {
         scene.add(item);
     }
 
-    public establishGLTF(scene: Scene, url: string, guid: string, group: Group) {
-        group.uuid = guid;
-        this.gltfs.set(guid, group);
-        this.gltfURLs.set(url, group);
-        // const gltfScene = this.findGLTFByGuid(guid).scene;
-        const gltfScene = this.findGLTFByGuid(guid);
-        scene.add(gltfScene);
+    public getLoadedGLTF(url: string): GLTF | null {
+        return this.gltfURLs.get(url) || null;
     }
+
+    public casheGLTF(url: string, obj: GLTF) {
+        this.gltfURLs.set(url, obj);
+        console.log('casheGLTF url=', url, ' obj=', obj);
+    }
+
+    public casheGroup(guid: string, obj: Group) {
+        this.gltfGroups.set(guid, obj);
+    }
+
+    // public establishGLTF(scene: Scene, url: string, guid: string, group: Group) {
+    //     group.uuid = guid;
+    //     this.gltfs.set(guid, group);
+
+    //     // const gltfScene = this.findGLTFByGuid(guid).scene;
+    //     const gltfScene = this.findGLTFByGuid(guid);
+    //     scene.add(gltfScene);
+    // }
 
     // public establishGLTF(scene: Scene, url: string, guid: string, object: GLTF) {
     //     object.scene.uuid = guid;
@@ -84,11 +95,11 @@ export class SceneStateClass {
     }
 
     public findGLTFByGuid(guid: string): Group | null {
-        return this.gltfs.get(guid) || null;
+        return this.gltfGroups.get(guid) || null;
     }
 
     public findGLTFToCloneByGuid(guid: string): Group | null {
-        const groupedGltf = this.gltfs.get(guid);
+        const groupedGltf = this.gltfGroups.get(guid);
         if (Boolean(groupedGltf)) {
             const gltf = groupedGltf.children[0].children[0] as Group;
             return gltf;
@@ -100,7 +111,7 @@ export class SceneStateClass {
     //     return this.gltfs.get(guid) || null;
     // }
 
-    public findGLTFByURL(url: string): Group | null {
+    public findGLTFByURL(url: string): GLTF | null {
         return this.gltfURLs.get(url) || null;
     }
 
@@ -108,21 +119,21 @@ export class SceneStateClass {
     //     return this.gltfURLs.get(url) || null;
     // }
 
-    public gltfNotLoaded(url: string, guid: string): boolean {
-        const foundByGuid = this.findGLTFByGuid(guid);
-        const foundByURL = this.findGLTFByURL(url);
-        return !Boolean(foundByGuid) && !Boolean(foundByURL);
-    }
+    // public gltfNotLoaded(url: string, guid: string): boolean {
+    //     const foundByGuid = this.findGLTFByGuid(guid);
+    //     const foundByURL = this.findGLTFByURL(url);
+    //     return !Boolean(foundByGuid) && !Boolean(foundByURL);
+    // }
 
     public deleteGLTF(key: string) {
-        this.gltfs.delete(key);
+        this.gltfGroups.delete(key);
     }
 
     public renderToScene(scene: Scene, options: any) {
         this.primitives.forEach((value) => {
             scene.add(value);
         });
-        this.gltfs.forEach((value) => {
+        this.gltfGroups.forEach((value) => {
             // scene.add(value.scene);
             scene.add(value);
         });
@@ -159,7 +170,7 @@ export class SceneStateClass {
 
         this.labels.clear();
         this.primitives.clear();
-        this.gltfs.clear();
+        this.gltfGroups.clear();
         onClearScene();
     }
 

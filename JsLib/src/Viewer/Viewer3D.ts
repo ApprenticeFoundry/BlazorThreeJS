@@ -283,8 +283,10 @@ export class Viewer3D {
         });
     }
 
-    public import3DModel(options: string) {
+    public request3DModel(options: string) {
         const modelOptions = JSON.parse(options);
+        console.log('request3DModel modelOptions=', modelOptions);
+        
         const loaders = new Loaders();
         return loaders.import3DModel(this.scene, modelOptions, this.settings.containerId, (model: GLTF) => {
             this.playGltfAnimation(model);

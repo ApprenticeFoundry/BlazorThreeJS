@@ -48,14 +48,17 @@ export class SceneBuilder {
             SceneState.addLabel(label.uuid, label);
             return label;
         }
-
-        if (options.type == 'Mesh') {
-            return MeshBuilder.BuildMesh(options, scene);
+        
+        if ( Boolean(options.geometry) && Boolean(options.material) ) {
+            if (options.type == 'Mesh') {
+                return MeshBuilder.BuildMesh(options, scene);
+            }
+    
+            if (options.type == 'Group') {
+                return MeshBuilder.BuildMesh(options, scene);
+            }
         }
 
-        if (options.type == 'Group') {
-            return MeshBuilder.BuildMesh(options, scene);
-        }
 
         if (options.type === 'Menu') {
             console.log('BuildChild We have a menu');

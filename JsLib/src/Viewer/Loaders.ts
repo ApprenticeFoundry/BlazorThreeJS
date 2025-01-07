@@ -29,21 +29,19 @@ export class Loaders {
         return object;
     }
 
+
+
     private setGLTFSceneProps(gltfScene: Group, guid: string, options: any): Group {
         gltfScene.name = `name-${guid}`;
+        const group = new Group();
+        group.uuid = options.uuid;
         if (Boolean(options.pivot)) {
             this.assignPosition(gltfScene, { position: options.pivot });
-            const group = new Group();
-            group.uuid = options.uuid;
-            group.add(gltfScene);
-            this.assignPosition(group, options);
-            this.assignRotation(group, options);
-            return group;
-        } else {
-            this.assignPosition(gltfScene, options);
-            this.assignRotation(gltfScene, options);
         }
-        return gltfScene;
+        group.add(gltfScene);
+        this.assignPosition(group, options);
+        this.assignRotation(group, options);
+        return group;
     }
 
     // private addDebuggerWindow(url: string, group: Group) {
@@ -55,37 +53,50 @@ export class Loaders {
     //     gltfFolder.open();
     // }
 
-    private loadGltf(
-        scene: Scene,
-        url: string,
-        guid: string,
-        containerId: string,
-        options: any,
-        animationCallBack: Function
-    ) {
-        if (SceneState.gltfNotLoaded(url, guid)) {
+    private loadGltf(url: string,guid: string,options: any, animationCallBack: Function, onComplerCallback: Function) {
+        
+        console.log('inside loadGltf', url, guid, options);
+        var found = SceneState.getLoadedGLTF(url);
+        const { sx, sy, sz } = options.scale;
+
+        if (Boolean(found) == false) {
             const loader = new GLTFLoader();
             loader.load(url, (gltf: GLTF) => {
-                const group = this.setGLTFSceneProps(gltf.scene, guid, options);
+                console.log('gltf is loaded', gltf);
+                var scale = gltf.scene.scale;
+                console.log('scale', scale);
+                gltf.scene.scale.set(sx * scale.x, sy * scale.y, sz * scale.z)
+                scale = gltf.scene.scale;
+                console.log('new scale', scale);
+
+                animationCallBack(gltf);
+                SceneState.casheGLTF(url, gltf);
+
+                const clone = gltf.scene.clone();
+                const group = this.setGLTFSceneProps(clone, guid, options);
 
                 const box = new Box3().setFromObject(group);
                 const size = box.getSize(new Vector3());
-
                 group.userData = { isGLTFGroup: true, url, uuid: guid, size };
-                //this.addDebuggerWindow(url, group);
-                SceneState.establishGLTF(scene, url, guid, group);
-                animationCallBack(gltf);
-                this.ReceiveLoadedCallback(containerId, guid);
+                console.log('userData', group.userData);
+                SceneState.casheGroup(guid, group);
+                
+                onComplerCallback(group);
             });
         } else {
             // Found GLTF by URL or GUID so we don't want to load it again.
-            const gltf = SceneState.findGLTFByURL(url);
+            var gltf = found as GLTF;
             if (Boolean(gltf)) {
-                const clone = gltf.clone();
-                //this.addDebuggerWindow(url, clone);
-                this.setGLTFSceneProps(clone, guid, options);
-                SceneState.establishClone(scene, guid, clone);
-                this.ReceiveLoadedCallback(containerId, guid);
+                const clone = gltf.scene.clone();
+
+                const group = this.setGLTFSceneProps(clone, guid, options);
+                const box = new Box3().setFromObject(group);
+                const size = box.getSize(new Vector3());
+                group.userData = { isGLTFGroup: true, url, uuid: guid, size };
+                console.log('clone userData', group.userData);
+
+                SceneState.casheGroup(guid, clone);
+                onComplerCallback(group);
             }
         }
     }
@@ -184,24 +195,33 @@ export class Loaders {
         let guid = settings.uuid;
         let material = settings.material;
 
-        if (format == 'Obj') {
-            return this.loadOBJ(scene, objUrl, textureUrl, guid, containerId, settings);
-        }
-        if (format == 'Collada') {
-            return this.loadCollada(scene, objUrl, guid, containerId, settings);
-        }
-        if (format == 'Fbx') {
-            return this.loadFbx(scene, objUrl, guid, containerId, settings);
-        }
+        console.log('In import3DModel', settings);
+
+
         if (format == 'Gltf') {
-            return this.loadGltf(scene, objUrl, guid, containerId, settings, animationCallBack);
+            console.log('Calling loadGltf', settings);
+            this.loadGltf(objUrl, guid, settings, animationCallBack, (group) => {                
+                //this.addDebuggerWindow(url, group);
+                console.log('Added to Scene', settings);
+                scene.add(group);
+                this.ReceiveLoadedCallback(containerId, guid);
+                console.log('the result', group);
+            });
         }
 
-        if (format == 'Stl') {
-            return this.loadStl(scene, objUrl, guid, containerId, material, settings);
+        else if (format == 'Obj') {
+            this.loadOBJ(scene, objUrl, textureUrl, guid, containerId, settings);
+        }
+        else if (format == 'Collada') {
+            this.loadCollada(scene, objUrl, guid, containerId, settings);
+        }
+        else if (format == 'Fbx') {
+            this.loadFbx(scene, objUrl, guid, containerId, settings);
         }
 
-        return null;
+        else if (format == 'Stl') {
+            this.loadStl(scene, objUrl, guid, containerId, material, settings);
+        }
     }
 
     public clone3DModel(scene: Scene, sourceGuid: string, settings: any[], containerId: string) {

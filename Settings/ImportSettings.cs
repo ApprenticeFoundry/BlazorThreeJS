@@ -22,13 +22,12 @@ namespace BlazorThreeJS.Settings
         [JsonConverter(typeof(JsonStringEnumConverter))]
         public Import3DFormats Format { get; set; }
         public string? FileURL { get; set; }
-        //public string? TextureURL { get; set; }
+
         public string? Uuid { get; set; }
         public Vector3 Position { get; set; } = new Vector3();
         public Vector3 Pivot { get; set; } = new Vector3();
         public Vector3 Scale { get; set; } = new Vector3(1.0, 1.0, 1.0);
         public Euler Rotation { get; set; } = new Euler();
-
         public Vector3? ComputedSize { get; set; }
 
         [JsonIgnore]
