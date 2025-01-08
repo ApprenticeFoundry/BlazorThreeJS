@@ -82,7 +82,7 @@ export class Loaders {
 
                 // const box = new Box3().setFromObject(group);
                 // const size = box.getSize(new Vector3());
-                // group.userData = { isGLTFGroup: true, url, uuid: guid, size };
+                group.userData = { isGLTFGroup: true, url, uuid: guid, size };
                 // console.log('userData', group.userData);
 
                 //ObjectLookup.casheGroup(guid, group);
@@ -100,7 +100,7 @@ export class Loaders {
 
                 // const box = new Box3().setFromObject(group);
                 // const size = box.getSize(new Vector3());
-                // group.userData = { isGLTFGroup: true, url, uuid: guid, size };
+                group.userData = { isGLTFGroup: true, url, uuid: guid, size };
                 // console.log('clone userData', group.userData);
 
                 //ObjectLookup.casheGroup(guid, group);

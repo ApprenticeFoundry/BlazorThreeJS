@@ -202,7 +202,7 @@ public class Scene3D : Object3D
         await Task.CompletedTask;
         var framerate = 1.0 / (DateTime.Now - _lastRender).TotalSeconds;
         _lastRender = DateTime.Now; // update for the next time 
-        $"Scene TriggerAnimationFrame  {framerate}".WriteSuccess();
+        //$"Scene TriggerAnimationFrame  {framerate}".WriteSuccess();
             //await Publish.Publish<AnimationEvent>(new AnimationEvent() { fps = framerate });
         //}
     }
@@ -214,6 +214,7 @@ public class Scene3D : Object3D
         IncludeFields = true,
         IgnoreReadOnlyFields = true
     };
+
     public async Task<string> Request3DModel(ImportSettings settings)
     {
         var uuid = settings.Uuid!;
@@ -239,6 +240,27 @@ public class Scene3D : Object3D
         catch (System.Exception ex)
         {  
            $"Request3DModel: {ex.Message}".WriteError();
+        }
+
+        return uuid;
+    }
+
+    public async Task<string> Request3DTextLabel(ImportSettings settings)
+    {
+        var uuid = settings.Uuid!;
+
+        try
+        {
+            var functionName = Resolve("request3DTextLabel");
+            var json = JsonSerializer.Serialize((object)settings, JSONOptions);
+            WriteToFolder("Data", "Scene3D_Request3DTextLabel.json", json); 
+            $"Request3DTextLabel calling {functionName} with {json}".WriteInfo();
+
+            await JsRuntime!.InvokeVoidAsync(functionName, (object)json);
+        }
+        catch (System.Exception ex)
+        {  
+           $"Request3DTextLabel: {ex.Message}".WriteError();
         }
 
         return uuid;
