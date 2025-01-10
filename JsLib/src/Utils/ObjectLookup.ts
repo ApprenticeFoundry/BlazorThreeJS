@@ -8,20 +8,19 @@ export class ObjectLookupClass
     private gltfURLs = new Map<string, GLTF>();
     private labels = new Map<string, Text>();
 
-    public getLoadedGLTF(url: string): GLTF | null {
+    public findGLTF(url: string): GLTF | null {
         return this.gltfURLs.get(url) || null;
     }
-
-    public getLoadedGroupX(guid: string): Group | null {
-        return this.gltfGroups.get(guid) || null;
-    }
-
     public casheGLTF(url: string, obj: GLTF) {
         this.gltfURLs.set(url, obj);
         console.log('casheGLTF url=', url, ' obj=', obj);
     }
 
-    public casheGroupX(guid: string, obj: Group) {
+    public findGroup(guid: string): Group | null {
+        return this.gltfGroups.get(guid) || null;
+    }
+
+    public addGroup(guid: string, obj: Group) {
         this.gltfGroups.set(guid, obj);
         console.log('casheGroup url=', guid, ' obj=', obj);
     }
@@ -34,7 +33,7 @@ export class ObjectLookupClass
         this.labels.delete(key);
     }
 
-    public findLabel(key: string): Text {
+    public findLabel(key: string): Text | null {
         return this.labels.get(key) || null;
     }
 }

@@ -233,9 +233,9 @@ public class Scene3D : Object3D
             WriteToFolder("Data", "Scene3D_Request3DModel.json", json); 
             $"Request3DModel calling {functionName} with {json}".WriteInfo();
 
-            await JsRuntime!.InvokeVoidAsync(functionName, (object)json);
-            //await UpdateScene();  
+            await JsRuntime!.InvokeVoidAsync(functionName, (object)json);  
             $"Request3DModel:Scene3D {functionName} {settings.FileURL} {uuid}".WriteInfo();
+            settings.OnComplete?.Invoke();
         }
         catch (System.Exception ex)
         {  
@@ -257,6 +257,7 @@ public class Scene3D : Object3D
             $"Request3DTextLabel calling {functionName} with {json}".WriteInfo();
 
             await JsRuntime!.InvokeVoidAsync(functionName, (object)json);
+            settings.OnComplete?.Invoke();
         }
         catch (System.Exception ex)
         {  

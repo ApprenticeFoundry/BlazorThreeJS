@@ -13,5 +13,7 @@ namespace BlazorThreeJS.Enums
         Fbx,
         Gltf,
         Stl,
+        Text,
+        Geometry,
     }
 }

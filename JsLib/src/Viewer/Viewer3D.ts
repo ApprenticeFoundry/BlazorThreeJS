@@ -49,7 +49,9 @@ export class Viewer3D {
     private HasLoaded = false;
     public AnimationRequest: any = null;
 
-
+    private LoadedObjectComplete(uuid: string) {
+        DotNet.invokeMethodAsync('BlazorThreeJS', 'LoadedObjectComplete', uuid);
+    }
 
     public Initialize3DViewer(spec: string) {
         if ( this.HasLoaded ) return;
@@ -310,7 +312,10 @@ export class Viewer3D {
         const options = JSON.parse(spec);
         console.log('request3DTextLabel modelOptions=', options);
 
-        const label = new Text();
+        const guid = options.uuid;
+
+        var label = ObjectLookup.findLabel(guid) as Text;
+        label = Boolean(label) ? label : new Text();
 
         label.text = options.text;
         label.fontSize = options.fontSize;
@@ -318,16 +323,20 @@ export class Viewer3D {
             isTextLabel: true,
         };
 
-        const { position: pos } = options;
+        const pos  = options.position as Vector3;
         label.position.x = pos.x;
         label.position.y = pos.y;
         label.position.z = pos.z;
         label.color = options.color;
 
         // Update the rendering:
-        label.uuid = options.uuid;
+        label.uuid = guid;
         label.sync();
-        ObjectLookup.addLabel(label.uuid, label);
+        
+        this.scene.add(label);
+        ObjectLookup.addLabel(guid, label);
+        this.LoadedObjectComplete(guid);
+        console.log('Added to Scene', label);
         return label;
     }
 
@@ -336,9 +345,14 @@ export class Viewer3D {
         console.log('request3DModel modelOptions=', options);
         
         const loaders = new Loaders();
-        loaders.import3DModel(this.scene, options, this.settings.containerId, (model: GLTF) => {
-            this.playGltfAnimation(model);
-        });
+        loaders.import3DModel(options, (model: GLTF) => this.playGltfAnimation(model),
+            (group) => {
+                //this.addDebuggerWindow(url, group);
+                this.scene.add(group);
+                ObjectLookup.addGroup(group.uuid, group);
+                this.LoadedObjectComplete(group.uuid);
+                console.log('Added to Scene', group);
+            })
     }
 
 

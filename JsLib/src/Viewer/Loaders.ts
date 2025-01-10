@@ -12,9 +12,9 @@ import { ObjectLookup } from '../Utils/ObjectLookup';
 
 export class Loaders {
     
-    private LoadedObjectComplete(uuid: string) {
-        DotNet.invokeMethodAsync('BlazorThreeJS', 'LoadedObjectComplete', uuid);
-    }
+    //private LoadedObjectComplete(uuid: string) {
+    //    DotNet.invokeMethodAsync('BlazorThreeJS', 'LoadedObjectComplete', uuid);
+    //}
 
     private assignPosition(object: Group | Object3D, options: any) {
         const { x, y, z } = options.position;
@@ -63,10 +63,10 @@ export class Loaders {
     //     gltfFolder.open();
     // }
 
-    private loadGltf(url: string,guid: string,options: any, animationCallBack: Function, onComplerCallback: Function) {
+    private loadGltf(url: string, guid: string, options: any, animationCallBack: Function, onComplete: Function) {
         
         console.log('inside loadGltf', url, guid, options);
-        var found = ObjectLookup.getLoadedGLTF(url);
+        var found = ObjectLookup.findGLTF(url);
 
         if (Boolean(found) == false) {
             console.log('gltf is not found', url);
@@ -80,13 +80,12 @@ export class Loaders {
                 const clone = gltf.scene; //.clone();
                 const group = this.setGLTFSceneProps(clone, guid, options);
 
-                // const box = new Box3().setFromObject(group);
-                // const size = box.getSize(new Vector3());
+                const box = new Box3().setFromObject(group);
+                const size = box.getSize(new Vector3());
                 group.userData = { isGLTFGroup: true, url, uuid: guid, size };
                 // console.log('userData', group.userData);
 
-                //ObjectLookup.casheGroup(guid, group);
-                onComplerCallback(group);
+                onComplete(group);
             });
 
         } else {
@@ -98,13 +97,11 @@ export class Loaders {
                 const clone = gltf.scene.clone();
                 const group = this.setGLTFSceneProps(clone, guid, options);
 
-                // const box = new Box3().setFromObject(group);
-                // const size = box.getSize(new Vector3());
-                group.userData = { isGLTFGroup: true, url, uuid: guid, size };
+                const box = new Box3().setFromObject(group);
+                const size = box.getSize(new Vector3());
+                group.userData = { isGLTFGroup: true, url, uuid: guid, size: size };
                 // console.log('clone userData', group.userData);
-
-                //ObjectLookup.casheGroup(guid, group);
-                onComplerCallback(group);
+                onComplete(group);
             }
         }
     }
@@ -181,7 +178,7 @@ export class Loaders {
     //     });
     // }
 
-    public import3DModel(scene: Scene, settings: any, containerId: string, animationCallBack: Function) {
+    public import3DModel(settings: any, animationCallBack: Function, onComplete: Function) {
         const format = settings.format;
         let objUrl = settings.fileURL;
         let textureUrl = settings.textureURL;
@@ -192,13 +189,7 @@ export class Loaders {
 
         if (format == 'Gltf') {
             console.log('Calling loadGltf', settings);
-            this.loadGltf(objUrl, guid, settings, animationCallBack, (group) => {                
-                //this.addDebuggerWindow(url, group);
-                console.log('Added to Scene', settings);
-                scene.add(group);
-                this.LoadedObjectComplete(guid);
-                console.log('the result', group);
-            });
+            this.loadGltf(objUrl, guid, settings, animationCallBack, onComplete);
         }
 
         // else if (format == 'Obj') {
