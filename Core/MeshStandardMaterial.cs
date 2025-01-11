@@ -1,6 +1,6 @@
 ﻿
 
-using BlazorThreeJS.Textures;
+using BlazorThreeJS.Core;
 
 
 

@@ -25,7 +25,7 @@ import {
     Event as ThreeEvent,
 } from 'three';
 
-import { SceneState } from '../Utils/SceneState';
+
 import ThreeMeshUI from 'three-mesh-ui';
 import { MenuBuilder } from '../Builders/MenuBuilder';
 import { GLTF, GLTFLoader } from 'three/examples/jsm/loaders/GLTFLoader';
@@ -252,21 +252,21 @@ export class Viewer3D {
 
     //can we be smart here and call the correct method based on the type of object we are adding?
     public updateScene(spec: string) {
-        console.log('inside updateScene spec=', spec);
+        //console.log('inside updateScene spec=', spec);
         const options = JSON.parse(spec);
-        console.log('updateScene sceneOptions=', options);
+        //console.log('updateScene sceneOptions=', options);
         this.options.scene = options;
 
-        var hasChildren = Boolean(options.children);
-        console.log('updateScene hasChildren=', hasChildren);
+        //var hasChildren = Boolean(options.children);
+        //console.log('updateScene hasChildren=', hasChildren);
 
 
         var members = options.children;
         for (let index = 0; index < members.length; index++) {
             const element = members[index];
 
-            console.log('updateScene element.type=', element.type);
-            console.log('updateScene element=', index, element);
+            //console.log('updateScene element.type=', element.type);
+            //console.log('updateScene element=', index, element);
 
             //look for the object in the scene if it exists update it
             //let obj = this.scene.getObjectByProperty('uuid', element.uuid);

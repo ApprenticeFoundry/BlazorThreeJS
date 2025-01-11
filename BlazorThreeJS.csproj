@@ -34,7 +34,8 @@
 
   <ItemGroup>
     <!-- <ProjectReference Include="..\FoundryRulesAndUnits\FoundryRulesAndUnits.csproj" /> -->
-    <PackageReference Include="ApprenticeFoundryRulesAndUnits" Version="5.0.1" />
+    <!-- <PackageReference Include="ApprenticeFoundryRulesAndUnits" Version="5.0.1" /> -->
+        <PackageReference Include="ApprenticeFoundryRulesAndUnits" Version="5.0.2" />
     <PackageReference Include="System.Text.Json" Version="9.0.0" />
 
   </ItemGroup>

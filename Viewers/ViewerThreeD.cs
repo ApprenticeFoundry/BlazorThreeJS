@@ -299,10 +299,10 @@ namespace BlazorThreeJS.Viewers
             return Task.CompletedTask;
         }
 
-        public static Object3D? GetObjectByUuid(string uuid, List<Object3D> children) 
-        {
-            return ChildrenHelper.GetObjectByUuid(uuid, children);
-        }
+        // public static Object3D? GetObjectByUuid(string uuid, List<Object3D> children) 
+        // {
+        //     return ChildrenHelper.GetObjectByUuid(uuid, children);
+        // }
 
 
 

@@ -10,7 +10,7 @@ using FoundryRulesAndUnits.Models;
 using System;
 
 
-namespace BlazorThreeJS.Textures
+namespace BlazorThreeJS.Core
 {
     public class Texture
     {

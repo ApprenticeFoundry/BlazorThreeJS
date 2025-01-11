@@ -7,17 +7,17 @@ using System.Collections.Generic;
 
 namespace BlazorThreeJS.ComponentHelpers
 {
-    internal static class ChildrenHelper
+    public static class ChildrenHelper
     {
 
-        internal static void RemoveObjectByUuid(string uuid, List<Object3D> children)
+        public static void RemoveObjectByUuid(string uuid, List<Object3D> children)
         {
             var object3D = GetObjectByUuid(uuid, children);
             if (object3D != null)
                 children.Remove(object3D);
         }
 
-        internal static Object3D? GetObjectByUuid(string uuid, List<Object3D> children)
+        public static Object3D? GetObjectByUuid(string uuid, List<Object3D> children)
         {
     
             foreach (Object3D child in children)

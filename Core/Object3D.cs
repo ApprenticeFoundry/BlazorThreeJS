@@ -65,6 +65,7 @@ namespace BlazorThreeJS.Core
             Object3DCount++;
             this.Type = type;
             Uuid = Object3DCount.ToString();
+            StatusBits.IsDirty = true;
         }
         public List<Object3D> GetAllChildren()
         {
@@ -74,6 +75,16 @@ namespace BlazorThreeJS.Core
         public virtual string GetTreeNodeTitle()
         {
             return $"{Name} [{Uuid}] => {Type} C#: ({GetType().Name})";
+        }
+
+        public virtual bool IsDirty()
+        {
+            return StatusBits.IsDirty;
+        }
+        
+        public virtual void SetDirty(bool value)
+        {
+            StatusBits.IsDirty = value;
         }
 
 

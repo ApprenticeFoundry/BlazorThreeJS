@@ -179,7 +179,7 @@ public class Scene3D : Object3D
 
             WriteToFolder("Data", "Scene3D_UpdateScene.json", json); 
 
-            $"Scene3D UpdateScene calling {functionName} with {json}".WriteInfo();
+            //$"Scene3D UpdateScene calling {functionName} with {json}".WriteInfo();
             await JsRuntime!.InvokeVoidAsync(functionName, (object)json);
 
             if ( notify == true)
@@ -306,7 +306,7 @@ public class Scene3D : Object3D
         if ( !success)
             return;
 
-        ChildrenHelper.RemoveObjectByUuid(uuid, GetAllChildren());
+        //ChildrenHelper.RemoveObjectByUuid(uuid, GetAllChildren());
     }
 
 
