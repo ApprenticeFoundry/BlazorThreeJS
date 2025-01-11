@@ -8,41 +8,41 @@ import { TextPanelBuilder } from '../Builders/TextPanelBuilder';
 import { PanelGroupBuilder } from '../Builders/PanelGroupBuilder';
 
 export class SceneStateClass {
-    private primitives = new Map<string, Object3D>();
+    // private primitives = new Map<string, Object3D>();
 
 
-    public addPrimitive(key: string, value: Object3D) {
-        this.primitives.set(key, value);
+    // public addPrimitive(key: string, value: Object3D) {
+    //     this.primitives.set(key, value);
 
-        value.children.forEach((child) => {
-            this.addPrimitive(child.uuid, child);
-        });
-    }
+    //     value.children.forEach((child) => {
+    //         this.addPrimitive(child.uuid, child);
+    //     });
+    // }
 
-    public deletePrimitive(key: string) {
-        this.primitives.delete(key);
-    }
+    // public deletePrimitive(key: string) {
+    //     this.primitives.delete(key);
+    // }
 
-    public findPrimitive(key: string): Object3D {
-        return this.primitives.get(key) || null;
-    }
+    // public findPrimitive(key: string): Object3D {
+    //     return this.primitives.get(key) || null;
+    // }
 
 
 
-    public doesKeyExist(key: string): boolean 
-    {
-        const primitive = this.findPrimitive(key);
-        if (Boolean(primitive)) return true;
+    // public doesKeyExist(key: string): boolean 
+    // {
+    //     const primitive = this.findPrimitive(key);
+    //     if (Boolean(primitive)) return true;
 
-        // const label = this.findLabel(key);
-        // if (Boolean(label)) return true;
+    //     // const label = this.findLabel(key);
+    //     // if (Boolean(label)) return true;
 
-        return false;
-    }
+    //     return false;
+    // }
 
-    public addToScene(scene: Scene, item: Object3D | Text) {
-        scene.add(item);
-    }
+    // public addToScene(scene: Scene, item: Object3D | Text) {
+    //     scene.add(item);
+    // }
 
 
 
@@ -83,19 +83,19 @@ export class SceneStateClass {
 
 
 
-    public renderToScene(scene: Scene, options: any) {
-        this.primitives.forEach((value) => {
-            scene.add(value);
-        });
-        // this.gltfGroups.forEach((value) => {
-        //     // scene.add(value.scene);
-        //     scene.add(value);
-        // });
-        // this.labels.forEach((value) => {
-        //     scene.add(value);
-        // });
-        SceneBuilder.BuildMenus(scene, options);
-    }
+    // public renderToScene(scene: Scene, options: any) {
+    //     // this.primitives.forEach((value) => {
+    //     //     scene.add(value);
+    //     // });
+    //     // this.gltfGroups.forEach((value) => {
+    //     //     // scene.add(value.scene);
+    //     //     scene.add(value);
+    //     // });
+    //     // this.labels.forEach((value) => {
+    //     //     scene.add(value);
+    //     // });
+    //     SceneBuilder.BuildMenus(scene, options);
+    // }
 
     // public removeItem(scene: Scene, uuid: string) {
     //     let obj = scene.getObjectByProperty('uuid', uuid);
@@ -123,19 +123,29 @@ export class SceneStateClass {
         scene.clear();
 
         //this.labels.clear();
-        this.primitives.clear();
+        //this.primitives.clear();
         //this.gltfGroups.clear();
         onClearScene();
     }
 
+    // private itemsToUpdate(sceneOptions: any): any[] {
+
+    //     let options = [];
+    //     if (Boolean(sceneOptions.children)) {
+    //         options = sceneOptions.children;
+    //     }
+    //     return options;
+    // }
+
     // We don't clear the entire scene so we can retain 3D models like GLTF and FBX.  The 3D models are very expensive to reload.
-    public refreshScene(scene: Scene, sceneOptions: any) {
-        const refreshList = this.itemsToUpdate(sceneOptions);
-        this.refresh(scene, refreshList);
-        MenuBuilder.BuildMenus(scene, sceneOptions);
-        TextPanelBuilder.BuildTextPanels(scene, sceneOptions);
-        PanelGroupBuilder.BuildPanelGroup(scene, sceneOptions);
-    }
+    // public refreshScene(scene: Scene, sceneOptions: any) {
+    //     const refreshList = sceneOptions.children;
+    //     this.refresh(scene, refreshList);
+
+    //     MenuBuilder.BuildMenus(scene, sceneOptions);
+    //     TextPanelBuilder.BuildTextPanels(scene, sceneOptions);
+    //     PanelGroupBuilder.BuildPanelGroup(scene, sceneOptions);
+    // }
 
     public moveObject(scene: Scene, object3D: Object3D): Object3D {
         const uuid = object3D.uuid;
@@ -150,16 +160,7 @@ export class SceneStateClass {
         return object3D;
     }
 
-    private itemsToUpdate(sceneOptions: any): any[] {
 
-        let options = [];
-        if (Boolean(sceneOptions.children)) {
-            options = sceneOptions.children.filter((childOptions: any) => {
-                return 'Text|Mesh|Group'.indexOf(childOptions.type) >= 0;
-            });
-        }
-        return options;
-    }
 
     // private queueItemRemoval(scene: Scene, option: any, removalList: Array<Text | Object3D>) {
     //     const { type } = option;
@@ -182,17 +183,13 @@ export class SceneStateClass {
     //     this.deletePrimitive(uuid);
     // }
 
-    private refresh(scene: Scene, refreshList: Array<Text | Object3D | Group>) {
-        refreshList.forEach((updatedOption: any) => {
-            if (this.doesKeyExist(updatedOption.uuid)) {
-                SceneBuilder.UpdateChild(updatedOption, scene);
-            } else {
-                const item = SceneBuilder.BuildChild(scene, updatedOption);
-                if (Boolean(item)) this.addToScene(scene, item);
-                // else this.addToScene(scene, item.scene);
-            }
-        });
-    }
+    // private refresh(scene: Scene, refreshList: Array<Text | Object3D | Group>) {
+    //     refreshList.forEach((updatedOption: any) => {
+    //         const item = SceneBuilder.BuildChild(scene, updatedOption);
+    //         if (Boolean(item)) 
+    //             this.addToScene(scene, item);
+    //     });
+    // }
 }
 
 export const SceneState = new SceneStateClass();

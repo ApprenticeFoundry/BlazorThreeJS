@@ -35,9 +35,6 @@ namespace BlazorThreeJS.Core
         [JsonIgnore]
         public Action<Object3D>? OnDelete { get; set; }
 
-
-
-
         public Vector3 Position { get; set; } = new Vector3();
 
         public Vector3 Pivot { get; set; } = new Vector3();
@@ -112,8 +109,8 @@ namespace BlazorThreeJS.Core
                 $"Object3D AddChild Exist: returning existing {child.Name} -> {item.Name} {item.Uuid}".WriteError();  
                 return (false, item!);
             }
-            $"Object3D AddChild {child.Name} -> {this.Name} {this.Uuid}".WriteInfo();
 
+            $"Object3D AddChild {child.Name} -> {this.Name} {this.Uuid}".WriteInfo();
             this.children.Add(child);
             return (true, child);
         }

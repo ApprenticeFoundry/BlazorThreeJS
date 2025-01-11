@@ -76,7 +76,7 @@ export class Viewer3D {
         this.container = container;
 
         this.scene = new Scene();
-        this.setScene();
+        this.InitializeScene(this.scene, options);
         this.setCamera();
 
         this.webGLRenderer = new WebGLRenderer({
@@ -113,6 +113,30 @@ export class Viewer3D {
 
         this.StartAnimation();
         console.log('Exit Initialize3DViewer');
+    }
+
+    public InitializeScene(scene: Scene, options: any) {
+        // console.log('in setScene this.options=', this.options);
+        scene.background = new Color(options.scene.backGroundColor);
+        scene.uuid = options.scene.uuid;
+
+        //add the floor
+        const grid = new GridHelper(30, 30, 0x848484, 0x848484);
+        scene.add(grid);
+
+        // this.addAxes();  we should control this from FoundryBlazor by default
+        //this.addRoom();
+
+        if (Boolean(options.scene.children)) {
+            options.scene.children.forEach((childOptions: any) => {
+                const child = SceneBuilder.BuildPeripherals(this.scene, childOptions);
+                if (child) {
+                    scene.add(child);
+                }
+            });
+        }
+        // Add cached meshes.
+        //SceneState.renderToScene(this.scene, this.options);
     }
 
     //clear out animation
@@ -223,31 +247,42 @@ export class Viewer3D {
         );
     }
 
-    public setScene() {
-        // console.log('in setScene this.options=', this.options);
-        this.scene.background = new Color(this.options.scene.backGroundColor);
-        this.scene.uuid = this.options.scene.uuid;
-        this.addFloor();
-        // this.addAxes();  we should control this from FoundryBlazor by default
-        //this.addRoom();
 
-        if (Boolean(this.options.scene.children)) {
-            this.options.scene.children.forEach((childOptions: any) => {
-                const child = SceneBuilder.BuildPeripherals(this.scene, childOptions);
-                if (child) {
-                    this.scene.add(child);
-                }
-            });
+
+
+    //can we be smart here and call the correct method based on the type of object we are adding?
+    public updateScene(spec: string) {
+        const options = JSON.parse(spec);
+        console.log('updateScene sceneOptions=', options);
+        this.options.scene = options;
+
+        var hasChildren = Boolean(options.children);
+        console.log('updateScene hasChildren=', hasChildren);
+
+
+        var members = options.children;
+        for (let index = 0; index < members.length; index++) {
+            const element = members[index];
+
+            console.log('updateScene element.type=', element.type);
+            console.log('updateScene element=', index, element);
+
+            //look for the object in the scene if it exists update it
+            //let obj = this.scene.getObjectByProperty('uuid', element.uuid);
+            if ( element.type == 'Text3D' ) {
+                this.establish3DLabel(element);
+            }
+            if ( element.type == 'Mesh3D' ) {
+                this.establish3DGeometry(element);
+            }
+
+        
+            //     if (options.type == 'Group') {
+            //         return MeshBuilder.CreateMesh(options);
+            //     }
+            // }
         }
-        // Add cached meshes.
-        SceneState.renderToScene(this.scene, this.options);
-    }
 
-    public updateScene(options: string) {
-        const sceneOptions = JSON.parse(options);
-        //console.log('updateScene sceneOptions=', sceneOptions);
-        this.options.scene = sceneOptions;
-        SceneState.refreshScene(this.scene, sceneOptions);
     }
 
     public setCamera() {
@@ -292,30 +327,41 @@ export class Viewer3D {
         });
     }
 
-    public request3DGeometry(spec: string): Text | null {
-        const options = JSON.parse(spec);
-        console.log('request3DGeometry modelOptions=', options);
+    public establish3DGeometry(options: any): Object3D | null {
 
-        if ( Boolean(options.geometry) && Boolean(options.material) ) {
-            if (options.type == 'Mesh') {
-                return MeshBuilder.BuildMesh(options, this.scene);
-            }
-    
-            if (options.type == 'Group') {
-                return MeshBuilder.BuildMesh(options, this.scene);
-            }
+        const guid = options.uuid;
+
+        var entity = ObjectLookup.findPrimitive(guid) as Object3D;
+        var exist = Boolean(entity)
+        entity = exist ? entity : MeshBuilder.CreateMesh(options);
+
+        MeshBuilder.RefreshMesh(options, entity);
+
+        if ( !exist )
+        {
+            this.scene.add(entity);
+            ObjectLookup.addPrimitive(guid, entity);
+            this.LoadedObjectComplete(guid);
+            console.log('label Added to Scene', entity);
         }
-
+        return entity;
     }
 
-    public request3DLabel(spec: string): Text | null {
+    public request3DGeometry(spec: string): Object3D | null {
         const options = JSON.parse(spec);
-        console.log('request3DLabel modelOptions=', options);
+        console.log('request3DGeometry modelOptions=', options);
+        var geometry = this.establish3DGeometry(options);
+        return geometry;
+    }
+
+    private establish3DLabel(options: any): Text | null {
+        console.log('establish3DLabel modelOptions=', options);
 
         const guid = options.uuid;
 
         var label = ObjectLookup.findLabel(guid) as Text;
-        label = Boolean(label) ? label : new Text();
+        var exist = Boolean(label)
+        label = exist ? label : new Text();
 
         label.uuid = guid;
         label.text = options.text;
@@ -331,12 +377,21 @@ export class Viewer3D {
         // Update the rendering:
         label.sync();
         
-        this.scene.add(label);
-        ObjectLookup.addLabel(guid, label);
-        this.LoadedObjectComplete(guid);
-        console.log('label Added to Scene', label);
+        if ( !exist )
+        {
+            this.scene.add(label);
+            ObjectLookup.addLabel(guid, label);
+            this.LoadedObjectComplete(guid);
+            console.log('label Added to Scene', label);
+        }
 
-        console.log('THE Scene', this.scene);
+        return label;
+    }
+
+    public request3DLabel(spec: string): Text | null {
+        const options = JSON.parse(spec);
+        console.log('request3DLabel modelOptions=', options);
+        var label = this.establish3DLabel(options);
         return label;
     }
 
@@ -455,10 +510,10 @@ export class Viewer3D {
 
     public clearScene() {
         const self = this;
-        SceneState.clearScene(this.scene, this.options.scene, function onClearScene() {
-            self.setScene();
-            self.setOrbitControls();
-        });
+        // SceneState.clearScene(this.scene, this.options.scene, function onClearScene() {
+        //     self.setScene();
+        //     self.setOrbitControls();
+        // });
     }
 
     private addRoom() {

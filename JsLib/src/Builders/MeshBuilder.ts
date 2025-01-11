@@ -5,10 +5,10 @@ import { MaterialBuilder } from './MaterialBuilder';
 import { SceneState } from '../Utils/SceneState';
 
 export class MeshBuilder {
-    public static BuildMesh(options: any, parent: Object3D): BufferGeometry | Group | null {
+    public static ConstructMesh(options: any): Object3D | null {
         const geometry = GeometryBuilder.buildGeometry(options.geometry, options.material);
         const material = MaterialBuilder.buildMaterial(options.material);
-        const children = options.children || [];
+
 
         let entity = null;
         if (geometry['isGroup']) {
@@ -16,35 +16,46 @@ export class MeshBuilder {
         } else {
             const item = geometry as BufferGeometry;
             entity = new Mesh(item, material);
-            Transforms.setScale(entity, options.scale);
         }
+        entity.uuid = options.uuid;
+        return entity;
+    }
 
-        let result = null
+    public static CreateMesh(options: any): Object3D | null {
+
+        console.log('MeshBuilder.CreateMesh', options);
+        if ( !Boolean(options.geometry) || !Boolean(options.material) )
+            return null;
+
+        let result = this.ConstructMesh(options);
+        if (!Boolean(result)) {
+            return null;
+        }
         if (!Boolean(options.pivot)) {
-            entity.uuid = options.uuid;
-            Transforms.setPosition(entity, options.position);
-            Transforms.setRotation(entity, options.rotation);
-            SceneState.addPrimitive(entity.uuid, entity);
-            result = entity;
-
-        } else {
-            Transforms.setPosition(entity, options.pivot);
-            const group = new Group();
-            group.uuid = options.uuid;
-            group.add(entity);
-            Transforms.setPosition(group, options.position);
-            Transforms.setRotation(group, options.rotation);
-            Transforms.setScale(group, options.scale);
-
-            SceneState.addPrimitive(group.uuid, group);
-            result =  group;
+            console.log('MeshBuilder.CreateMesh', result);
+            return result;
         }
-        console.log('MeshBuilder.BuildMesh', result, parent);
-        parent.add(result);
 
-        children.forEach((child: any) => {
-            MeshBuilder.BuildMesh(child, result);
-        });
-        return result;
+        const group = new Group();
+        group.uuid = options.uuid;
+        var list = [result] as any;
+        group.add(list);
+
+        console.log('MeshBuilder.CreateMesh Group', group);
+        return group;
+
+    }
+    public static RefreshMesh(options: any, entity: Object3D): Object3D {
+
+        console.log('MeshBuilder.RefreshMesh', options);
+        if (Boolean(options.pivot)) {
+            Transforms.setPosition(entity, options.pivot);
+        }
+
+        Transforms.setPosition(entity, options.position);
+        Transforms.setRotation(entity, options.rotation);
+        Transforms.setScale(entity, options.scale);
+
+        return entity;
     }
 }

@@ -10,7 +10,7 @@ namespace BlazorThreeJS.Objects;
 public class Mesh3D : Object3D
 {
     public Mesh3D()
-      : base("Mesh")
+      : base(nameof(Mesh3D))
     {
     }
 

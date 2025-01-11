@@ -27,7 +27,7 @@ public class Scene3D : Object3D
     
     private static Dictionary<string, ImportSettings> ImportPromises { get; set; } = new();
     private IJSRuntime JsRuntime { get; set; }
-    //private static ComponentBus Publish { get; set; } = null!;
+
     private static DateTime _lastRender;
     private Action<Scene3D,string>? AfterUpdate { get; set; } = (scene,json) => { };
 
@@ -124,7 +124,7 @@ public class Scene3D : Object3D
     public string Resolve(string functionName)
     {
         //return $"{Title}.{functionName}";
-        $"BlazorThreeJS.{functionName}".WriteInfo();
+        $"Calling BlazorThreeJS.{functionName}".WriteInfo();
         return $"BlazorThreeJS.{functionName}";
     }
 
@@ -135,7 +135,7 @@ public class Scene3D : Object3D
             await JsRuntime!.InvokeVoidAsync(functionName);
         });
 
-        this.GetAllChildren().RemoveAll(item => item.Type.Contains("LabelText") || item.Type.Contains("Mesh"));
+        this.GetAllChildren().RemoveAll(item => item.Type.Contains("Text") || item.Type.Contains("Mesh"));
         AfterUpdate?.Invoke(this,"");
     }
 

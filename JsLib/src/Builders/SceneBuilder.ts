@@ -26,36 +26,17 @@ export class SceneBuilder {
         return null;
     }
 
-    static BuildChild(scene: Scene, options: any): Text | Mesh | null {
-        if (options.type == 'Text3D') {
-            const label = new Text();
+    static BuildChildOBSOLITE(scene: Scene, options: any): Text | Mesh | null {
+        console.log('BuildChild', options);
 
-            label.text = options.text;
-            label.fontSize = options.fontSize;
-            label.userData = {
-                isTextLabel: true,
-            };
-
-            const { position: pos } = options;
-            label.position.x = pos.x;
-            label.position.y = pos.y;
-            label.position.z = pos.z;
-            label.color = options.color;
-
-            // Update the rendering:
-            label.uuid = options.uuid;
-            label.sync();
-            //SceneState.addLabel(label.uuid, label);
-            return label;
-        }
         
         if ( Boolean(options.geometry) && Boolean(options.material) ) {
             if (options.type == 'Mesh') {
-                return MeshBuilder.BuildMesh(options, scene);
+                return MeshBuilder.CreateMesh(options);
             }
     
             if (options.type == 'Group') {
-                return MeshBuilder.BuildMesh(options, scene);
+                return MeshBuilder.CreateMesh(options);
             }
         }
 
@@ -70,7 +51,8 @@ export class SceneBuilder {
     }
 
     static UpdateChild(options: any, scene: Scene) {
-        // if (options.type == 'LabelText') {
+        console.log('UpdateChild', options);
+        // if (options.type == 'Text3D') {
         //     const label = SceneState.findLabel(options.uuid);
 
         //     const { position: pos } = options;
