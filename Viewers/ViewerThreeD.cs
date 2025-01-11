@@ -44,7 +44,7 @@ namespace BlazorThreeJS.Viewers
             IgnoreReadOnlyFields = true
         };
 
-        private static Dictionary<string, Button> Buttons { get; set; } = new();
+        private static Dictionary<string, Button3D> Buttons { get; set; } = new();
         //private static Dictionary<string, ImportSettings> ImportPromises { get; set; } = new();
         private static Dictionary<string, ImportSettings> LoadedModels { get; set; } = new();
 
@@ -242,7 +242,7 @@ namespace BlazorThreeJS.Viewers
 
             foreach (var menu in menus)
             {
-                foreach (var button in ((PanelMenu)menu).Buttons)
+                foreach (var button in ((PanelMenu3D)menu).Buttons)
                 {
                     var uuid = button.Uuid!;
                     $"From FoundryBlazor Button UUID={uuid}".WriteInfo();

@@ -1,10 +1,4 @@
-﻿// Decompiled with JetBrains decompiler
-// Type: Blazor3D.Core.Object3D
-// Assembly: Blazor3D, Version=0.1.24.0, Culture=neutral, PublicKeyToken=null
-// MVID: 8589B0D0-D62F-4099-9D8A-332F65D16B15
-// Assembly location: Blazor3D.dll
-
-using BlazorThreeJS.Labels;
+﻿
 using BlazorThreeJS.Lights;
 using BlazorThreeJS.Maths;
 using BlazorThreeJS.Menus;
@@ -23,13 +17,13 @@ namespace BlazorThreeJS.Core
 {
     [JsonDerivedType(typeof(Mesh3D))]
     [JsonDerivedType(typeof(Group3D))]
-    [JsonDerivedType(typeof(TextPanel))]
-    [JsonDerivedType(typeof(PanelMenu))]
-    [JsonDerivedType(typeof(Button))]
-    [JsonDerivedType(typeof(PanelGroup))]
+    [JsonDerivedType(typeof(TextPanel3D))]
+    [JsonDerivedType(typeof(PanelMenu3D))]
+    [JsonDerivedType(typeof(Button3D))]
+    [JsonDerivedType(typeof(PanelGroup3D))]
     [JsonDerivedType(typeof(AmbientLight))]
     [JsonDerivedType(typeof(PointLight))]
-    [JsonDerivedType(typeof(LabelText))]
+    [JsonDerivedType(typeof(Text3D))]
     [JsonDerivedType(typeof(Scene3D))]
     public abstract class Object3D : ITreeNode
     {
