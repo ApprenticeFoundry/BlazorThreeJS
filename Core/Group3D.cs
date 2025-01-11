@@ -7,7 +7,7 @@ namespace BlazorThreeJS.Objects;
     public class Group3D : Object3D
     {
         public Group3D()
-          : base("Group")
+          : base(nameof(Group3D))
         {
         }
     }

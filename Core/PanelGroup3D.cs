@@ -4,7 +4,7 @@ namespace BlazorThreeJS.Core
 {
     public class PanelGroup3D : Object3D
     {
-        public PanelGroup3D(string type = "PanelGroup3D") : base(type)
+        public PanelGroup3D() : base(nameof(PanelGroup3D))
         {
         }
         public double Width { get; set; } = 2.0;

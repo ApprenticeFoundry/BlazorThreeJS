@@ -6,7 +6,7 @@ namespace BlazorThreeJS.Core
 {
     public class PanelMenu3D : Object3D
     {
-        public PanelMenu3D(string type = "PanelMenu3D") : base(type)
+        public PanelMenu3D() : base(nameof(PanelMenu3D))
         {
         }
 

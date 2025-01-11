@@ -6,7 +6,7 @@ namespace BlazorThreeJS.Core
 {
     public class TextPanel3D : Object3D
     {
-        public TextPanel3D(string type = "TextPanel3D") : base(type)
+        public TextPanel3D() : base(nameof(TextPanel3D))
         {
         }
         public double Width { get; set; } = 2.0;

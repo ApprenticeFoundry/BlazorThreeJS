@@ -36,7 +36,7 @@ public class Scene3D : Object3D
 
     private static List<Scene3D> _AllScenes { get; set; } = new();
 
-    public Scene3D(string title, IJSRuntime js) : base("Scene")
+    public Scene3D(string title, IJSRuntime js) : base(nameof(Scene3D))
     {
         // $"Scene {title} creating".WriteInfo();
         JsRuntime = js;

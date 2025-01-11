@@ -10,6 +10,7 @@ using System.Text.Json.Serialization;
 using Microsoft.AspNetCore.Mvc.ViewFeatures;
 using static System.Formats.Asn1.AsnWriter;
 using static System.Net.Mime.MediaTypeNames;
+using BlazorThreeJS.Settings;
 
 
 
@@ -27,7 +28,7 @@ namespace BlazorThreeJS.Core
     }
 
 
-
+    [JsonDerivedType(typeof(ImportSettings))]
     [JsonDerivedType(typeof(Mesh3D))]
     [JsonDerivedType(typeof(Group3D))]
     [JsonDerivedType(typeof(TextPanel3D))]
