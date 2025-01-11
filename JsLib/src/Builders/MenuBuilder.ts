@@ -78,11 +78,12 @@ class MenuBuilderClass {
         };
 
         const container = new ThreeMeshUI.Block(blockOptions);
+        var transform = menuOptions.transform;
 
-        const { x: posX, y: posY, z: posZ } = menuOptions.position;
+        const { x: posX, y: posY, z: posZ } = transform.position;
         container.position.set(posX, posY, posZ);
 
-        const { x: rotX, y: rotY, z: rotZ } = menuOptions.rotation;
+        const { x: rotX, y: rotY, z: rotZ } = transform.rotation;
         container.rotation.set(rotX, rotY, rotZ);
 
         scene.add(container);

@@ -252,6 +252,7 @@ export class Viewer3D {
 
     //can we be smart here and call the correct method based on the type of object we are adding?
     public updateScene(spec: string) {
+        console.log('inside updateScene spec=', spec);
         const options = JSON.parse(spec);
         console.log('updateScene sceneOptions=', options);
         this.options.scene = options;
@@ -369,10 +370,10 @@ export class Viewer3D {
         label.fontSize = options.fontSize;
         label.userData = { isTextLabel: true, };
 
-        const pos  = options.position as Vector3;
-        label.position.x = pos.x;
-        label.position.y = pos.y;
-        label.position.z = pos.z;
+        const { x, y, z } = options.transform.position  as Vector3;
+        label.position.x = x;
+        label.position.y = y;
+        label.position.z = z;
 
         // Update the rendering:
         label.sync();

@@ -36,9 +36,10 @@ export class HelperBuilder {
         if (options.type == 'AxesHelper') {
             const axes = new AxesHelper(options.size);
             axes.uuid = options.uuid;
-            Transforms.setPosition(axes, options.position);
-            Transforms.setRotation(axes, options.rotation);
-            Transforms.setScale(axes, options.scale);
+            var transform = options.transform;
+            Transforms.setPosition(axes, transform.position);
+            Transforms.setRotation(axes, transform.rotation);
+            Transforms.setScale(axes, transform.scale);
             return axes;
         }
 
@@ -56,9 +57,7 @@ export class HelperBuilder {
         if (options.type == 'GridHelper') {
             const grid = new GridHelper(options.size, options.divisions, options.colorCenterLine, options.colorGrid);
             grid.uuid = options.uuid;
-            Transforms.setPosition(grid, options.position);
-            Transforms.setRotation(grid, options.rotation);
-            Transforms.setScale(grid, options.scale);
+            Transforms.setTransform(grid, options.transform);
             return grid;
         }
 
@@ -72,9 +71,7 @@ export class HelperBuilder {
                 options.color2
             );
             grid.uuid = options.uuid;
-            Transforms.setPosition(grid, options.position);
-            Transforms.setRotation(grid, options.rotation);
-            Transforms.setScale(grid, options.scale);
+            Transforms.setTransform(grid, options.transform);
             return grid;
         }
 
@@ -84,10 +81,8 @@ export class HelperBuilder {
             let plane = new Plane(normal, options.plane.constant);
 
             const planeHelper = new PlaneHelper(plane, options.size, options.color);
-            planeHelper.uuid = options.uuid;
-            Transforms.setPosition(planeHelper, options.position);
-            Transforms.setRotation(planeHelper, options.rotation);
-            Transforms.setScale(planeHelper, options.scale);
+            planeHelper.uuid = options.uuid;;
+            Transforms.setTransform(planeHelper, options.transform);
             return planeHelper;
         }
 

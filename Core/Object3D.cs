@@ -15,6 +15,19 @@ using static System.Net.Mime.MediaTypeNames;
 
 namespace BlazorThreeJS.Core
 {
+    public class Transform3D 
+    {
+        public Vector3 Position { get; set; } = new Vector3();
+
+        public Vector3 Pivot { get; set; } = new Vector3();
+
+        public Euler Rotation { get; set; } = new Euler();
+
+        public Vector3 Scale { get; set; } = new Vector3(1, 1, 1);
+    }
+
+
+
     [JsonDerivedType(typeof(Mesh3D))]
     [JsonDerivedType(typeof(Group3D))]
     [JsonDerivedType(typeof(TextPanel3D))]
@@ -35,13 +48,7 @@ namespace BlazorThreeJS.Core
         [JsonIgnore]
         public Action<Object3D>? OnDelete { get; set; }
 
-        public Vector3 Position { get; set; } = new Vector3();
-
-        public Vector3 Pivot { get; set; } = new Vector3();
-
-        public Euler Rotation { get; set; } = new Euler();
-
-        public Vector3 Scale { get; set; } = new Vector3(1, 1, 1);
+        public Transform3D Transform { get; set; } = new Transform3D();
 
         public string Type { get; } = nameof(Object3D);
 

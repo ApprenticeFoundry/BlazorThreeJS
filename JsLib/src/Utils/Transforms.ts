@@ -18,4 +18,16 @@ export class Transforms {
         if (Boolean(object3d))
             object3d.scale.set(x, y, z);
     }
+    
+    static setTransform(object3d: Object3D, transform: any) {
+        if (transform.position) {
+            Transforms.setPosition(object3d, transform.position);
+        }
+        if (transform.rotation) {
+            Transforms.setRotation(object3d, transform.rotation);
+        }
+        if (transform.scale) {
+            Transforms.setScale(object3d, transform.scale);
+        }
+    }
 }

@@ -17,7 +17,7 @@ export class Loaders {
     //}
 
     private assignPosition(object: Group | Object3D, options: any) {
-        const { x, y, z } = options.position;
+        const { x, y, z } = options.transform.position;
         object.position.x = x;
         object.position.y = y;
         object.position.z = z;
@@ -25,7 +25,7 @@ export class Loaders {
     }
 
     private assignRotation(object: Group | Object3D, options: any) {
-        const { x, y, z } = options.rotation;
+        const { x, y, z } = options.transform.rotation;
         object.rotation.x = x;
         object.rotation.y = y;
         object.rotation.z = z;
@@ -33,7 +33,7 @@ export class Loaders {
     }
 
     private assignScale(object: Group | Object3D, options: any) {
-        const { x, y, z } = options.scale;
+        const { x, y, z } = options.transform.scale;
         object.scale.x = x * object.scale.x;
         object.scale.y = y * object.scale.y;
         object.scale.z = z * object.scale.z;
@@ -45,7 +45,7 @@ export class Loaders {
         const group = new Group();
         group.uuid = options.uuid;
         if (Boolean(options.pivot)) {
-            this.assignPosition(gltfScene, { position: options.pivot });
+            this.assignPosition(gltfScene, { position: options.transform.pivot });
         }
         group.add(gltfScene);
         this.assignScale(group, options);

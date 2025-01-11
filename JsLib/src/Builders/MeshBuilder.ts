@@ -51,11 +51,7 @@ export class MeshBuilder {
         if (Boolean(options.pivot)) {
             Transforms.setPosition(entity, options.pivot);
         }
-
-        Transforms.setPosition(entity, options.position);
-        Transforms.setRotation(entity, options.rotation);
-        Transforms.setScale(entity, options.scale);
-
+        Transforms.setTransform(entity, options.transform);
         return entity;
     }
 }

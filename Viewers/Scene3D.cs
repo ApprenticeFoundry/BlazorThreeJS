@@ -32,10 +32,7 @@ public class Scene3D : Object3D
     private Action<Scene3D,string>? AfterUpdate { get; set; } = (scene,json) => { };
 
 
-    public Camera Camera { get; set; } = new PerspectiveCamera()
-    {
-        Position = new Vector3(10f, 10f, 10f)
-    };
+    public Camera Camera { get; set; } = new PerspectiveCamera();
 
     private static List<Scene3D> _AllScenes { get; set; } = new();
 
@@ -45,6 +42,8 @@ public class Scene3D : Object3D
         JsRuntime = js;
         Title = title;
         Name = title.ToLower();
+            
+        Camera.Transform.Position = new Vector3(10f, 10f, 10f);
         _AllScenes.Add(this);
         // $"Scene {Title} created".WriteInfo();
     }
@@ -177,11 +176,10 @@ public class Scene3D : Object3D
         {
             var functionName = Resolve("updateScene");
             var json = JsonSerializer.Serialize((object)this, JSONOptions);
-            //$"UpdateScene: {json} ".WriteInfo();
-            
 
             WriteToFolder("Data", "Scene3D_UpdateScene.json", json); 
 
+            $"Scene3D UpdateScene calling {functionName} with {json}".WriteInfo();
             await JsRuntime!.InvokeVoidAsync(functionName, (object)json);
 
             if ( notify == true)

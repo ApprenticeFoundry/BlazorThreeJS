@@ -128,12 +128,12 @@ namespace BlazorThreeJS.Viewers
                 {
                     Name = "Point Light",
                     Uuid = Guid.NewGuid().ToString(),
-                    Position = new Vector3()
-                    {
-                        X = 1f,
-                        Y = 3f,
-                        Z = 0.0f
-                    }
+                };
+                point.Transform.Position = new Vector3()
+                {
+                    X = 1f,
+                    Y = 3f,
+                    Z = 0.0f
                 };
                 scene.AddChild(point);
             });
