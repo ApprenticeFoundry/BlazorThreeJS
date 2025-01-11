@@ -317,26 +317,26 @@ export class Viewer3D {
         var label = ObjectLookup.findLabel(guid) as Text;
         label = Boolean(label) ? label : new Text();
 
+        label.uuid = guid;
         label.text = options.text;
+        label.color = options.color;
         label.fontSize = options.fontSize;
-        label.userData = {
-            isTextLabel: true,
-        };
+        label.userData = { isTextLabel: true, };
 
         const pos  = options.position as Vector3;
         label.position.x = pos.x;
         label.position.y = pos.y;
         label.position.z = pos.z;
-        label.color = options.color;
 
         // Update the rendering:
-        label.uuid = guid;
         label.sync();
         
         this.scene.add(label);
         ObjectLookup.addLabel(guid, label);
         this.LoadedObjectComplete(guid);
-        console.log('Added to Scene', label);
+        console.log('label Added to Scene', label);
+
+        console.log('THE Scene', this.scene);
         return label;
     }
 
@@ -351,7 +351,7 @@ export class Viewer3D {
                 this.scene.add(group);
                 ObjectLookup.addGroup(group.uuid, group);
                 this.LoadedObjectComplete(group.uuid);
-                console.log('Added to Scene', group);
+                console.log('Group Added to Scene', group);
             })
     }
 

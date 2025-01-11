@@ -27,7 +27,7 @@ export class SceneBuilder {
     }
 
     static BuildChild(scene: Scene, options: any): Text | Mesh | null {
-        if (options.type == 'LabelText') {
+        if (options.type == 'Text3D') {
             const label = new Text();
 
             label.text = options.text;

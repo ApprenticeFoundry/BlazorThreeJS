@@ -155,7 +155,7 @@ export class SceneStateClass {
         let options = [];
         if (Boolean(sceneOptions.children)) {
             options = sceneOptions.children.filter((childOptions: any) => {
-                return 'LabelText|Mesh|Group'.indexOf(childOptions.type) >= 0;
+                return 'Text|Mesh|Group'.indexOf(childOptions.type) >= 0;
             });
         }
         return options;
