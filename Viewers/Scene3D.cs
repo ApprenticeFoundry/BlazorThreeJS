@@ -245,23 +245,23 @@ public class Scene3D : Object3D
         return uuid;
     }
 
-    public async Task<string> Request3DTextLabel(ImportSettings settings)
+    public async Task<string> Request3DLabel(ImportSettings settings)
     {
         var uuid = settings.Uuid!;
 
         try
         {
-            var functionName = Resolve("request3DTextLabel");
+            var functionName = Resolve("request3DLabel");
             var json = JsonSerializer.Serialize((object)settings, JSONOptions);
-            WriteToFolder("Data", "Scene3D_Request3DTextLabel.json", json); 
-            $"Request3DTextLabel calling {functionName} with {json}".WriteInfo();
+            WriteToFolder("Data", "Scene3D_Request3DLabel.json", json); 
+            $"Request3DLabel calling {functionName} with {json}".WriteInfo();
 
             await JsRuntime!.InvokeVoidAsync(functionName, (object)json);
             settings.OnComplete?.Invoke();
         }
         catch (System.Exception ex)
         {  
-           $"Request3DTextLabel: {ex.Message}".WriteError();
+           $"Request3DLabel: {ex.Message}".WriteError();
         }
 
         return uuid;

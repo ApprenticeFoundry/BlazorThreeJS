@@ -308,9 +308,9 @@ export class Viewer3D {
 
     }
 
-    public request3DTextLabel(spec: string): Text | null {
+    public request3DLabel(spec: string): Text | null {
         const options = JSON.parse(spec);
-        console.log('request3DTextLabel modelOptions=', options);
+        console.log('request3DLabel modelOptions=', options);
 
         const guid = options.uuid;
 

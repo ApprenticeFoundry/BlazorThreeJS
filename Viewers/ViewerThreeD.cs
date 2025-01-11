@@ -15,7 +15,7 @@ using BlazorThreeJS.Events;
 
 using BlazorThreeJS.Lights;
 using BlazorThreeJS.Maths;
-using BlazorThreeJS.Menus;
+
 using BlazorThreeJS.Objects;
 
 using BlazorThreeJS.Settings;

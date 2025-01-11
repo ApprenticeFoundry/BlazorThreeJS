@@ -1,7 +1,8 @@
 ﻿
-using BlazorThreeJS.Core;
+
 using System.Text.Json.Serialization;
-namespace BlazorThreeJS.Menus
+
+namespace BlazorThreeJS.Core
 {
     public sealed class Button3D : Object3D
     {
