@@ -2,7 +2,7 @@ import { BufferGeometry, Group, Mesh, Object3D } from 'three';
 import { Transforms } from '../Utils/Transforms';
 import { GeometryBuilder } from './GeometryBuilder';
 import { MaterialBuilder } from './MaterialBuilder';
-import { SceneState } from '../Utils/SceneState';
+
 
 export class MeshBuilder {
     public static ConstructMesh(options: any): Object3D | null {

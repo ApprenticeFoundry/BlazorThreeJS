@@ -97,7 +97,7 @@ class PanelGroupBuilderClass {
         return panel;
     }
 
-    private EstablishMesh(options: any) {
+    private EstablishMesh(options: any) : Group | Mesh {
         const geometry = GeometryBuilder.buildGeometry(options.geometry, options.material);
         const material = MaterialBuilder.buildMaterial(options.material);
 

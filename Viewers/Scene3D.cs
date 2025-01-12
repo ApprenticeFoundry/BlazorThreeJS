@@ -320,7 +320,7 @@ public class Scene3D : Object3D
     [JSInvokable]
     public static Task LoadedObjectComplete(string uuid)
     {
-        $"CALLBACK LoadedObjectComplete  {uuid}".WriteWarning();
+        //$"CALLBACK LoadedObjectComplete  {uuid}".WriteWarning();
 
         if ( ImportPromises.TryGetValue(uuid, out ImportSettings? promise))
         {

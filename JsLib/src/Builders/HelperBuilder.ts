@@ -3,18 +3,18 @@ import {
     AxesHelper,
     BoxHelper,
     GridHelper,
+    Object3D,
     Plane,
     PlaneHelper,
     PointLight,
     PointLightHelper,
     PolarGridHelper,
-    Scene,
     Vector3,
 } from 'three';
 import { Transforms } from '../Utils/Transforms';
 
 export class HelperBuilder {
-    static BuildHelper(options: any, scene: Scene) {
+    static BuildHelper(options: any, source: Object3D): Object3D {
         if (options.type == 'ArrowHelper') {
             const dir = new Vector3(options.dir.x, options.dir.y, options.dir.z);
             dir.normalize();
@@ -36,21 +36,14 @@ export class HelperBuilder {
         if (options.type == 'AxesHelper') {
             const axes = new AxesHelper(options.size);
             axes.uuid = options.uuid;
-            var transform = options.transform;
-            Transforms.setPosition(axes, transform.position);
-            Transforms.setRotation(axes, transform.rotation);
-            Transforms.setScale(axes, transform.scale);
+            Transforms.setTransform(axes, options.transform);
             return axes;
         }
 
         if (options.type == 'BoxHelper') {
-            const obj = scene.getObjectByProperty('uuid', options.object3D.uuid);
-            if (!obj) {
-                throw `BoxHelper's object with uuid ${options.object3D.uuid} not found`;
-            }
-            const box = new BoxHelper(obj, options.color);
+            const box = new BoxHelper(source, options.color);
             box.uuid = options.uuid;
-            // transitions do not work here
+            Transforms.setTransform(box, options.transform);
             return box;
         }
 
@@ -87,15 +80,12 @@ export class HelperBuilder {
         }
 
         if (options.type == 'PointLightHelper') {
-            const obj = scene.getObjectByProperty('uuid', options.light.uuid) as PointLight;
-            if (!obj) {
-                throw `BoxHelper's object with uuid ${options.light.uuid} not found`;
-            }
-            var color = options.color || obj.color;
+            var light = source as PointLight;
+            var color = options.color || light.color;
 
-            const plight = new PointLightHelper(obj, options.sphereSize, color);
+            const plight = new PointLightHelper(light, options.sphereSize, color);
             plight.uuid = options.uuid;
-            // transitions do not work here
+            Transforms.setTransform(plight, options.transform);
             return plight;
         }
     }

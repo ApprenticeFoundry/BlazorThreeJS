@@ -24,7 +24,7 @@ import {
 } from 'three';
 
 export class GeometryBuilder {
-    static buildGeometry(options: any, requestedMaterial: any) {
+    static buildGeometry(options: any, requestedMaterial: any): BufferGeometry | Group {
         if (options.type == 'BoxGeometry') {
             const geometry = new BoxGeometry(
                 options.width,

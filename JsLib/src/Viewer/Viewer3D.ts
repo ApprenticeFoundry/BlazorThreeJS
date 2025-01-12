@@ -1,12 +1,13 @@
-import { OrbitControls } from 'three/examples/jsm/controls/OrbitControls';
-import { BoxLineGeometry } from 'three/examples/jsm/geometries/BoxLineGeometry';
-import { Loaders } from './Loaders';
-import { ObjectLookup } from '../Utils/ObjectLookup';
-import { SceneBuilder } from '../Builders/SceneBuilder';
-import { CameraBuilder } from '../Builders/CameraBuilder';
 import { Transforms } from '../Utils/Transforms';
 import { Text } from 'troika-three-text';
+import { Loaders } from './Loaders';
+import { OrbitControls } from 'three/examples/jsm/controls/OrbitControls';
+import { BoxLineGeometry } from 'three/examples/jsm/geometries/BoxLineGeometry';
+import { ObjectLookup } from '../Utils/ObjectLookup';
+import { CameraBuilder } from '../Builders/CameraBuilder';
 import { MeshBuilder } from '../Builders/MeshBuilder';
+import { MenuBuilder } from '../Builders/MenuBuilder';
+
 import {
     AnimationMixer,
     Clock,
@@ -27,8 +28,11 @@ import {
 
 
 import ThreeMeshUI from 'three-mesh-ui';
-import { MenuBuilder } from '../Builders/MenuBuilder';
 import { GLTF, GLTFLoader } from 'three/examples/jsm/loaders/GLTFLoader';
+import { TextPanelBuilder } from '../Builders/TextPanelBuilder';
+import { PanelGroupBuilder } from '../Builders/PanelGroupBuilder';
+import { LightBuilder } from '../Builders/LightBuilder';
+import { HelperBuilder } from '../Builders/HelperBuilder';
 
 export class Viewer3D {
     private options: any;
@@ -56,11 +60,11 @@ export class Viewer3D {
     public Initialize3DViewer(spec: string) {
         if ( this.HasLoaded ) return;
         this.HasLoaded = true;
+        this.clock = new Clock();
 
         console.log('In Initialize3DViewer');
 
         const options = JSON.parse(spec);
-        this.clock = new Clock();
 
         this.setListeners();
         this.settings = options.viewerSettings;
@@ -94,6 +98,8 @@ export class Viewer3D {
             this.webGLRenderer.domElement.style.height = '100%';
         }
 
+        this.container.appendChild(this.webGLRenderer.domElement);
+
         // this.renderer.domElement.onclick = (event) => {
         //     if (this.options.viewerSettings.canSelect == true) {
         //         this.selectObject(event);
@@ -103,13 +109,11 @@ export class Viewer3D {
         //     }
         // };
 
-        this.container.appendChild(this.webGLRenderer.domElement);
 
         // this.addTestText('How do we pass text values?');
 
         this.setOrbitControls();
         this.onResize();
-
 
         this.StartAnimation();
         console.log('Exit Initialize3DViewer');
@@ -127,14 +131,17 @@ export class Viewer3D {
         // this.addAxes();  we should control this from FoundryBlazor by default
         //this.addRoom();
 
-        if (Boolean(options.scene.children)) {
-            options.scene.children.forEach((childOptions: any) => {
-                const child = SceneBuilder.BuildPeripherals(this.scene, childOptions);
-                if (child) {
-                    scene.add(child);
-                }
-            });
-        }
+        if (Boolean(options.scene.children))
+            this.establish3DChildren(options.scene);
+
+        // if (Boolean(options.scene.children)) {
+        //     options.scene.children.forEach((childOptions: any) => {
+        //         const child = SceneBuilder.BuildPeripherals(this.scene, childOptions);
+        //         if (child) {
+        //             scene.add(child);
+        //         }
+        //     });
+        // }
         // Add cached meshes.
         //SceneState.renderToScene(this.scene, this.options);
     }
@@ -149,6 +156,7 @@ export class Viewer3D {
     private RenderJS(self: any) 
     {
         if ( self.AnimationRequest == null ) return;
+
         // request another animation frame
         try {
             DotNet.invokeMethodAsync('BlazorThreeJS', 'TriggerAnimationFrame');  
@@ -157,6 +165,27 @@ export class Viewer3D {
         } catch (error) {
             console.log('Error in RenderJS', error); 
         }
+    }
+
+    private render() {
+        ThreeMeshUI.update();
+        this.updateUIElements();
+        this.selectObject();
+
+        for (let i = 1, l = this.scene.children.length; i < l; i++) {
+            const item = this.scene.children[i];
+            if (item.userData.isTextLabel) {
+                item.lookAt(this.camera.position);
+            }
+        }
+
+        var delta = this.clock.getDelta();
+        if (Boolean(this.animationMixers.length)) {
+            for (const mixer of this.animationMixers) {
+                mixer.update(delta);
+            }
+        }
+        this.webGLRenderer.render(this.scene, this.camera);
     }
 
     public StartAnimation() {
@@ -185,26 +214,7 @@ export class Viewer3D {
         return false
     }
 
-    private render() {
-        ThreeMeshUI.update();
-        this.updateUIElements();
-        // this.selectObject();
 
-        for (let i = 1, l = this.scene.children.length; i < l; i++) {
-            const item = this.scene.children[i];
-            if (item.userData.isTextLabel) {
-                item.lookAt(this.camera.position);
-            }
-        }
-
-        var delta = this.clock.getDelta();
-        if (Boolean(this.animationMixers.length)) {
-            for (const mixer of this.animationMixers) {
-                mixer.update(delta);
-            }
-        }
-        this.webGLRenderer.render(this.scene, this.camera);
-    }
 
     private setListeners() {
         window.addEventListener('pointermove', (event: PointerEvent) => {
@@ -247,20 +257,18 @@ export class Viewer3D {
         );
     }
 
-
-
-
-    //can we be smart here and call the correct method based on the type of object we are adding?
     public updateScene(spec: string) {
         //console.log('inside updateScene spec=', spec);
         const options = JSON.parse(spec);
         //console.log('updateScene sceneOptions=', options);
         this.options.scene = options;
+        this.establish3DChildren(options);
+    }
 
-        //var hasChildren = Boolean(options.children);
-        //console.log('updateScene hasChildren=', hasChildren);
 
-
+    //can we be smart here and call the correct method based on the type of object we are adding?
+    public establish3DChildren(options: any) {
+        
         var members = options.children;
         for (let index = 0; index < members.length; index++) {
             const element = members[index];
@@ -268,20 +276,36 @@ export class Viewer3D {
             //console.log('updateScene element.type=', element.type);
             //console.log('updateScene element=', index, element);
 
-            //look for the object in the scene if it exists update it
-            //let obj = this.scene.getObjectByProperty('uuid', element.uuid);
             if ( element.type == 'Text3D' ) {
                 this.establish3DLabel(element);
             }
             if ( element.type == 'Mesh3D' ) {
                 this.establish3DGeometry(element);
             }
+            if ( element.type == 'Group3D' ) {
 
-        
-            //     if (options.type == 'Group') {
-            //         return MeshBuilder.CreateMesh(options);
-            //     }
-            // }
+                this.establish3DGroup(element);
+            }
+            if ( element.type == 'PanelMenu3D' ) {
+
+                this.establish3DMenu(element);
+            }
+            if ( element.type == 'Model3D' ) {
+                this.establish3DModel(element);
+            }
+            if (options.type == 'AmbientLight') {
+                LightBuilder.BuildAmbientLight(options);
+            }
+            if (options.type == 'PointLight') {
+                LightBuilder.BuildPointLight(options);
+            }
+            if (options.type.includes('Helper')) {
+                const obj = this.scene.getObjectByProperty('uuid', element.uuid);
+                HelperBuilder.BuildHelper(options, obj);
+            }
+            //add these back in when we have the builders
+            //TextPanelBuilder.BuildTextPanels(scene, options);
+            //PanelGroupBuilder.BuildPanelGroup(scene, options);
         }
 
     }
@@ -301,10 +325,10 @@ export class Viewer3D {
         this.setOrbitControls();
     }
 
-    public showCurrentCameraInfo() {
-        console.log('Current camera info:', this.camera);
-        console.log('Orbit controls info:', this.controls);
-    }
+    // public showCurrentCameraInfo() {
+    //     console.log('Current camera info:', this.camera);
+    //     console.log('Orbit controls info:', this.controls);
+    // }
 
     private setOrbitControls() {
         this.controls = new OrbitControls(this.camera, this.webGLRenderer.domElement);
@@ -326,6 +350,26 @@ export class Viewer3D {
                 animationAction.play();
             }
         });
+    }
+
+    public establish3DMenu(options: any): ThreeMeshUI.Block | null {
+
+        const guid = options.uuid;
+
+        var entity = ObjectLookup.findPanel(guid) as ThreeMeshUI.Block;
+        var exist = Boolean(entity)
+        entity = exist ? entity : MenuBuilder.CreateMenuPanel(options);
+
+        MenuBuilder.RefreshMenuPanel(options, entity);
+
+        if ( !exist )
+        {
+            this.scene.add(entity);
+            ObjectLookup.addPanel(guid, entity);
+            this.LoadedObjectComplete(guid);
+            console.log('Panel Added to Scene', entity);
+        }
+        return entity;
     }
 
     public establish3DGeometry(options: any): Object3D | null {
@@ -353,6 +397,11 @@ export class Viewer3D {
         console.log('request3DGeometry modelOptions=', options);
         var geometry = this.establish3DGeometry(options);
         return geometry;
+    }
+
+    private establish3DGroup(options: any): Group | null {
+        console.log('establish3DGroup modelOptions=', options);
+        return null;
     }
 
     private establish3DLabel(options: any): Text | null {
@@ -396,9 +445,8 @@ export class Viewer3D {
         return label;
     }
 
-    public request3DModel(spec: string) {
-        const options = JSON.parse(spec);
-        console.log('request3DModel modelOptions=', options);
+    public establish3DModel(options: any) {
+        console.log('establish3DModel modelOptions=', options);
         
         const loaders = new Loaders();
         loaders.import3DModel(options, (model: GLTF) => this.playGltfAnimation(model),
@@ -411,11 +459,13 @@ export class Viewer3D {
             })
     }
 
-
-    public moveObject(object3D: Object3D): boolean {
-        const moved = SceneState.moveObject(this.scene, object3D);
-        return Boolean(moved);
+    public request3DModel(spec: string) {
+        const options = JSON.parse(spec);
+        console.log('request3DModel modelOptions=', options);
+        this.establish3DModel(options);
     }
+
+
 
     public getSceneItemByGuid(guid: string):string {
         let item = this.scene.getObjectByProperty('uuid', guid);
@@ -451,10 +501,11 @@ export class Viewer3D {
 
     private selectObject() {
         let intersect: any = null;
+        let allButtons = ObjectLookup.getAllButtons();
 
         if (this.mouse.x !== null && this.mouse.y !== null) {
             this.raycaster.setFromCamera(this.mouse, this.camera);
-            intersect = this.raycast(Array.from(MenuBuilder.elementButtons.values()));
+            intersect = this.raycast(Array.from(allButtons));
         }
 
         const intersects = this.raycaster.intersectObjects(this.scene.children, true);
@@ -550,16 +601,17 @@ export class Viewer3D {
     private updateUIElements() {
         // Find closest intersecting object
         let intersect: any = null;
+        let allButtons = ObjectLookup.getAllButtons();
 
         if (this.mouse.x !== null && this.mouse.y !== null) {
             this.raycaster.setFromCamera(this.mouse, this.camera);
 
             // intersect = this.raycastUIElements();
-            intersect = this.raycast(Array.from(MenuBuilder.elementButtons.values()));
+            intersect = this.raycast(Array.from(allButtons));
         }
 
         // Update non-targeted buttons state
-        MenuBuilder.elementButtons.forEach((obj) => {
+        allButtons.forEach((obj) => {
             obj['setState']('idle');
         });
         // Update targeted button state (if any)
