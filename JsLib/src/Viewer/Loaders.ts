@@ -42,6 +42,7 @@ export class Loaders {
 
     private setGLTFSceneProps(gltfScene: Group, guid: string, options: any): Group {
         gltfScene.name = `name-${guid}`;
+        
         const group = new Group();
         group.uuid = options.uuid;
         if (Boolean(options.pivot)) {
@@ -63,9 +64,9 @@ export class Loaders {
     //     gltfFolder.open();
     // }
 
-    private loadGltf(url: string, guid: string, options: any, animationCallBack: Function, onComplete: Function) {
+    private loadGltf(url: string, guid: string, member: any, animationCallBack: Function, onComplete: Function) {
         
-        console.log('inside loadGltf', url, guid, options);
+        console.log('inside loadGltf', url, guid, member);
         var found = ObjectLookup.findGLTF(url);
 
         if (Boolean(found) == false) {
@@ -78,7 +79,7 @@ export class Loaders {
                 ObjectLookup.casheGLTF(url, gltf);
 
                 const clone = gltf.scene; //.clone();
-                const group = this.setGLTFSceneProps(clone, guid, options);
+                const group = this.setGLTFSceneProps(clone, guid, member);
 
                 const box = new Box3().setFromObject(group);
                 const size = box.getSize(new Vector3());
@@ -95,7 +96,7 @@ export class Loaders {
                 console.log('gltf is found', gltf);
 
                 const clone = gltf.scene.clone();
-                const group = this.setGLTFSceneProps(clone, guid, options);
+                const group = this.setGLTFSceneProps(clone, guid, member);
 
                 const box = new Box3().setFromObject(group);
                 const size = box.getSize(new Vector3());
@@ -178,18 +179,19 @@ export class Loaders {
     //     });
     // }
 
-    public import3DModel(settings: any, animationCallBack: Function, onComplete: Function) {
-        const format = settings.format;
-        let guid = settings.uuid;
-        let objUrl = settings.fileURL;
-        //let textureUrl = settings.textureURL;
-        //let material = settings.material;
+    // importSettings object is passed
+    public import3DModel(importSettings: any, animationCallBack: Function, onComplete: Function) {
+        const format = importSettings.format;
+        let guid = importSettings.uuid;
+        let url = importSettings.fileURL;
 
-        console.log('In import3DModel', settings);
+
+        console.log('In import3DModel', importSettings);
 
         if (format == 'Gltf') {
-            console.log('Calling loadGltf', settings);
-            this.loadGltf(objUrl, guid, settings, animationCallBack, onComplete);
+            const member = importSettings.children[0];
+            console.log('Calling loadGltf', member);
+            this.loadGltf(url, guid, member, animationCallBack, onComplete);
         }
 
         // else if (format == 'Obj') {

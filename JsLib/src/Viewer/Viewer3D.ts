@@ -460,6 +460,7 @@ export class Viewer3D {
     public establish3DModel(options: any) {
         console.log('establish3DModel modelOptions=', options);
         
+
         const loaders = new Loaders();
         loaders.import3DModel(options, (model: GLTF) => this.playGltfAnimation(model),
             (group) => {
@@ -475,7 +476,7 @@ export class Viewer3D {
     public request3DModel(importSettings: string) {
         const options = JSON.parse(importSettings);
         if ( options.type != 'ImportSettings' ) return null;
-        
+
         console.log('request3DModel modelOptions=', options);
         this.establish3DModel(options);
     }

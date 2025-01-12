@@ -23,12 +23,6 @@ namespace BlazorThreeJS.Settings
         public Import3DFormats Format { get; set; }
 
         public string? FileURL { get; set; }
-        // public string? FontSize { get; set; }
-        // public string? Text { get; set; }    
-        // public string? Color { get; set; }   
-        // public Mesh3D? Mesh { get; set; }
-        
-        // public Vector3? ComputedSize { get; set; }
 
 
         [JsonIgnore]
@@ -45,8 +39,10 @@ namespace BlazorThreeJS.Settings
         // {
         //     return ++ClickCount;
         // }
+        
         public ImportSettings() : base(nameof(ImportSettings))
         {
+            Transform = null!;
         }
     }
 }
