@@ -5,19 +5,18 @@ import { MaterialBuilder } from './MaterialBuilder';
 
 
 export class MeshBuilder {
-    public static ConstructMesh(options: any): Object3D | null {
+    public static ConstructMesh(options: any): Mesh | Group | null {
         const geometry = GeometryBuilder.buildGeometry(options.geometry, options.material);
+
+        if (geometry['isGroup'])
+            return geometry as Group;
+        
+
+        const item = geometry as BufferGeometry;
         const material = MaterialBuilder.buildMaterial(options.material);
-
-
-        let entity = null;
-        if (geometry['isGroup']) {
-            entity = geometry;
-        } else {
-            const item = geometry as BufferGeometry;
-            entity = new Mesh(item, material);
-        }
+        const entity = new Mesh(item, material);
         entity.uuid = options.uuid;
+        
         return entity;
     }
 
