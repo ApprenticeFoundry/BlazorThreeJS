@@ -24,6 +24,7 @@ import {
     Vector3,
     WebGLRenderer,
     Event as ThreeEvent,
+    Group,
 } from 'three';
 
 
@@ -55,6 +56,9 @@ export class Viewer3D {
 
     private LoadedObjectComplete(uuid: string) {
         DotNet.invokeMethodAsync('BlazorThreeJS', 'LoadedObjectComplete', uuid);
+    }
+    private onObjectSelected(uuid: string) {
+        DotNet.invokeMethodAsync('BlazorThreeJS', 'OnClickButton', uuid);
     }
 
     public Initialize3DViewer(spec: string) {
@@ -467,29 +471,29 @@ export class Viewer3D {
 
 
 
-    public getSceneItemByGuid(guid: string):string {
-        let item = this.scene.getObjectByProperty('uuid', guid);
-        const json = {
-            uuid: item.uuid,
-            type: item.type,
-            name: item.name,
-            children: item.type == 'Group' ? this.iterateGroup(item.children) : [],
-        };
-        return JSON.stringify(json);
-    }
+    // public getSceneItemByGuid(guid: string):string {
+    //     let item = this.scene.getObjectByProperty('uuid', guid);
+    //     const json = {
+    //         uuid: item.uuid,
+    //         type: item.type,
+    //         name: item.name,
+    //         children: item.type == 'Group' ? this.iterateGroup(item.children) : [],
+    //     };
+    //     return JSON.stringify(json);
+    // }
 
-    private iterateGroup(children: any[]) {
-        let result = [];
-        for (let i = 0; i < children.length; i++) {
-            result.push({
-                uuid: children[i].uuid,
-                type: children[i].type,
-                name: children[i].name,
-                children: children[i].type == 'Group' ? this.iterateGroup(children[i].children) : [],
-            });
-        }
-        return result;
-    }
+    // private iterateGroup(children: any[]) {
+    //     let result = [];
+    //     for (let i = 0; i < children.length; i++) {
+    //         result.push({
+    //             uuid: children[i].uuid,
+    //             type: children[i].type,
+    //             name: children[i].name,
+    //             children: children[i].type == 'Group' ? this.iterateGroup(children[i].children) : [],
+    //         });
+    //     }
+    //     return result;
+    // }
 
     private findRootGuid(item: Object3D<ThreeEvent>): Object3D<ThreeEvent> {
         const userData = item.userData;
@@ -515,13 +519,8 @@ export class Viewer3D {
             return;
         } else {
             if (intersects.length === 0) {
-                // this.INTERSECTED = null;
-                // DotNet.invokeMethodAsync(
-                //     'BlazorThreeJS',
-                //     'ReceiveSelectedObjectUUID',
-                //     this.options.viewerSettings.containerId,
-                //     null
-                // );
+                this.INTERSECTED = null;
+                //DotNet.invokeMethodAsync('BlazorThreeJS','ReceiveSelectedObjectUUID', this.INTERSECTED.uuid, size);
                 return;
             }
 
@@ -560,13 +559,6 @@ export class Viewer3D {
 
 
 
-    public clearScene() {
-        const self = this;
-        // SceneState.clearScene(this.scene, this.options.scene, function onClearScene() {
-        //     self.setScene();
-        //     self.setOrbitControls();
-        // });
-    }
 
     private addRoom() {
         const room = new LineSegments(
@@ -581,22 +573,20 @@ export class Viewer3D {
         this.scene.add(grid);
     }
 
-    private addAxes() {
-        // const axesHelper = new AxesHelper(3);
-        // this.scene.add(axesHelper);
+    // private addAxes() {
+    //     // const axesHelper = new AxesHelper(3);
+    //     // this.scene.add(axesHelper);
 
-        const url = 'assets/fiveMeterAxis.glb';
+    //     const url = 'assets/fiveMeterAxis.glb';
 
-        const loader = new GLTFLoader();
-        loader.loadAsync(url).then((model: GLTF) => {
-            this.scene.add(model.scene);
-            this.playGltfAnimation(model);
-        });
-    }
+    //     const loader = new GLTFLoader();
+    //     loader.loadAsync(url).then((model: GLTF) => {
+    //         this.scene.add(model.scene);
+    //         this.playGltfAnimation(model);
+    //     });
+    // }
 
-    private onObjectSelected(uuid: string) {
-        DotNet.invokeMethodAsync('BlazorThreeJS', 'OnClickButton', this.settings.containerId, uuid);
-    }
+
 
     private updateUIElements() {
         // Find closest intersecting object

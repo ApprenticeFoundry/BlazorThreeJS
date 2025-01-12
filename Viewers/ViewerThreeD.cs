@@ -45,8 +45,9 @@ namespace BlazorThreeJS.Viewers
         };
 
         private static Dictionary<string, Button3D> Buttons { get; set; } = new();
-        //private static Dictionary<string, ImportSettings> ImportPromises { get; set; } = new();
         private static Dictionary<string, ImportSettings> LoadedModels { get; set; } = new();
+        
+        //private static Dictionary<string, ImportSettings> ImportPromises { get; set; } = new();
 
         // private event LoadedObjectEventHandler? ObjectLoadedPrivate;
         // public event LoadedObjectEventHandler? ObjectLoaded;
@@ -81,7 +82,14 @@ namespace BlazorThreeJS.Viewers
 
         public OrbitControls OrbitControls { get; set; } = new OrbitControls();
 
-
+        protected override void BuildRenderTree(RenderTreeBuilder builder)
+        {
+            builder.OpenElement(0, "div");
+            builder.AddAttribute(1, "class", "viewer3dContainer");
+            builder.AddAttribute(2, "id", this.SceneName);
+           // __builder.AddAttribute(3, "b-h6holr0slw");
+            builder.CloseElement();
+        }
 
         private ViewerSettings ComputeViewingSettings()
         {
@@ -284,10 +292,8 @@ namespace BlazorThreeJS.Viewers
 
 
         [JSInvokable]
-        public static Task OnClickButton(string containerId, string uuid)
+        public static Task OnClickButton(string uuid)
         {
-
-            Console.WriteLine($"OnClickButton containerId, uuid={containerId}, {uuid}");
             Console.WriteLine($"After OnClickButton, ViewerThreeD.Buttons ContainsKey ={ViewerThreeD.Buttons.ContainsKey(uuid)}");
 
             if (ViewerThreeD.Buttons.ContainsKey(uuid))
@@ -422,14 +428,7 @@ namespace BlazorThreeJS.Viewers
 
 
 
-        protected override void BuildRenderTree(RenderTreeBuilder builder)
-        {
-            builder.OpenElement(0, "div");
-            builder.AddAttribute(1, "class", "viewer3dContainer");
-            builder.AddAttribute(2, "id", this.SceneName);
-           // __builder.AddAttribute(3, "b-h6holr0slw");
-            builder.CloseElement();
-        }
+
 
 
 
