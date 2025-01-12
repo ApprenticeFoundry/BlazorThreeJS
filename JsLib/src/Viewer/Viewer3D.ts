@@ -291,21 +291,25 @@ export class Viewer3D {
                 this.establish3DGroup(element);
             }
             if ( element.type == 'PanelMenu3D' ) {
-
                 this.establish3DMenu(element);
             }
             if ( element.type == 'Model3D' ) {
                 this.establish3DModel(element);
             }
             if (options.type == 'AmbientLight') {
-                LightBuilder.BuildAmbientLight(options);
+                console.log('LightBuilder.BuildAmbientLight');
+                var ambient = LightBuilder.BuildAmbientLight(options);
+                this.scene.add(ambient);
             }
             if (options.type == 'PointLight') {
-                LightBuilder.BuildPointLight(options);
+                console.log('LightBuilder.BuildPointLight');
+                var light = LightBuilder.BuildPointLight(options);
+                this.scene.add(light);
             }
             if (options.type.includes('Helper')) {
                 const obj = this.scene.getObjectByProperty('uuid', element.uuid);
-                HelperBuilder.BuildHelper(options, obj);
+                var helper = HelperBuilder.BuildHelper(options, obj);
+                this.scene.add(helper);
             }
             //add these back in when we have the builders
             //TextPanelBuilder.BuildTextPanels(scene, options);
