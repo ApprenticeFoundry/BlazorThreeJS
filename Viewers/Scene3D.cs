@@ -243,6 +243,27 @@ public class Scene3D : Object3D
         return uuid;
     }
 
+    public async Task<string> Request3DGeometry(ImportSettings settings)
+    {
+        var uuid = settings.Uuid!;
+
+        try
+        {
+            var functionName = Resolve("request3DGeometry");
+            var json = JsonSerializer.Serialize((object)settings, JSONOptions);
+            WriteToFolder("Data", "Scene3D_Request3Geometry.json", json); 
+            $"request3DGeometry calling {functionName} with {json}".WriteInfo();
+
+            await JsRuntime!.InvokeVoidAsync(functionName, (object)json);
+            settings.OnComplete?.Invoke();
+        }
+        catch (System.Exception ex)
+        {  
+           $"Request3DGeometry: {ex.Message}".WriteError();
+        }
+
+        return uuid;
+    }
     public async Task<string> Request3DLabel(ImportSettings settings)
     {
         var uuid = settings.Uuid!;

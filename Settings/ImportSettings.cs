@@ -26,11 +26,12 @@ namespace BlazorThreeJS.Settings
         public string? FontSize { get; set; }
         public string? Text { get; set; }    
         public string? Color { get; set; }   
+        public Mesh3D? Mesh { get; set; }
         
         public Vector3? ComputedSize { get; set; }
 
-        [JsonIgnore]
-        public MeshStandardMaterial? Material { get; set; }
+        // [JsonIgnore]
+        // public MeshStandardMaterial? Material { get; set; }
         [JsonIgnore]
         public Action? OnComplete { get; set; }
         [JsonIgnore]

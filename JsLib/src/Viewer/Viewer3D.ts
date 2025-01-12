@@ -281,32 +281,31 @@ export class Viewer3D {
             console.log('updateScene element.type=', element.type);
             //console.log('updateScene element=', index, element);
 
-            if ( element.type == 'Text3D' ) {
-                this.establish3DLabel(element);
-            }
-            if ( element.type == 'Mesh3D' ) {
-                this.establish3DGeometry(element);
-            }
-            if ( element.type == 'Group3D' ) {
-
-                this.establish3DGroup(element);
-            }
-            if ( element.type == 'PanelMenu3D' ) {
-                this.establish3DMenu(element);
-            }
-            if ( element.type == 'Model3D' ) {
-                this.establish3DModel(element);
-            }
             if (options.type == 'AmbientLight') {
-                console.log('LightBuilder.BuildAmbientLight');
                 var ambient = LightBuilder.BuildAmbientLight(options);
                 this.scene.add(ambient);
-            }
+                console.log('LightBuilder.BuildAmbientLight', ambient);
+            } else
             if (options.type == 'PointLight') {
-                console.log('LightBuilder.BuildPointLight');
                 var light = LightBuilder.BuildPointLight(options);
                 this.scene.add(light);
-            }
+                console.log('LightBuilder.BuildPointLight', light);
+            } else
+            if ( element.type == 'Text3D' ) {
+                this.establish3DLabel(element);
+            } else
+            if ( element.type == 'Mesh3D' ) {
+                this.establish3DGeometry(element);
+            } else
+            if ( element.type == 'Group3D' ) {
+                this.establish3DGroup(element);
+            } else
+            if ( element.type == 'PanelMenu3D' ) {
+                this.establish3DMenu(element);
+            } else
+            if ( element.type == 'Model3D' ) {
+                this.establish3DModel(element);
+            } else
             if (options.type.includes('Helper')) {
                 const obj = this.scene.getObjectByProperty('uuid', element.uuid);
                 var helper = HelperBuilder.BuildHelper(options, obj);

@@ -12,7 +12,12 @@ namespace BlazorThreeJS.Materials
           : base(nameof(MeshStandardMaterial))
         {
         }
-
+        public MeshStandardMaterial(string color)
+          : base(nameof(MeshStandardMaterial))
+        {
+            this.Color = color;
+        }
+        
         public string Color { get; set; } = "orange";
 
         public bool FlatShading { get; set; }

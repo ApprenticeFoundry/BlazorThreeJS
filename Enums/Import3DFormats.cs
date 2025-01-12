@@ -14,6 +14,6 @@ namespace BlazorThreeJS.Enums
         Gltf,
         Stl,
         Text,
-        Geometry,
+        Mesh,
     }
 }
