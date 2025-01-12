@@ -278,18 +278,16 @@ export class Viewer3D {
         for (let index = 0; index < members.length; index++) {
             const element = members[index];
 
-            console.log('updateScene element.type=', element.type);
+            //console.log('updateScene element.type=', element.type);
             //console.log('updateScene element=', index, element);
 
-            if (options.type == 'AmbientLight') {
+            if (element.type == 'AmbientLight') {
                 var ambient = LightBuilder.BuildAmbientLight(options);
                 this.scene.add(ambient);
-                console.log('LightBuilder.BuildAmbientLight', ambient);
             } else
-            if (options.type == 'PointLight') {
+            if (element.type == 'PointLight') {
                 var light = LightBuilder.BuildPointLight(options);
                 this.scene.add(light);
-                console.log('LightBuilder.BuildPointLight', light);
             } else
             if ( element.type == 'Text3D' ) {
                 this.establish3DLabel(element);
@@ -306,7 +304,7 @@ export class Viewer3D {
             if ( element.type == 'Model3D' ) {
                 this.establish3DModel(element);
             } else
-            if (options.type.includes('Helper')) {
+            if (element.type.includes('Helper')) {
                 const obj = this.scene.getObjectByProperty('uuid', element.uuid);
                 var helper = HelperBuilder.BuildHelper(options, obj);
                 this.scene.add(helper);
@@ -375,7 +373,7 @@ export class Viewer3D {
             this.scene.add(entity);
             ObjectLookup.addPanel(guid, entity);
             this.LoadedObjectComplete(guid);
-            console.log('Panel Added to Scene', entity);
+            console.log('MenuPanel Added to Scene', entity);
         }
         return entity;
     }
@@ -395,13 +393,16 @@ export class Viewer3D {
             this.scene.add(entity);
             ObjectLookup.addPrimitive(guid, entity);
             this.LoadedObjectComplete(guid);
-            console.log('label Added to Scene', entity);
+            console.log('Geometry Added to Scene', entity);
         }
         return entity;
     }
 
-    public request3DGeometry(spec: string): Object3D | null {
-        const options = JSON.parse(spec);
+    //spec is always a importSettings
+    public request3DGeometry(importSettings: string): Object3D | null {
+        const options = JSON.parse(importSettings);
+        if ( options.type != 'ImportSettings' ) return null;
+        
         console.log('request3DGeometry modelOptions=', options);
         var geometry = this.establish3DGeometry(options);
         return geometry;
@@ -446,8 +447,11 @@ export class Viewer3D {
         return label;
     }
 
-    public request3DLabel(spec: string): Text | null {
-        const options = JSON.parse(spec);
+    //spec is always a importSettings
+    public request3DLabel(importSettings: string): Text | null {
+        const options = JSON.parse(importSettings);
+        if ( options.type != 'ImportSettings' ) return null;
+
         console.log('request3DLabel modelOptions=', options);
         var label = this.establish3DLabel(options);
         return label;
@@ -467,8 +471,11 @@ export class Viewer3D {
             })
     }
 
-    public request3DModel(spec: string) {
-        const options = JSON.parse(spec);
+    //spec is always a importSettings
+    public request3DModel(importSettings: string) {
+        const options = JSON.parse(importSettings);
+        if ( options.type != 'ImportSettings' ) return null;
+        
         console.log('request3DModel modelOptions=', options);
         this.establish3DModel(options);
     }

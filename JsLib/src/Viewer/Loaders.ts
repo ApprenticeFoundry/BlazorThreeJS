@@ -180,10 +180,10 @@ export class Loaders {
 
     public import3DModel(settings: any, animationCallBack: Function, onComplete: Function) {
         const format = settings.format;
-        let objUrl = settings.fileURL;
-        let textureUrl = settings.textureURL;
         let guid = settings.uuid;
-        let material = settings.material;
+        let objUrl = settings.fileURL;
+        //let textureUrl = settings.textureURL;
+        //let material = settings.material;
 
         console.log('In import3DModel', settings);
 

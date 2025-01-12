@@ -275,8 +275,8 @@ namespace BlazorThreeJS.Viewers
                 $"LoadedModels {uuid} item={item}".WriteInfo();
                 if (item != null)
                 {
-                    item.ComputedSize = size;
-                    item.OnClick.Invoke(item);
+                    //item.ComputedSize = size;
+                    //item.OnClick.Invoke(item);
                 }
                 else
                 {
