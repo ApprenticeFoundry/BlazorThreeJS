@@ -136,7 +136,10 @@ export class Viewer3D {
         //this.addRoom();
 
         if (Boolean(options.scene.children))
+        {
+            console.log('In InitializeScene options.scene.children=', options.scene.children);
             this.establish3DChildren(options.scene);
+        }
 
         // if (Boolean(options.scene.children)) {
         //     options.scene.children.forEach((childOptions: any) => {
@@ -146,8 +149,6 @@ export class Viewer3D {
         //         }
         //     });
         // }
-        // Add cached meshes.
-        //SceneState.renderToScene(this.scene, this.options);
     }
 
     //clear out animation
@@ -277,7 +278,7 @@ export class Viewer3D {
         for (let index = 0; index < members.length; index++) {
             const element = members[index];
 
-            //console.log('updateScene element.type=', element.type);
+            console.log('updateScene element.type=', element.type);
             //console.log('updateScene element=', index, element);
 
             if ( element.type == 'Text3D' ) {
