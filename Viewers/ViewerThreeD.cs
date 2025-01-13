@@ -161,18 +161,11 @@ namespace BlazorThreeJS.Viewers
 
             if (firstRender)
             {
-                //ViewerThreeD.ObjectSelectedStatic += new ViewerThreeD.SelectedObjectStaticEventHandler(ViewerThreeD.OnObjectSelectedStatic);
-                //ViewerThreeD.ObjectLoadedStatic += new ViewerThreeD.LoadedObjectStaticEventHandler(ViewerThreeD.OnObjectLoadedStatic);
-                //ObjectLoadedPrivate += new LoadedObjectEventHandler(OnObjectLoadedPrivate);
-
                 HasRendered = true;
                 LoadedModels.Clear();
 
                 var scene = GetActiveScene();
-                //var jsNameSpace = scene.Title;
 
-                //await JsRuntime!.InvokeVoidAsync("import", DotNetObjectReference.Create(this));
-                //await JsRuntime!.InvokeVoidAsync("ViewManager.establishViewer3D", (object)jsNameSpace);
 
                 var dto = new SceneDTO()
                 {
@@ -207,18 +200,12 @@ namespace BlazorThreeJS.Viewers
 
         public async ValueTask DisposeAsync()
         {
-                        //ViewerThreeDObjectSelectedStatic -= new ViewerThreeDSelectedObjectStaticEventHandler(this.OnObjectSelectedStatic);
-            //ViewerThreeDObjectLoadedStatic -= new ViewerThreeDLoadedObjectStaticEventHandler(this.OnObjectLoadedStatic);
-            //this.ObjectLoadedPrivate -= new LoadedObjectEventHandler(this.OnObjectLoadedPrivate);
-
             try
             {
                 //$"ViewerThreeD [{SceneName}] TRY DisposeAsync".WriteWarning();
                 if (!HasRendered)
                     return;
                     
-                //var scene = GetActiveScene();
-                //var jsNameSpace = scene.Title;
                 $"ViewerThreeD [{SceneName}] DisposeAsync".WriteInfo();
                 
                 var functionName = ResolveFunction("Finalize3DViewer");

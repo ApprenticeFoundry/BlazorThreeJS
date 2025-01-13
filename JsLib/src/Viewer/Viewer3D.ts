@@ -140,15 +140,6 @@ export class Viewer3D {
             console.log('In InitializeScene options.scene.children=', options.scene.children);
             this.establish3DChildren(options.scene);
         }
-
-        // if (Boolean(options.scene.children)) {
-        //     options.scene.children.forEach((childOptions: any) => {
-        //         const child = SceneBuilder.BuildPeripherals(this.scene, childOptions);
-        //         if (child) {
-        //             scene.add(child);
-        //         }
-        //     });
-        // }
     }
 
     //clear out animation
@@ -270,6 +261,12 @@ export class Viewer3D {
         this.establish3DChildren(options);
     }
 
+    public request3DScene(importSettings: string) {
+        const options = JSON.parse(importSettings);
+        
+        console.log('request3DScene importSettings=', options);
+        this.establish3DChildren(options);
+    }
 
     //can we be smart here and call the correct method based on the type of object we are adding?
     public establish3DChildren(options: any) {
@@ -397,6 +394,8 @@ export class Viewer3D {
         }
         return entity;
     }
+
+
 
     //spec is always a importSettings
     public request3DGeometry(importSettings: string): Object3D | null {

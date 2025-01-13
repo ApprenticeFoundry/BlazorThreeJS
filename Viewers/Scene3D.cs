@@ -252,7 +252,7 @@ public class Scene3D : Object3D
             var functionName = Resolve("request3DGeometry");
             var json = JsonSerializer.Serialize((object)settings, JSONOptions);
             WriteToFolder("Data", "Scene3D_Request3Geometry.json", json); 
-            $"request3DGeometry calling {functionName} with {json}".WriteInfo();
+            //$"request3DGeometry calling {functionName} with {json}".WriteInfo();
 
             await JsRuntime!.InvokeVoidAsync(functionName, (object)json);
             settings.OnComplete?.Invoke();
