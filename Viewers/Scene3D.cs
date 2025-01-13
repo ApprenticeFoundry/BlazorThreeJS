@@ -25,7 +25,7 @@ public class Scene3D : Object3D
     public string BackGroundColor { get; set; } = "#505050";
 
     
-    private static Dictionary<string, ImportSettings> ImportPromises { get; set; } = new();
+    private static Dictionary<string, Func<Task>> ImportPromises { get; set; } = new();
     private IJSRuntime JsRuntime { get; set; }
 
     private static DateTime _lastRender;
@@ -213,7 +213,7 @@ public class Scene3D : Object3D
         IgnoreReadOnlyFields = true
     };
 
-    public async Task<string> Request3DModel(ImportSettings settings)
+    public async Task<string> Request3DModel(ImportSettings settings, Func<Task>? onComplete = null)
     {
         var uuid = settings.Uuid!;
         if (ImportPromises.ContainsKey(uuid))
@@ -222,7 +222,16 @@ public class Scene3D : Object3D
             return uuid;
         }
 
-        ImportPromises.Add(uuid, settings);
+        var fileURL = settings.FileURL ?? "";   
+        if (string.IsNullOrEmpty(fileURL))
+        {
+            $"Request3DModel: FileURL is empty".WriteError();
+            return uuid;
+        }
+
+        //because we expect an async process in loading a GBL file, we need to wait for the completion
+        if ( onComplete != null)
+            ImportPromises.Add(uuid, onComplete);
 
         try
         {
@@ -233,7 +242,6 @@ public class Scene3D : Object3D
 
             await JsRuntime!.InvokeVoidAsync(functionName, (object)json);  
             $"Request3DModel:Scene3D {functionName} {settings.FileURL} {uuid}".WriteInfo();
-            settings.OnComplete?.Invoke();
         }
         catch (System.Exception ex)
         {  
@@ -243,7 +251,7 @@ public class Scene3D : Object3D
         return uuid;
     }
 
-    public async Task<string> Request3DGeometry(ImportSettings settings)
+    public async Task<string> Request3DGeometry(ImportSettings settings, Func<Task>? onComplete = null)
     {
         var uuid = settings.Uuid!;
 
@@ -255,7 +263,10 @@ public class Scene3D : Object3D
             //$"request3DGeometry calling {functionName} with {json}".WriteInfo();
 
             await JsRuntime!.InvokeVoidAsync(functionName, (object)json);
-            settings.OnComplete?.Invoke();
+            if (onComplete != null)
+            {
+                await onComplete();  // Now we can await the async callback
+            }
         }
         catch (System.Exception ex)
         {  
@@ -264,7 +275,7 @@ public class Scene3D : Object3D
 
         return uuid;
     }
-    public async Task<string> Request3DLabel(ImportSettings settings)
+    public async Task<string> Request3DLabel(ImportSettings settings, Func<Task>? onComplete = null)
     {
         var uuid = settings.Uuid!;
 
@@ -276,7 +287,11 @@ public class Scene3D : Object3D
             //$"Request3DLabel calling {functionName} with {json}".WriteInfo();
 
             await JsRuntime!.InvokeVoidAsync(functionName, (object)json);
-            settings.OnComplete?.Invoke();
+            if (onComplete != null)
+            {
+                await onComplete();  // Now we can await the async callback
+            }
+
         }
         catch (System.Exception ex)
         {  
@@ -339,23 +354,18 @@ public class Scene3D : Object3D
 
 
     [JSInvokable]
-    public static Task LoadedObjectComplete(string uuid)
+    public static void LoadedObjectComplete(string uuid)
     {
         //$"CALLBACK LoadedObjectComplete  {uuid}".WriteWarning();
 
-        if ( ImportPromises.TryGetValue(uuid, out ImportSettings? promise))
+        if ( ImportPromises.TryGetValue(uuid, out Func<Task>? promise))
         {
-            var OnComplete = promise.OnComplete;
-            
-            promise.OnComplete = () => { };
             ImportPromises.Remove(uuid);
-            if (OnComplete != null)
+            if (promise != null)
             {
-                OnComplete.Invoke();
-                $"ImportPromises  {promise.FileURL} completed".WriteWarning();
+                promise.Invoke();
             }
         }
-        return Task.FromResult(0);
     }
 }
 

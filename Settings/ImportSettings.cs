@@ -19,30 +19,15 @@ namespace BlazorThreeJS.Settings
 {
     public class ImportSettings : Object3D
     {
+        public ImportSettings() : base(nameof(ImportSettings))
+        {
+            Transform = null!;
+        }
+
         [JsonConverter(typeof(JsonStringEnumConverter))]
         public Import3DFormats Format { get; set; }
 
         public string? FileURL { get; set; }
 
-
-        [JsonIgnore]
-        public Action? OnComplete { get; set; }
-        //[JsonIgnore]
-        // public Action<ImportSettings> OnClick { get; set; } = (ImportSettings model3D) => { };
-        // [JsonIgnore]
-        // public int ClickCount { get; set; } = 0;
-        // public bool IsShow()
-        // {
-        //     return ClickCount % 2 == 1;
-        // }
-        // public int Increment()
-        // {
-        //     return ++ClickCount;
-        // }
-        
-        public ImportSettings() : base(nameof(ImportSettings))
-        {
-            Transform = null!;
-        }
     }
 }
