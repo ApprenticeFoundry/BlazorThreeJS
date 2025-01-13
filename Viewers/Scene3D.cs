@@ -273,7 +273,7 @@ public class Scene3D : Object3D
             var functionName = Resolve("request3DLabel");
             var json = JsonSerializer.Serialize((object)settings, JSONOptions);
             WriteToFolder("Data", "Scene3D_Request3DLabel.json", json); 
-            $"Request3DLabel calling {functionName} with {json}".WriteInfo();
+            //$"Request3DLabel calling {functionName} with {json}".WriteInfo();
 
             await JsRuntime!.InvokeVoidAsync(functionName, (object)json);
             settings.OnComplete?.Invoke();

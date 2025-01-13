@@ -403,8 +403,10 @@ export class Viewer3D {
         const options = JSON.parse(importSettings);
         if ( options.type != 'ImportSettings' ) return null;
         
-        console.log('request3DGeometry modelOptions=', options);
-        var geometry = this.establish3DGeometry(options);
+        console.log('request3DGeometry importSettings=', options);
+        var member = options.children[0];
+        console.log('request3DGeometry members=', member);
+        var geometry = this.establish3DGeometry(member);
         return geometry;
     }
 
@@ -453,7 +455,9 @@ export class Viewer3D {
         if ( options.type != 'ImportSettings' ) return null;
 
         console.log('request3DLabel modelOptions=', options);
-        var label = this.establish3DLabel(options);
+        var member = options.children[0];
+        console.log('request3DLabel members=', member);
+        var label = this.establish3DLabel(member);
         return label;
     }
 

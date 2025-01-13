@@ -16,24 +16,24 @@ export class Loaders {
     //    DotNet.invokeMethodAsync('BlazorThreeJS', 'LoadedObjectComplete', uuid);
     //}
 
-    private assignPosition(object: Group | Object3D, options: any) {
-        const { x, y, z } = options.transform.position;
+    private assignPosition(object: Group | Object3D, transform: any) {
+        const { x, y, z } = transform.position;
         object.position.x = x;
         object.position.y = y;
         object.position.z = z;
         return object;
     }
 
-    private assignRotation(object: Group | Object3D, options: any) {
-        const { x, y, z } = options.transform.rotation;
+    private assignRotation(object: Group | Object3D, transform: any) {
+        const { x, y, z } = transform.rotation;
         object.rotation.x = x;
         object.rotation.y = y;
         object.rotation.z = z;
         return object;
     }
 
-    private assignScale(object: Group | Object3D, options: any) {
-        const { x, y, z } = options.transform.scale;
+    private assignScale(object: Group | Object3D, transform: any) {
+        const { x, y, z } = transform.scale;
         object.scale.x = x * object.scale.x;
         object.scale.y = y * object.scale.y;
         object.scale.z = z * object.scale.z;
@@ -42,16 +42,20 @@ export class Loaders {
 
     private setGLTFSceneProps(gltfScene: Group, guid: string, options: any): Group {
         gltfScene.name = `name-${guid}`;
-        
+
         const group = new Group();
         group.uuid = options.uuid;
-        if (Boolean(options.pivot)) {
-            this.assignPosition(gltfScene, { position: options.transform.pivot });
+
+        var transform = options.transform;
+        if (Boolean(options.pivot) && Boolean(transform)) {
+            this.assignPosition(gltfScene, { position: transform.pivot });
         }
         group.add(gltfScene);
-        this.assignScale(group, options);
-        this.assignPosition(group, options);
-        this.assignRotation(group, options);
+        if ( Boolean(transform) ) {
+            this.assignScale(group, transform);
+            this.assignPosition(group, transform);
+            this.assignRotation(group, transform);
+        }
         return group;
     }
 
@@ -72,21 +76,26 @@ export class Loaders {
         if (Boolean(found) == false) {
             console.log('gltf is not found', url);
             const loader = new GLTFLoader();
-            loader.load(url, (gltf: GLTF) => {
-                console.log('gltf is loaded', gltf);
+            loader.load(url, 
+                (gltf: GLTF) => {
+                    console.log('gltf is loaded', gltf);
 
-                animationCallBack(gltf);
-                ObjectLookup.casheGLTF(url, gltf);
+                    animationCallBack(gltf);
+                    ObjectLookup.casheGLTF(url, gltf);
 
-                const clone = gltf.scene; //.clone();
-                const group = this.setGLTFSceneProps(clone, guid, member);
+                    const clone = gltf.scene; //.clone();
+                    const group = this.setGLTFSceneProps(clone, guid, member);
 
-                const box = new Box3().setFromObject(group);
-                const size = box.getSize(new Vector3());
-                group.userData = { isGLTFGroup: true, url, uuid: guid, size };
-                // console.log('userData', group.userData);
+                    const box = new Box3().setFromObject(group);
+                    const size = box.getSize(new Vector3());
+                    group.userData = { isGLTFGroup: true, url, uuid: guid, size };
+                    // console.log('userData', group.userData);
 
-                onComplete(group);
+                    onComplete(group);
+            }, 
+            (xhr) => {}, 
+            (error) => {
+                console.error('Error loading GLTF', error);
             });
 
         } else {
@@ -189,7 +198,7 @@ export class Loaders {
         console.log('In import3DModel', importSettings);
 
         if (format == 'Gltf') {
-            const member = importSettings.children[0];
+            const member = importSettings;
             console.log('Calling loadGltf', member);
             this.loadGltf(url, guid, member, animationCallBack, onComplete);
         }
