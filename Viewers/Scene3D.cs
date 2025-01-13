@@ -228,8 +228,8 @@ public class Scene3D : Object3D
         {
             var functionName = Resolve("request3DModel");
             var json = JsonSerializer.Serialize((object)settings, JSONOptions);
-            WriteToFolder("Data", "Scene3D_Request3DModel.json", json); 
-            $"Request3DModel calling {functionName} with {json}".WriteInfo();
+            //WriteToFolder("Data", "Scene3D_Request3DModel.json", json); 
+            //$"Request3DModel calling {functionName} with {json}".WriteInfo();
 
             await JsRuntime!.InvokeVoidAsync(functionName, (object)json);  
             $"Request3DModel:Scene3D {functionName} {settings.FileURL} {uuid}".WriteInfo();
@@ -251,7 +251,7 @@ public class Scene3D : Object3D
         {
             var functionName = Resolve("request3DGeometry");
             var json = JsonSerializer.Serialize((object)settings, JSONOptions);
-            WriteToFolder("Data", "Scene3D_Request3Geometry.json", json); 
+            //WriteToFolder("Data", "Scene3D_Request3Geometry.json", json); 
             //$"request3DGeometry calling {functionName} with {json}".WriteInfo();
 
             await JsRuntime!.InvokeVoidAsync(functionName, (object)json);
@@ -272,7 +272,7 @@ public class Scene3D : Object3D
         {
             var functionName = Resolve("request3DLabel");
             var json = JsonSerializer.Serialize((object)settings, JSONOptions);
-            WriteToFolder("Data", "Scene3D_Request3DLabel.json", json); 
+            //WriteToFolder("Data", "Scene3D_Request3DLabel.json", json); 
             //$"Request3DLabel calling {functionName} with {json}".WriteInfo();
 
             await JsRuntime!.InvokeVoidAsync(functionName, (object)json);
