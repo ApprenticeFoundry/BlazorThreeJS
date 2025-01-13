@@ -118,19 +118,20 @@ namespace BlazorThreeJS.Core
             var uuid = child.Uuid;
             if ( string.IsNullOrEmpty(uuid))
             {
-                $"AddChild missing  Uuid, {child.Name}".WriteError();  
+                //$"AddChild missing  Uuid, {child.Name}".WriteError();  
                 return (false, child);
             }
 
             var (found, item) = FindChild(uuid);
             if ( found )
             {
-                $"Object3D AddChild Exist: returning existing {child.Name} -> {item.Name} {item.Uuid}".WriteError();  
+                //$"Object3D AddChild Exist: returning existing {child.Name} -> {item.Name} {item.Uuid}".WriteError();  
                 return (false, item!);
             }
 
-            $"Object3D AddChild {child.Name} -> {this.Name} {this.Uuid}".WriteInfo();
+            //$"Object3D AddChild {child.Name} -> {this.Name} {this.Uuid}".WriteInfo();
             this.children.Add(child);
+            this.SetDirty(true);
             return (true, child);
         }
 
@@ -159,24 +160,6 @@ namespace BlazorThreeJS.Core
             return (found != null, found!);
         }
 
-        // public Object3D Update(Object3D child)
-        // {
-        //     var uuid = child.Uuid;
-        //     if ( string.IsNullOrEmpty(uuid))
-        //     {
-        //         $"AddChild missing  Uuid, {child.Name}".WriteError();  
-        //         return child;
-        //     }
-
-        //     var found = this.children.Find((item) => item.Uuid == uuid);
-        //     if (found != null)
-        //     {
-        //         this.RemoveChild(found);
-        //     }
-
-        //     this.AddChild(child);
-        //     return child;
-        // }
 
         public bool GetIsExpanded()
         {

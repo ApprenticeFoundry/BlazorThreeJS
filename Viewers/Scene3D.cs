@@ -25,7 +25,7 @@ public class Scene3D : Object3D
     public string BackGroundColor { get; set; } = "#505050";
 
     
-    private static Dictionary<string, Func<Task>> ImportPromises { get; set; } = new();
+    private static Dictionary<string, Func<string,Task>> ImportPromises { get; set; } = new();
     private IJSRuntime JsRuntime { get; set; }
 
     private static DateTime _lastRender;
@@ -213,7 +213,7 @@ public class Scene3D : Object3D
         IgnoreReadOnlyFields = true
     };
 
-    public async Task<string> Request3DModel(ImportSettings settings, Func<Task>? onComplete = null)
+    public async Task<string> Request3DModel(ImportSettings settings, Func<string,Task>? onComplete = null)
     {
         var uuid = settings.Uuid!;
         if (ImportPromises.ContainsKey(uuid))
@@ -251,7 +251,7 @@ public class Scene3D : Object3D
         return uuid;
     }
 
-    public async Task<string> Request3DGeometry(ImportSettings settings, Func<Task>? onComplete = null)
+    public async Task<string> Request3DGeometry(ImportSettings settings, Func<string,Task>? onComplete = null)
     {
         var uuid = settings.Uuid!;
 
@@ -265,7 +265,7 @@ public class Scene3D : Object3D
             await JsRuntime!.InvokeVoidAsync(functionName, (object)json);
             if (onComplete != null)
             {
-                await onComplete();  // Now we can await the async callback
+                await onComplete(uuid);  // Now we can await the async callback
             }
         }
         catch (System.Exception ex)
@@ -275,7 +275,7 @@ public class Scene3D : Object3D
 
         return uuid;
     }
-    public async Task<string> Request3DLabel(ImportSettings settings, Func<Task>? onComplete = null)
+    public async Task<string> Request3DLabel(ImportSettings settings, Func<string,Task>? onComplete = null)
     {
         var uuid = settings.Uuid!;
 
@@ -289,7 +289,7 @@ public class Scene3D : Object3D
             await JsRuntime!.InvokeVoidAsync(functionName, (object)json);
             if (onComplete != null)
             {
-                await onComplete();  // Now we can await the async callback
+                await onComplete(uuid);  // Now we can await the async callback
             }
 
         }
@@ -358,12 +358,12 @@ public class Scene3D : Object3D
     {
         //$"CALLBACK LoadedObjectComplete  {uuid}".WriteWarning();
 
-        if ( ImportPromises.TryGetValue(uuid, out Func<Task>? promise))
+        if ( ImportPromises.TryGetValue(uuid, out Func<string,Task>? promise))
         {
             ImportPromises.Remove(uuid);
             if (promise != null)
             {
-                promise.Invoke();
+                promise.Invoke(uuid);
             }
         }
     }
