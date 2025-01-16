@@ -166,33 +166,7 @@ public class Scene3D : Object3D
         await JsRuntime!.InvokeVoidAsync(functionName);
     }
 
-    // public void ForceSceneRefresh()
-    // {
-    //     Task.Run( async () => await UpdateScene());
-    // }
-    // public async Task UpdateScene(bool notify = true)
-    // {
-    //     var dirtyModels = this.GetAllChildren().Where(item => item.IsDirty()).ToList();
-    //     if ( dirtyModels.Count == 0) return;
 
-    //     try
-    //     {
-
-    //         await Task.CompletedTask;
-    //         if ( notify == true)
-    //         {
-    //             var json = JsonSerializer.Serialize((object)settings, JSONOptions);
-    //             AfterUpdate?.Invoke(this,json);
-    //         }
-            
-
-    //     }
-    //     catch (System.Exception ex)
-    //     {
-    //         $"Scene3D UpdateScene {ex.Message}".WriteError();
-    //     }
-
-    // }
 
     public async Task<List<string>> Request3DSceneRefresh(ImportSettings settings, Action<List<string>>? onComplete = null)
     {
@@ -200,17 +174,16 @@ public class Scene3D : Object3D
         if (uuids.Count == 0)
             return uuids!;
 
-
         try
         {
             var functionName = ResolveFunction("request3DScene");
             var json = JsonSerializer.Serialize((object)settings, JSONOptions);
             WriteToFolder("Data", "Scene3D_Request3Scene.json", json); 
-            //$"Request3DScene calling {functionName} with {json}".WriteInfo();
 
             await JsRuntime!.InvokeVoidAsync(functionName, (object)json);
             if (onComplete != null)
             {
+                $"Request3DScene onComplete {uuids.Count}".WriteInfo();
                 onComplete(uuids!);  // Now we can await the async callback
             }
         }

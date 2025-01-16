@@ -273,42 +273,47 @@ export class Viewer3D {
         
         var members = options.children;
         for (let index = 0; index < members.length; index++) {
-            const element = members[index];
-
+            
             //console.log('updateScene element.type=', element.type);
             //console.log('updateScene element=', index, element);
-
-            if (element.type == 'AmbientLight') {
-                var ambient = LightBuilder.BuildAmbientLight(options);
-                this.scene.add(ambient);
-            } else
-            if (element.type == 'PointLight') {
-                var light = LightBuilder.BuildPointLight(options);
-                this.scene.add(light);
-            } else
-            if ( element.type == 'Text3D' ) {
-                this.establish3DLabel(element);
-            } else
-            if ( element.type == 'Mesh3D' ) {
-                this.establish3DGeometry(element);
-            } else
-            if ( element.type == 'Group3D' ) {
-                this.establish3DGroup(element);
-            } else
-            if ( element.type == 'PanelMenu3D' ) {
-                this.establish3DMenu(element);
-            } else
-            if ( element.type == 'Model3D' ) {
-                this.establish3DModel(element);
-            } else
-            if (element.type.includes('Helper')) {
-                const obj = this.scene.getObjectByProperty('uuid', element.uuid);
-                var helper = HelperBuilder.BuildHelper(options, obj);
-                this.scene.add(helper);
+            
+            try {
+                //add these back in when we have the builders
+                //TextPanelBuilder.BuildTextPanels(scene, options);
+                //PanelGroupBuilder.BuildPanelGroup(scene, options);
+                
+                const element = members[index];
+                if (element.type == 'AmbientLight') {
+                    var ambient = LightBuilder.BuildAmbientLight(options);
+                    this.scene.add(ambient);
+                } else
+                if (element.type == 'PointLight') {
+                    var light = LightBuilder.BuildPointLight(options);
+                    this.scene.add(light);
+                } else
+                if ( element.type == 'Text3D' ) {
+                    this.establish3DLabel(element);
+                } else
+                if ( element.type == 'Mesh3D' ) {
+                    this.establish3DGeometry(element);
+                } else
+                if ( element.type == 'Group3D' ) {
+                    this.establish3DGroup(element);
+                } else
+                if ( element.type == 'PanelMenu3D' ) {
+                    this.establish3DMenu(element);
+                } else
+                if ( element.type == 'Model3D' ) {
+                    this.establish3DModel(element);
+                } else
+                if (element.type.includes('Helper')) {
+                    const obj = this.scene.getObjectByProperty('uuid', element.uuid);
+                    var helper = HelperBuilder.BuildHelper(options, obj);
+                    this.scene.add(helper);
+                }
+            } catch (error) {
+                console.log('Error in establish3DChildren', error);
             }
-            //add these back in when we have the builders
-            //TextPanelBuilder.BuildTextPanels(scene, options);
-            //PanelGroupBuilder.BuildPanelGroup(scene, options);
         }
 
     }

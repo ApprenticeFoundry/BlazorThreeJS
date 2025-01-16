@@ -198,6 +198,8 @@ namespace BlazorThreeJS.Viewers
                     return;
                     
                 $"ViewerThreeD [{SceneName}] DisposeAsync".WriteInfo();
+                RenderService?.SetActiveScene(null!);
+                
                 
                 var functionName = ResolveFunction("Finalize3DViewer");
                 await JsRuntime!.InvokeVoidAsync(functionName);

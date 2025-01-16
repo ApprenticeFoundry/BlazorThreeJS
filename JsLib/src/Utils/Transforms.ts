@@ -7,8 +7,8 @@ export class Transforms {
             object3d.position.set(x, y, z);
     }
 
-    static setRotation(object3d: Object3D, eulerOptions: Euler) {
-        let { x, y, z, order } = eulerOptions;
+    static setRotation(object3d: Object3D, rotation: Euler) {
+        let { x, y, z, order } = rotation;
         if (Boolean(object3d))
             object3d.setRotationFromEuler(new Euler(x, y, z, order));
     }
@@ -20,6 +20,8 @@ export class Transforms {
     }
     
     static setTransform(object3d: Object3D, transform: any) {
+        if ( !Boolean(transform) ) return;
+
         if (transform.position) {
             Transforms.setPosition(object3d, transform.position);
         }
