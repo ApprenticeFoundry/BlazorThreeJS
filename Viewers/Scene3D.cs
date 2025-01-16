@@ -27,8 +27,6 @@ public class Scene3D : Object3D
     
     private static Dictionary<string, Func<string,Task>> ImportPromises { get; set; } = new();
     private IJSRuntime JsRuntime { get; set; }
-
-    private static DateTime _lastRender;
     private Action<Scene3D,string>? AfterUpdate { get; set; } = (scene,json) => { };
 
 
@@ -47,6 +45,8 @@ public class Scene3D : Object3D
         _AllScenes.Add(this);
         // $"Scene {Title} created".WriteInfo();
     }
+
+
 
     public void SetAfterUpdateAction(Action<Scene3D,string> afterUpdate)
     {
@@ -123,7 +123,7 @@ public class Scene3D : Object3D
     public string ResolveFunction(string functionName)
     {
         //return $"{Title}.{functionName}";
-        $"Calling BlazorThreeJS.{functionName}".WriteInfo();
+        //$"Calling BlazorThreeJS.{functionName}".WriteInfo();
         return $"BlazorThreeJS.{functionName}";
     }
 
@@ -197,6 +197,9 @@ public class Scene3D : Object3D
     public async Task<List<string>> Request3DSceneRefresh(ImportSettings settings, Action<List<string>>? onComplete = null)
     {
         var uuids = settings.Children.Select(child => child.Uuid).ToList();
+        if (uuids.Count == 0)
+            return uuids!;
+
 
         try
         {

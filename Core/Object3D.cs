@@ -68,6 +68,19 @@ namespace BlazorThreeJS.Core
             StatusBits.IsDirty = true;
         }
 
+        public virtual void UpdateForAnimation(int tick, double fps, List<Object3D>? dirtyObjects)
+        {
+            //send this message to all the children
+            if ( IsDirty() )
+                dirtyObjects?.Add(this);
+         
+            foreach (var child in children)
+            {
+                child.UpdateForAnimation(tick, fps, dirtyObjects);
+            }
+           
+        }
+
         public void ClearChildren()
         {
             children.Clear();

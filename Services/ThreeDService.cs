@@ -18,7 +18,6 @@ public class AnimationEvent
 public interface IThreeDService
 {
     IJSRuntime JS();
-    ComponentBus AnimationBus();
     void SetActiveScene(Scene3D scene);
     void WhenFrameRefreshComplete(Action action);
 
@@ -29,7 +28,6 @@ public class ThreeDService : IThreeDService
     protected IJSRuntime js { get; set; }
     protected ComponentBus pubsub { get; set; }
 
-    private static ComponentBus Publish { get; set; } = null!;
     private static DateTime _lastRender;
 
     private static bool IsCurrentlyRendering = false;
@@ -38,6 +36,8 @@ public class ThreeDService : IThreeDService
 
     public static Scene3D ActiveScene { get; set; } = null!;
 
+    public static int tick { get; private set; }
+
 
     public ThreeDService(
         IJSRuntime js,
@@ -45,8 +45,8 @@ public class ThreeDService : IThreeDService
     {
         this.js = js;
         this.pubsub = pubsub;
-        Publish = new ComponentBus();
         _lastRender = DateTime.Now;
+        tick = 0;
     }
 
     public void SetActiveScene(Scene3D scene)
@@ -91,19 +91,18 @@ public class ThreeDService : IThreeDService
 
         SetCurrentlyRendering(true, 0);
 
-        var framerate = 1.0 / (DateTime.Now - _lastRender).TotalSeconds;
+
+        var fps = 1.0 / (DateTime.Now - _lastRender).TotalSeconds;
         _lastRender = DateTime.Now; // update for the next time 
-        $"TriggerAnimationFrame  {framerate}".WriteSuccess();
+        //$"TriggerAnimationFrame  {framerate}".WriteSuccess();
 
-        //this is where you refresh the dirty items
-        //await Publish.Publish<AnimationEvent>(new AnimationEvent() { fps = framerate });
-
-        var dirtyModels = ActiveScene.Children.Where(item => item.IsDirty()).ToList();
-        if ( dirtyModels.Count == 0)
+        var dirtyObjects = new List<Object3D>();
+        ActiveScene.UpdateForAnimation(tick++, fps, dirtyObjects);
+        if ( dirtyObjects.Count == 0)
             return;
 
         var settings = new ImportSettings();
-        settings.ResetChildren(dirtyModels);
+        settings.ResetChildren(dirtyObjects);
 
         await ActiveScene.Request3DSceneRefresh(settings, (_) =>
         {
@@ -112,10 +111,6 @@ public class ThreeDService : IThreeDService
     }
 
 
-    public ComponentBus AnimationBus()
-    {
-        return Publish;
-    }
 
     public IJSRuntime JS()
     {
