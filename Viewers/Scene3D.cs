@@ -166,47 +166,36 @@ public class Scene3D : Object3D
         await JsRuntime!.InvokeVoidAsync(functionName);
     }
 
-    public void ForceSceneRefresh()
+    // public void ForceSceneRefresh()
+    // {
+    //     Task.Run( async () => await UpdateScene());
+    // }
+    // public async Task UpdateScene(bool notify = true)
+    // {
+    //     var dirtyModels = this.GetAllChildren().Where(item => item.IsDirty()).ToList();
+    //     if ( dirtyModels.Count == 0) return;
+
+    //     try
+    //     {
+
+    //         await Task.CompletedTask;
+    //         if ( notify == true)
+    //         {
+    //             var json = JsonSerializer.Serialize((object)settings, JSONOptions);
+    //             AfterUpdate?.Invoke(this,json);
+    //         }
+            
+
+    //     }
+    //     catch (System.Exception ex)
+    //     {
+    //         $"Scene3D UpdateScene {ex.Message}".WriteError();
+    //     }
+
+    // }
+
+    public async Task<List<string>> Request3DSceneRefresh(ImportSettings settings, Action<List<string>>? onComplete = null)
     {
-        Task.Run( async () => await UpdateScene());
-    }
-    public async Task UpdateScene(bool notify = true)
-    {
-        var dirtyModels = this.GetAllChildren().Where(item => item.IsDirty()).ToList();
-        if ( dirtyModels.Count == 0) return;
-
-        try
-        {
-            var settings = new ImportSettings();
-            foreach (var item in dirtyModels)
-            {
-                item.SetDirty(false);
-                settings.AddChild(item);
-            }
-
-            await Request3DScene(settings, async (uuids) => {
-                await Task.CompletedTask;
-                if ( notify == true)
-                {
-                    var json = JsonSerializer.Serialize((object)settings, JSONOptions);
-                    AfterUpdate?.Invoke(this,json);
-                }
-            });
-
-        }
-        catch (System.Exception ex)
-        {
-            $"Scene3D UpdateScene {ex.Message}".WriteError();
-        }
-
-    }
-
-    public async Task<List<string>> Request3DScene(ImportSettings settings, Func<List<string>,Task>? onComplete = null)
-    {
-        var dirtyModels = settings.Children.Where(item => item.IsDirty()).ToList();
-        if ( dirtyModels.Count == 0) return new List<string>();
-
-        settings.ResetChildren(dirtyModels);
         var uuids = settings.Children.Select(child => child.Uuid).ToList();
 
         try
@@ -219,7 +208,7 @@ public class Scene3D : Object3D
             await JsRuntime!.InvokeVoidAsync(functionName, (object)json);
             if (onComplete != null)
             {
-                await onComplete(uuids!);  // Now we can await the async callback
+                onComplete(uuids!);  // Now we can await the async callback
             }
         }
         catch (System.Exception ex)
@@ -230,18 +219,7 @@ public class Scene3D : Object3D
         return uuids!;
     }
 
-    [JSInvokable]
-    public static async void TriggerAnimationFrame()
-    {
-        //if (Publish != null)
-        //{
-        await Task.CompletedTask;
-        var framerate = 1.0 / (DateTime.Now - _lastRender).TotalSeconds;
-        _lastRender = DateTime.Now; // update for the next time 
-        //$"Scene TriggerAnimationFrame  {framerate}".WriteSuccess();
-            //await Publish.Publish<AnimationEvent>(new AnimationEvent() { fps = framerate });
-        //}
-    }
+
     private JsonSerializerOptions JSONOptions { get; set; } = new JsonSerializerOptions
     {
         PropertyNamingPolicy = JsonNamingPolicy.CamelCase,

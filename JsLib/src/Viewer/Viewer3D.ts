@@ -253,13 +253,13 @@ export class Viewer3D {
         );
     }
 
-    public updateScene(spec: string) {
-        //console.log('inside updateScene spec=', spec);
-        const options = JSON.parse(spec);
-        //console.log('updateScene sceneOptions=', options);
-        this.options.scene = options;
-        this.establish3DChildren(options);
-    }
+    // public updateScene(spec: string) {
+    //     //console.log('inside updateScene spec=', spec);
+    //     const options = JSON.parse(spec);
+    //     //console.log('updateScene sceneOptions=', options);
+    //     this.options.scene = options;
+    //     this.establish3DChildren(options);
+    // }
 
     public request3DScene(importSettings: string) {
         const options = JSON.parse(importSettings);

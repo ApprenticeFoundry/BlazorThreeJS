@@ -19,6 +19,7 @@ using BlazorThreeJS.Maths;
 using BlazorThreeJS.Objects;
 
 using BlazorThreeJS.Settings;
+using BlazorThreeJS.Solutions;
 using FoundryRulesAndUnits.Extensions;
 using FoundryRulesAndUnits.Units;
 using Microsoft.AspNetCore.Components;
@@ -32,6 +33,7 @@ namespace BlazorThreeJS.Viewers
     {
         private bool HasRendered = false;
         [Inject] private IJSRuntime? JsRuntime { get; set; }
+        [Inject] private IThreeDService? RenderService { get; set; }
 
         [Parameter,EditorRequired] public string SceneName { get; set; } = "Viewer3D";
 
@@ -154,6 +156,7 @@ namespace BlazorThreeJS.Viewers
                 HasRendered = true;
 
                 var scene = GetActiveScene();
+                RenderService?.SetActiveScene(scene);
 
 
                 var dto = new SceneDTO()
@@ -174,7 +177,7 @@ namespace BlazorThreeJS.Viewers
                     //$"ViewerThreeD calling {functionName} with {json}".WriteInfo();
                     //WriteToFolder("Data", "ViewerThreeD_OnAfterRenderAsync.json", json);  
                     await JsRuntime!.InvokeVoidAsync(functionName, (object)json);
-                    await scene.UpdateScene();
+                    //await scene.UpdateScene();
                 }
                 catch (System.Exception ex)
                 {
