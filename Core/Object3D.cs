@@ -67,6 +67,11 @@ namespace BlazorThreeJS.Core
             Uuid = Object3DCount.ToString();
             StatusBits.IsDirty = true;
         }
+
+        public void ClearChildren()
+        {
+            children.Clear();
+        }
         public List<Object3D> GetAllChildren()
         {
             return children;
@@ -122,6 +127,7 @@ namespace BlazorThreeJS.Core
                 return (false, child);
             }
 
+            //what if you have a child with the same uuid? but it is a different object?
             var (found, item) = FindChild(uuid);
             if ( found )
             {

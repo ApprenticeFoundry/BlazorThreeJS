@@ -120,7 +120,7 @@ public class Scene3D : Object3D
         return result;
     }
 
-    public string Resolve(string functionName)
+    public string ResolveFunction(string functionName)
     {
         //return $"{Title}.{functionName}";
         $"Calling BlazorThreeJS.{functionName}".WriteInfo();
@@ -130,7 +130,7 @@ public class Scene3D : Object3D
     public void ClearScene()
     {
         Task.Run(async () => {
-            var functionName = Resolve("clearScene");
+            var functionName = ResolveFunction("clearScene");
             await JsRuntime!.InvokeVoidAsync(functionName);
         });
 
@@ -140,7 +140,7 @@ public class Scene3D : Object3D
 
     public async Task ClearAll()
     {
-        var functionName = Resolve("clearScene");
+        var functionName = ResolveFunction("clearScene");
         await JsRuntime!.InvokeVoidAsync(functionName);
         this.GetAllChildren().Clear();
         AfterUpdate?.Invoke(this,"");
@@ -148,13 +148,13 @@ public class Scene3D : Object3D
 
     public async Task SetCameraPosition(Vector3 position, Vector3? lookAt = null) 
     {
-        var functionName = Resolve("setCameraPosition");
+        var functionName = ResolveFunction("setCameraPosition");
         await JsRuntime!.InvokeVoidAsync(functionName, (object)position, lookAt);
     }
 
     public async Task UpdateCamera(Camera camera)
     {
-        var functionName = Resolve("updateCamera");
+        var functionName = ResolveFunction("updateCamera");
         this.Camera = camera;
         var json = JsonSerializer.Serialize((object)this.Camera, JSONOptions);
         await JsRuntime!.InvokeVoidAsync(functionName, (object)json);
@@ -162,7 +162,7 @@ public class Scene3D : Object3D
 
     public async Task ShowCurrentCameraInfo() 
     {
-        var functionName = Resolve("showCurrentCameraInfo");
+        var functionName = ResolveFunction("showCurrentCameraInfo");
         await JsRuntime!.InvokeVoidAsync(functionName);
     }
 
@@ -172,24 +172,62 @@ public class Scene3D : Object3D
     }
     public async Task UpdateScene(bool notify = true)
     {
+        var dirtyModels = this.GetAllChildren().Where(item => item.IsDirty()).ToList();
+        if ( dirtyModels.Count == 0) return;
+
         try
         {
-            var functionName = Resolve("updateScene");
-            var json = JsonSerializer.Serialize((object)this, JSONOptions);
+            var settings = new ImportSettings();
+            foreach (var item in dirtyModels)
+            {
+                item.SetDirty(false);
+                settings.AddChild(item);
+            }
 
-            WriteToFolder("Data", "Scene3D_UpdateScene.json", json); 
+            await Request3DScene(settings, async (uuids) => {
+                await Task.CompletedTask;
+                if ( notify == true)
+                {
+                    var json = JsonSerializer.Serialize((object)settings, JSONOptions);
+                    AfterUpdate?.Invoke(this,json);
+                }
+            });
 
-            //$"Scene3D UpdateScene calling {functionName} with {json}".WriteInfo();
-            await JsRuntime!.InvokeVoidAsync(functionName, (object)json);
-
-            if ( notify == true)
-                AfterUpdate?.Invoke(this,json);
         }
         catch (System.Exception ex)
         {
             $"Scene3D UpdateScene {ex.Message}".WriteError();
         }
 
+    }
+
+    public async Task<List<string>> Request3DScene(ImportSettings settings, Func<List<string>,Task>? onComplete = null)
+    {
+        var dirtyModels = settings.Children.Where(item => item.IsDirty()).ToList();
+        if ( dirtyModels.Count == 0) return new List<string>();
+
+        settings.ResetChildren(dirtyModels);
+        var uuids = settings.Children.Select(child => child.Uuid).ToList();
+
+        try
+        {
+            var functionName = ResolveFunction("request3DScene");
+            var json = JsonSerializer.Serialize((object)settings, JSONOptions);
+            WriteToFolder("Data", "Scene3D_Request3Scene.json", json); 
+            //$"Request3DScene calling {functionName} with {json}".WriteInfo();
+
+            await JsRuntime!.InvokeVoidAsync(functionName, (object)json);
+            if (onComplete != null)
+            {
+                await onComplete(uuids!);  // Now we can await the async callback
+            }
+        }
+        catch (System.Exception ex)
+        {  
+           $"Request3DScene: {ex.Message}".WriteError();
+        }
+
+        return uuids!;
     }
 
     [JSInvokable]
@@ -235,7 +273,7 @@ public class Scene3D : Object3D
 
         try
         {
-            var functionName = Resolve("request3DModel");
+            var functionName = ResolveFunction("request3DModel");
             var json = JsonSerializer.Serialize((object)settings, JSONOptions);
             //WriteToFolder("Data", "Scene3D_Request3DModel.json", json); 
             //$"Request3DModel calling {functionName} with {json}".WriteInfo();
@@ -251,13 +289,16 @@ public class Scene3D : Object3D
         return uuid;
     }
 
+    
+
+
     public async Task<string> Request3DGeometry(ImportSettings settings, Func<string,Task>? onComplete = null)
     {
         var uuid = settings.Uuid!;
 
         try
         {
-            var functionName = Resolve("request3DGeometry");
+            var functionName = ResolveFunction("request3DGeometry");
             var json = JsonSerializer.Serialize((object)settings, JSONOptions);
             //WriteToFolder("Data", "Scene3D_Request3Geometry.json", json); 
             //$"request3DGeometry calling {functionName} with {json}".WriteInfo();
@@ -281,7 +322,7 @@ public class Scene3D : Object3D
 
         try
         {
-            var functionName = Resolve("request3DLabel");
+            var functionName = ResolveFunction("request3DLabel");
             var json = JsonSerializer.Serialize((object)settings, JSONOptions);
             //WriteToFolder("Data", "Scene3D_Request3DLabel.json", json); 
             //$"Request3DLabel calling {functionName} with {json}".WriteInfo();
@@ -337,7 +378,7 @@ public class Scene3D : Object3D
 
     public async Task RemoveByUuid(string uuid)
     {
-        var functionName = Resolve("deleteFromScene");
+        var functionName = ResolveFunction("deleteFromScene");
         var success = await JsRuntime!.InvokeAsync<bool>(functionName, (object)uuid);
         if ( !success)
             return;
@@ -348,7 +389,7 @@ public class Scene3D : Object3D
 
     public async Task MoveObject(Object3D object3D)
     {
-        var functionName = Resolve("moveObject");
+        var functionName = ResolveFunction("moveObject");
         await JsRuntime!.InvokeAsync<bool>(functionName, object3D);
     }
 

@@ -41,7 +41,9 @@ public class ThreeDService : IThreeDService
             await Task.CompletedTask;
             var framerate = 1.0 / (DateTime.Now - _lastRender).TotalSeconds;
             _lastRender = DateTime.Now; // update for the next time 
-            //$"TriggerAnimationFrame  {framerate}".WriteSuccess();
+            $"TriggerAnimationFrame  {framerate}".WriteSuccess();
+
+            //this is where you refresh the dirty items
             //await Publish.Publish<AnimationEvent>(new AnimationEvent() { fps = framerate });
         
     }

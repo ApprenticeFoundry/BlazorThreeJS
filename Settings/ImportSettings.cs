@@ -29,5 +29,16 @@ namespace BlazorThreeJS.Settings
 
         public string? FileURL { get; set; }
 
+        public void ResetChildren(List<Object3D> children)
+        {
+            ClearChildren();
+            foreach (var child in children)
+            {
+                AddChild(child);
+                child.SetDirty(false);
+            }
+        }
+
+
     }
 }

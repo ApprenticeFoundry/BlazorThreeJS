@@ -45,19 +45,7 @@ namespace BlazorThreeJS.Viewers
         };
 
         private static Dictionary<string, Button3D> Buttons { get; set; } = new();
-        private static Dictionary<string, ImportSettings> LoadedModels { get; set; } = new();
         
-        //private static Dictionary<string, ImportSettings> ImportPromises { get; set; } = new();
-
-        // private event LoadedObjectEventHandler? ObjectLoadedPrivate;
-        // public event LoadedObjectEventHandler? ObjectLoaded;
-        // public event LoadedModuleEventHandler? JsModuleLoaded;
-
-        //public event SelectedObjectEventHandler? ObjectSelected;
-        //private delegate void SelectedObjectStaticEventHandler(Object3DStaticArgs e);
-        //private delegate void LoadedObjectStaticEventHandler(Object3DStaticArgs e);
-        //private static event ViewerThreeDSelectedObjectStaticEventHandler ObjectSelectedStatic;
-        //private static event ViewerThreeDLoadedObjectStaticEventHandler ObjectLoadedStatic;
 
         private ViewerSettings _viewingSettings = null!;
         private Scene3D _activeScene = null!;
@@ -164,7 +152,6 @@ namespace BlazorThreeJS.Viewers
             if (firstRender)
             {
                 HasRendered = true;
-                LoadedModels.Clear();
 
                 var scene = GetActiveScene();
 
@@ -252,32 +239,32 @@ namespace BlazorThreeJS.Viewers
         }
 
 
-        [JSInvokable]
-        public static void ReceiveSelectedObjectUUID(string uuid, Vector3 size)
-        {
+        // [JSInvokable]
+        // public static void ReceiveSelectedObjectUUID(string uuid, Vector3 size)
+        // {
 
-            $"ReceiveSelectedObjectUUID size={size.X}, {size.Y}, {size.Z}".WriteInfo();
+        //     $"ReceiveSelectedObjectUUID size={size.X}, {size.Y}, {size.Z}".WriteInfo();
 
-            try
-            {
-                var item = LoadedModels[uuid];
-                $"LoadedModels {uuid} item={item}".WriteInfo();
-                if (item != null)
-                {
-                    //item.ComputedSize = size;
-                    //item.OnClick.Invoke(item);
-                }
-                else
-                {
-                    $"uuid={uuid} not found in LoadedModels".WriteError();
-                }
-            }
-            catch (Exception ex)
-            {
-                $"uuid={uuid} problem (could be a problem in onClick callback). Message={ex.Message}".WriteError();
-            }
+        //     try
+        //     {
+        //         var item = LoadedModels[uuid];
+        //         $"LoadedModels {uuid} item={item}".WriteInfo();
+        //         if (item != null)
+        //         {
+        //             //item.ComputedSize = size;
+        //             //item.OnClick.Invoke(item);
+        //         }
+        //         else
+        //         {
+        //             $"uuid={uuid} not found in LoadedModels".WriteError();
+        //         }
+        //     }
+        //     catch (Exception ex)
+        //     {
+        //         $"uuid={uuid} problem (could be a problem in onClick callback). Message={ex.Message}".WriteError();
+        //     }
 
-        }
+        // }
 
 
         [JSInvokable]
