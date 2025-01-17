@@ -5,23 +5,17 @@
 // Assembly location: Blazor3D.dll
 
 using System.Text.Json;
-using System.Text.Json.Nodes;
 using System.Text.Json.Serialization;
-using BlazorThreeJS.Cameras;
-using BlazorThreeJS.ComponentHelpers;
+
 using BlazorThreeJS.Controls;
 using BlazorThreeJS.Core;
-using BlazorThreeJS.Events;
 
 using BlazorThreeJS.Lights;
 using BlazorThreeJS.Maths;
 
-using BlazorThreeJS.Objects;
-
 using BlazorThreeJS.Settings;
 using BlazorThreeJS.Solutions;
 using FoundryRulesAndUnits.Extensions;
-using FoundryRulesAndUnits.Units;
 using Microsoft.AspNetCore.Components;
 using Microsoft.AspNetCore.Components.Rendering;
 using Microsoft.JSInterop;

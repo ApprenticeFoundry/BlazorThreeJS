@@ -536,12 +536,12 @@ export class Viewer3D {
 
         const loaders = new Loaders();
         loaders.import3DModel(options, (model: GLTF) => this.playGltfAnimation(model),
-            (group) => {
+            (item) => {
                 //this.addDebuggerWindow(url, group);
-                this.scene.add(group);
-                ObjectLookup.addGroup(group.uuid, group);
-                this.LoadedObjectComplete(group.uuid);
-                console.log('Group Added to Scene', group);
+                this.scene.add(item);
+                ObjectLookup.addModel(item.uuid, group);
+                this.LoadedObjectComplete(item.uuid);
+                console.log('Model Added to Scene', item);
             })
     }
 

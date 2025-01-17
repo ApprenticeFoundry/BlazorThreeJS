@@ -7,7 +7,7 @@
 using System.Text.Json;
 using System.Text.Json.Serialization;
 using BlazorThreeJS.Cameras;
-using BlazorThreeJS.ComponentHelpers;
+
 using BlazorThreeJS.Core;
 using BlazorThreeJS.Maths;
 using BlazorThreeJS.Settings;

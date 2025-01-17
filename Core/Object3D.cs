@@ -30,6 +30,7 @@ namespace BlazorThreeJS.Core
 
     [JsonDerivedType(typeof(ImportSettings))]
     [JsonDerivedType(typeof(Mesh3D))]
+    [JsonDerivedType(typeof(Model3D))]
     [JsonDerivedType(typeof(Group3D))]
     [JsonDerivedType(typeof(TextPanel3D))]
     [JsonDerivedType(typeof(PanelMenu3D))]

@@ -6,7 +6,8 @@ import * as ThreeMeshUI from 'three-mesh-ui';
 
 export class ObjectLookupClass 
 {
-    private gltfGroups = new Map<string, Group>();
+    private models = new Map<string, Group>();
+    private groups = new Map<string, Group>();
     private gltfURLs = new Map<string, GLTF>();
     private labels = new Map<string, Text>();
     private primitives = new Map<string, Object3D>();
@@ -21,13 +22,29 @@ export class ObjectLookupClass
         console.log('casheGLTF url=', url, ' obj=', obj);
     }
 
+
     public findGroup(guid: string): Group | null {
-        return this.gltfGroups.get(guid) || null;
+        return this.groups.get(guid) || null;
     }
     public addGroup(guid: string, obj: Group) {
-        this.gltfGroups.set(guid, obj);
+        this.groups.set(guid, obj);
         console.log('casheGroup url=', guid, ' obj=', obj);
     }
+    public deleteGroup(key: string) {
+        this.groups.delete(key);
+    }
+
+    public findModel(guid: string): Object3D | null {
+        return this.models.get(guid) || null;
+    }
+    public addModel(guid: string, obj: Object3D) {
+        this.models.set(guid, obj);
+        console.log('addModel url=', guid, ' obj=', obj);
+    }
+    public deleteModel(key: string) {
+        this.models.delete(key);
+    }
+
 
     public addLabel(key: string, value: Text) {
         this.labels.set(key, value);
@@ -39,6 +56,7 @@ export class ObjectLookupClass
         return this.labels.get(key) || null;
     }
 
+
     public addPrimitive(key: string, value: Object3D) {
         this.primitives.set(key, value);
     }
@@ -48,6 +66,7 @@ export class ObjectLookupClass
     public findPrimitive(key: string): Object3D {
         return this.primitives.get(key) || null;
     }
+
 
     public addButton(key: string, value: ThreeMeshUI.Block) {
         this.buttons.set(key, value);
@@ -59,9 +78,11 @@ export class ObjectLookupClass
         return this.buttons.get(key) || null;
     }
 
+
     public getAllButtons(): any {
         return this.buttons.values();
     }
+
 
     public addPanel(key: string, value: ThreeMeshUI.Block) {
         this.panels.set(key, value);
