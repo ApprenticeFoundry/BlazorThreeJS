@@ -25,6 +25,10 @@ import {
     WebGLRenderer,
     Event as ThreeEvent,
     Group,
+    BoxGeometry,
+    CylinderGeometry,
+    MeshBasicMaterial,
+    Mesh,
 } from 'three';
 
 
@@ -49,6 +53,7 @@ export class Viewer3D {
     private lastSelectedGuid = null;
     private animationMixers: Array<AnimationMixer> = [];
     private clock: Clock;
+    private blockTest: Mesh;
 
     private INTERSECTED: any = null;
     private HasLoaded = false;
@@ -119,7 +124,9 @@ export class Viewer3D {
         this.setOrbitControls();
         this.onResize();
 
+        //this.blockTest = this.GeomExample();
         this.StartAnimation();
+
         console.log('Exit Initialize3DViewer');
     }
 
@@ -152,6 +159,12 @@ export class Viewer3D {
     private RenderJS(self: any) 
     {
         if ( self.AnimationRequest == null ) return;
+
+        // if ( this.blockTest != null) {
+        //     this.blockTest.rotation.x += 0.01;
+        //     this.blockTest.rotation.y += 0.01;
+        //     this.blockTest.rotation.z += 0.01;
+        // }
 
         // request another animation frame
         try {
@@ -188,6 +201,7 @@ export class Viewer3D {
         console.log('In StartAnimation');
         if (this.AnimationRequest == null)
             this.AnimationRequest = window.requestAnimationFrame(() => {
+
                 this.RenderJS(this);
             });
     }
@@ -260,6 +274,29 @@ export class Viewer3D {
     //     this.options.scene = options;
     //     this.establish3DChildren(options);
     // }
+
+    public GeomExample():Mesh
+    {
+
+        // Create box (parent)
+        const boxGeometry = new BoxGeometry(2, 2, 2);
+        const boxMaterial = new MeshBasicMaterial({ color: 0x00ff00, wireframe: false });
+        const box = new Mesh(boxGeometry, boxMaterial);
+        this.scene.add(box);
+
+        // Create cylinder (child)
+        const cylinderGeometry = new CylinderGeometry(0.5, 0.5, 3, 32);
+        const cylinderMaterial = new MeshBasicMaterial({ color: 0xff0000, wireframe: false });
+        const cylinder = new Mesh(cylinderGeometry, cylinderMaterial);
+
+        // Position cylinder relative to box
+        cylinder.position.set(1, 2, 1);  // Place cylinder on top of box
+
+        // Add cylinder as child of box
+        box.add(cylinder);
+        return box;
+
+    }
 
     public request3DScene(importSettings: string) {
         const options = JSON.parse(importSettings);
@@ -390,6 +427,13 @@ export class Viewer3D {
 
         MeshBuilder.RefreshMesh(options, entity);
 
+        if ( options.children && options.children.length > 0 ) {
+            for (let index = 0; index < options.children.length; index++) {
+                const child = options.children[index];
+                this.establish3DChildMesh(child, entity);
+            }
+        }
+
         if ( !exist )
         {
             this.scene.add(entity);
@@ -397,6 +441,27 @@ export class Viewer3D {
             this.LoadedObjectComplete(guid);
             console.log('Geometry Added to Scene', entity);
         }
+        return entity;
+    }
+
+    public establish3DChildMesh(options: any, parent: Object3D): Object3D | null {
+
+        const guid = options.uuid;
+
+        var entity = ObjectLookup.findPrimitive(guid) as Object3D;
+        var exist = Boolean(entity)
+        if ( !exist ) {
+            entity = MeshBuilder.CreateMesh(options);
+            ObjectLookup.addPrimitive(guid, entity);
+            parent.add(entity);
+        }
+        
+        MeshBuilder.RefreshMesh(options, entity);
+        //MeshBuilder.RefreshMesh(options, entity);
+
+        console.log('establish3DChildMesh Child', entity);
+
+
         return entity;
     }
 

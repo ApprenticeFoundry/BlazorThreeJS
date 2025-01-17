@@ -77,8 +77,7 @@ namespace BlazorThreeJS.Core
             foreach (var child in children)
             {
                 child.UpdateForAnimation(tick, fps, dirtyObjects);
-            }
-           
+            } 
         }
 
         public void ClearChildren()

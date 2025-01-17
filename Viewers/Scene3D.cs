@@ -183,7 +183,7 @@ public class Scene3D : Object3D
             await JsRuntime!.InvokeVoidAsync(functionName, (object)json);
             if (onComplete != null)
             {
-                $"Request3DScene onComplete {uuids.Count}".WriteInfo();
+                //$"Request3DScene onComplete {uuids.Count}".WriteInfo();
                 onComplete(uuids!);  // Now we can await the async callback
             }
         }
