@@ -28,16 +28,16 @@ export class ObjectLookupClass
     }
     public addGroup(guid: string, obj: Group) {
         this.groups.set(guid, obj);
-        console.log('casheGroup url=', guid, ' obj=', obj);
+        console.log('addGroup url=', guid, ' obj=', obj);
     }
     public deleteGroup(key: string) {
         this.groups.delete(key);
     }
 
-    public findModel(guid: string): Object3D | null {
+    public findModel(guid: string): Group | null {
         return this.models.get(guid) || null;
     }
-    public addModel(guid: string, obj: Object3D) {
+    public addModel(guid: string, obj: Group) {
         this.models.set(guid, obj);
         console.log('addModel url=', guid, ' obj=', obj);
     }

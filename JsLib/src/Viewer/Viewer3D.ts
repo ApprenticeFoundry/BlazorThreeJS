@@ -1,4 +1,5 @@
 import { Transforms } from '../Utils/Transforms';
+import { Constructors } from "../Utils/Constructors";
 import { Text } from 'troika-three-text';
 import { Loaders } from './Loaders';
 import { OrbitControls } from 'three/examples/jsm/controls/OrbitControls';
@@ -302,7 +303,8 @@ export class Viewer3D {
         const options = JSON.parse(importSettings);
         
         console.log('request3DScene importSettings=', options);
-        this.establish3DChildren(options);
+        Constructors.establish3DChildren(options, this.scene);
+        //this.establish3DChildren(options);
     }
 
     //can we be smart here and call the correct method based on the type of object we are adding?
@@ -425,7 +427,7 @@ export class Viewer3D {
         var exist = Boolean(entity)
         entity = exist ? entity : MeshBuilder.CreateMesh(options);
 
-        MeshBuilder.RefreshMesh(options, entity);
+        MeshBuilder.ApplyMeshTransform(options, entity);
 
         if ( options.children && options.children.length > 0 ) {
             for (let index = 0; index < options.children.length; index++) {
@@ -456,7 +458,7 @@ export class Viewer3D {
             parent.add(entity);
         }
         
-        MeshBuilder.RefreshMesh(options, entity);
+        MeshBuilder.ApplyMeshTransform(options, entity);
         //MeshBuilder.RefreshMesh(options, entity);
 
         console.log('establish3DChildMesh Child', entity);
@@ -535,11 +537,12 @@ export class Viewer3D {
         
 
         const loaders = new Loaders();
-        loaders.import3DModel(options, (model: GLTF) => this.playGltfAnimation(model),
+        loaders.import3DModel(options, 
+            (model: GLTF) => this.playGltfAnimation(model),
             (item) => {
                 //this.addDebuggerWindow(url, group);
                 this.scene.add(item);
-                ObjectLookup.addModel(item.uuid, group);
+                ObjectLookup.addModel(item.uuid, item);
                 this.LoadedObjectComplete(item.uuid);
                 console.log('Model Added to Scene', item);
             })

@@ -44,7 +44,7 @@ export class MeshBuilder {
         return group;
 
     }
-    public static RefreshMesh(options: any, entity: Object3D): Object3D {
+    public static ApplyMeshTransform(options: any, entity: Object3D): Object3D {
 
         console.log('MeshBuilder.RefreshMesh', options);
         if (Boolean(options.pivot)) {

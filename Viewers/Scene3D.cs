@@ -207,6 +207,13 @@ public class Scene3D : Object3D
 
     public async Task<string> Request3DModel(ImportSettings settings, Func<string,Task>? onComplete = null)
     {
+        var (success, model) = settings.FindRequestedModel();
+        if ( !success)
+        {
+            $"Request3DModel: No model found ".WriteError();
+            return "";
+        }
+
         var uuid = settings.Uuid!;
         if (ImportPromises.ContainsKey(uuid))
         {
@@ -233,7 +240,7 @@ public class Scene3D : Object3D
             //$"Request3DModel calling {functionName} with {json}".WriteInfo();
 
             await JsRuntime!.InvokeVoidAsync(functionName, (object)json);  
-            $"Request3DModel:Scene3D {functionName} {settings.FileURL} {uuid}".WriteInfo();
+            //$"Request3DModel:Scene3D {functionName} {settings.FileURL} {uuid}".WriteInfo();
         }
         catch (System.Exception ex)
         {  
