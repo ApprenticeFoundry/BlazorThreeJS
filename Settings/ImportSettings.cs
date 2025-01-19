@@ -15,9 +15,7 @@ namespace BlazorThreeJS.Settings
 {
     public class ImportSettings : Object3D
     {
-        [JsonConverter(typeof(JsonStringEnumConverter))]
-        public Model3DFormats Format { get; set; } = Model3DFormats.Gltf;
-        public string FileURL { get; set; } = "";
+
         public ImportSettings() : base(nameof(ImportSettings))
         {
             Transform = null!;
@@ -25,10 +23,8 @@ namespace BlazorThreeJS.Settings
 
         public Model3D AddRequestedModel(Model3D model)
         {
+            Uuid = model.Uuid;  //use the same uuid as the model
             AddChild(model);
-            FileURL = model.Url;
-            Uuid = model.Uuid;
-            Format = model.Format;
             return model;
         }
 

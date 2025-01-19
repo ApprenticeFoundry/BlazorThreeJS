@@ -74,11 +74,11 @@ export class Loaders {
         var found = ObjectLookup.findGLTF(url);
 
         if (Boolean(found) == false) {
-            console.log('gltf is not found', url);
+            console.log('gltf is not loaded', url);
             const loader = new GLTFLoader();
             loader.load(url, 
                 (gltf: GLTF) => {
-                    console.log('gltf is loaded', gltf);
+                    console.log('gltf is now loaded', gltf);
 
                     animationCallBack(gltf);
                     ObjectLookup.casheGLTF(url, gltf);
@@ -102,7 +102,7 @@ export class Loaders {
             // Found GLTF by URL or GUID so we don't want to load it again.
             var gltf = found as GLTF;
             if (Boolean(gltf)) {
-                console.log('gltf is found', gltf);
+                console.log('gltf is found in cashe', gltf);
 
                 const clone = gltf.scene.clone();
                 const group = this.setGLTFSceneProps(clone, guid, member);
@@ -188,19 +188,17 @@ export class Loaders {
     //     });
     // }
 
-    // importSettings object is passed
-    public import3DModel(importSettings: any, animationCallBack: Function, onComplete: Function) {
-        const format = importSettings.format;
-        let guid = importSettings.uuid;
-        let url = importSettings.fileURL;
+    public import3DModel(member: any, animationCallBack: Function, onComplete: Function) {
+        const format = member.format;
+        let uuid = member.uuid;
+        let url = member.url;
 
 
-        console.log('In import3DModel', importSettings);
+        console.log('In import3DModel', member);
 
         if (format == 'Gltf') {
-            const member = importSettings;
             console.log('Calling loadGltf', member);
-            this.loadGltf(url, guid, member, animationCallBack, onComplete);
+            this.loadGltf(url, uuid, member, animationCallBack, onComplete);
         }
 
         // else if (format == 'Obj') {

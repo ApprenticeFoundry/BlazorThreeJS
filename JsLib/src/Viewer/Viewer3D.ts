@@ -60,9 +60,9 @@ export class Viewer3D {
     private HasLoaded = false;
     public AnimationRequest: any = null;
 
-    private LoadedObjectComplete(uuid: string) {
-        DotNet.invokeMethodAsync('BlazorThreeJS', 'LoadedObjectComplete', uuid);
-    }
+    // private LoadedObjectComplete(uuid: string) {
+    //     DotNet.invokeMethodAsync('BlazorThreeJS', 'LoadedObjectComplete', uuid);
+    // }
     private onObjectSelected(uuid: string) {
         DotNet.invokeMethodAsync('BlazorThreeJS', 'OnClickButton', uuid);
     }
@@ -146,7 +146,7 @@ export class Viewer3D {
         if (Boolean(options.scene.children))
         {
             console.log('In InitializeScene options.scene.children=', options.scene.children);
-            this.establish3DChildren(options.scene);
+            Constructors.establish3DChildren(options.scene, scene);
         }
     }
 
@@ -268,13 +268,7 @@ export class Viewer3D {
         );
     }
 
-    // public updateScene(spec: string) {
-    //     //console.log('inside updateScene spec=', spec);
-    //     const options = JSON.parse(spec);
-    //     //console.log('updateScene sceneOptions=', options);
-    //     this.options.scene = options;
-    //     this.establish3DChildren(options);
-    // }
+
 
     public GeomExample():Mesh
     {
@@ -304,58 +298,8 @@ export class Viewer3D {
         
         console.log('request3DScene importSettings=', options);
         Constructors.establish3DChildren(options, this.scene);
-        //this.establish3DChildren(options);
     }
 
-    //can we be smart here and call the correct method based on the type of object we are adding?
-    public establish3DChildren(options: any) {
-        
-        var members = options.children;
-        for (let index = 0; index < members.length; index++) {
-            
-            //console.log('updateScene element.type=', element.type);
-            //console.log('updateScene element=', index, element);
-            
-            try {
-                //add these back in when we have the builders
-                //TextPanelBuilder.BuildTextPanels(scene, options);
-                //PanelGroupBuilder.BuildPanelGroup(scene, options);
-                
-                const element = members[index];
-                if (element.type == 'AmbientLight') {
-                    var ambient = LightBuilder.BuildAmbientLight(options);
-                    this.scene.add(ambient);
-                } else
-                if (element.type == 'PointLight') {
-                    var light = LightBuilder.BuildPointLight(options);
-                    this.scene.add(light);
-                } else
-                if ( element.type == 'Text3D' ) {
-                    this.establish3DLabel(element);
-                } else
-                if ( element.type == 'Mesh3D' ) {
-                    this.establish3DGeometry(element);
-                } else
-                if ( element.type == 'Group3D' ) {
-                    this.establish3DGroup(element);
-                } else
-                if ( element.type == 'PanelMenu3D' ) {
-                    this.establish3DMenu(element);
-                } else
-                if ( element.type == 'Model3D' ) {
-                    this.establish3DModel(element);
-                } else
-                if (element.type.includes('Helper')) {
-                    const obj = this.scene.getObjectByProperty('uuid', element.uuid);
-                    var helper = HelperBuilder.BuildHelper(options, obj);
-                    this.scene.add(helper);
-                }
-            } catch (error) {
-                console.log('Error in establish3DChildren', error);
-            }
-        }
-
-    }
 
     public setCamera() {
         const builder = new CameraBuilder();
@@ -372,10 +316,7 @@ export class Viewer3D {
         this.setOrbitControls();
     }
 
-    // public showCurrentCameraInfo() {
-    //     console.log('Current camera info:', this.camera);
-    //     console.log('Orbit controls info:', this.controls);
-    // }
+
 
     private setOrbitControls() {
         this.controls = new OrbitControls(this.camera, this.webGLRenderer.domElement);
@@ -387,17 +328,7 @@ export class Viewer3D {
         this.controls.update();
     }
 
-    private playGltfAnimation(model: GLTF) {
-        const animations = model.animations;
-        animations?.forEach((animation) => {
-            if (Boolean(animation) && Boolean(animation.tracks.length)) {
-                const mixer = new AnimationMixer(model.scene);
-                this.animationMixers.push(mixer);
-                const animationAction = mixer.clipAction(animation);
-                animationAction.play();
-            }
-        });
-    }
+ 
 
     public establish3DMenu(options: any): ThreeMeshUI.Block | null {
 
@@ -413,140 +344,37 @@ export class Viewer3D {
         {
             this.scene.add(entity);
             ObjectLookup.addPanel(guid, entity);
-            this.LoadedObjectComplete(guid);
+            //this.LoadedObjectComplete(guid);
             console.log('MenuPanel Added to Scene', entity);
         }
         return entity;
     }
 
-    public establish3DGeometry(options: any): Object3D | null {
 
-        const guid = options.uuid;
-
-        var entity = ObjectLookup.findPrimitive(guid) as Object3D;
-        var exist = Boolean(entity)
-        entity = exist ? entity : MeshBuilder.CreateMesh(options);
-
-        MeshBuilder.ApplyMeshTransform(options, entity);
-
-        if ( options.children && options.children.length > 0 ) {
-            for (let index = 0; index < options.children.length; index++) {
-                const child = options.children[index];
-                this.establish3DChildMesh(child, entity);
-            }
-        }
-
-        if ( !exist )
-        {
-            this.scene.add(entity);
-            ObjectLookup.addPrimitive(guid, entity);
-            this.LoadedObjectComplete(guid);
-            console.log('Geometry Added to Scene', entity);
-        }
-        return entity;
-    }
-
-    public establish3DChildMesh(options: any, parent: Object3D): Object3D | null {
-
-        const guid = options.uuid;
-
-        var entity = ObjectLookup.findPrimitive(guid) as Object3D;
-        var exist = Boolean(entity)
-        if ( !exist ) {
-            entity = MeshBuilder.CreateMesh(options);
-            ObjectLookup.addPrimitive(guid, entity);
-            parent.add(entity);
-        }
-        
-        MeshBuilder.ApplyMeshTransform(options, entity);
-        //MeshBuilder.RefreshMesh(options, entity);
-
-        console.log('establish3DChildMesh Child', entity);
-
-
-        return entity;
-    }
-
+ 
 
 
     //spec is always a importSettings
-    public request3DGeometry(importSettings: string): Object3D | null {
+    public request3DGeometry(importSettings: string) {
         const options = JSON.parse(importSettings);
         if ( options.type != 'ImportSettings' ) return null;
         
         console.log('request3DGeometry importSettings=', options);
-        var member = options.children[0];
-        console.log('request3DGeometry members=', member);
-        var geometry = this.establish3DGeometry(member);
-        return geometry;
+        Constructors.establish3DChildren(options, this.scene);
     }
 
-    private establish3DGroup(options: any): Group | null {
-        console.log('establish3DGroup modelOptions=', options);
-        return null;
-    }
 
-    private establish3DLabel(options: any): Text | null {
-        console.log('establish3DLabel modelOptions=', options);
-
-        const guid = options.uuid;
-
-        var label = ObjectLookup.findLabel(guid) as Text;
-        var exist = Boolean(label)
-        label = exist ? label : new Text();
-
-        label.uuid = guid;
-        label.text = options.text;
-        label.color = options.color;
-        label.fontSize = options.fontSize;
-        label.userData = { isTextLabel: true, };
-
-        const { x, y, z } = options.transform.position  as Vector3;
-        label.position.x = x;
-        label.position.y = y;
-        label.position.z = z;
-
-        // Update the rendering:
-        label.sync();
-        
-        if ( !exist )
-        {
-            this.scene.add(label);
-            ObjectLookup.addLabel(guid, label);
-            this.LoadedObjectComplete(guid);
-            console.log('label Added to Scene', label);
-        }
-
-        return label;
-    }
 
     //spec is always a importSettings
-    public request3DLabel(importSettings: string): Text | null {
+    public request3DLabel(importSettings: string) {
         const options = JSON.parse(importSettings);
         if ( options.type != 'ImportSettings' ) return null;
 
         console.log('request3DLabel modelOptions=', options);
-        var member = options.children[0];
-        console.log('request3DLabel members=', member);
-        var label = this.establish3DLabel(member);
-        return label;
+        Constructors.establish3DChildren(options, this.scene);
     }
 
-    public establish3DModel(options: any) {
-        console.log('establish3DModel modelOptions=', options);
-        
 
-        const loaders = new Loaders();
-        loaders.import3DModel(options, 
-            (model: GLTF) => this.playGltfAnimation(model),
-            (item) => {
-                //this.addDebuggerWindow(url, group);
-                this.scene.add(item);
-                ObjectLookup.addModel(item.uuid, item);
-                this.LoadedObjectComplete(item.uuid);
-                console.log('Model Added to Scene', item);
-            })
-    }
 
     //spec is always a importSettings
     public request3DModel(importSettings: string) {
@@ -554,7 +382,7 @@ export class Viewer3D {
         if ( options.type != 'ImportSettings' ) return null;
 
         console.log('request3DModel modelOptions=', options);
-        this.establish3DModel(options);
+        Constructors.establish3DChildren(options, this.scene);
     }
 
 

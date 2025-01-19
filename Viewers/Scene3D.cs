@@ -10,6 +10,7 @@ using BlazorThreeJS.Cameras;
 
 using BlazorThreeJS.Core;
 using BlazorThreeJS.Maths;
+using BlazorThreeJS.Objects;
 using BlazorThreeJS.Settings;
 using FoundryRulesAndUnits.Extensions;
 using FoundryRulesAndUnits.Models;
@@ -205,23 +206,17 @@ public class Scene3D : Object3D
         IgnoreReadOnlyFields = true
     };
 
-    public async Task<string> Request3DModel(ImportSettings settings, Func<string,Task>? onComplete = null)
+    public async Task<string> Request3DModel(Model3D model, Func<string,Task>? onComplete = null)
     {
-        var (success, model) = settings.FindRequestedModel();
-        if ( !success)
-        {
-            $"Request3DModel: No model found ".WriteError();
-            return "";
-        }
 
-        var uuid = settings.Uuid!;
+        var uuid = model.Uuid!;
         if (ImportPromises.ContainsKey(uuid))
         {
-            $"Request3DModel waiting on {uuid} to load {settings.FileURL}".WriteInfo();
+            $"Request3DModel waiting on {uuid} to load {model.Url}".WriteInfo();
             return uuid;
         }
 
-        var fileURL = settings.FileURL ?? "";   
+        var fileURL = model.Url ?? "";   
         if (string.IsNullOrEmpty(fileURL))
         {
             $"Request3DModel: FileURL is empty".WriteError();
@@ -234,9 +229,12 @@ public class Scene3D : Object3D
 
         try
         {
+            var spec = new ImportSettings();
+            spec.AddRequestedModel(model);
+
             var functionName = ResolveFunction("request3DModel");
-            var json = JsonSerializer.Serialize((object)settings, JSONOptions);
-            //WriteToFolder("Data", "Scene3D_Request3DModel.json", json); 
+            var json = JsonSerializer.Serialize((object)spec, JSONOptions);
+            WriteToFolder("Data", "Scene3D_Request3DModel.json", json); 
             //$"Request3DModel calling {functionName} with {json}".WriteInfo();
 
             await JsRuntime!.InvokeVoidAsync(functionName, (object)json);  

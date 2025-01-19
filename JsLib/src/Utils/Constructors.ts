@@ -130,6 +130,7 @@ export class FactoryClass {
         loaders.import3DModel(options, 
             (model: GLTF) => this.playGltfAnimation(model),
             (item) => {
+                console.log('Callback  Added to Scene', item);
                 ObjectLookup.addModel(item.uuid, item);
                 //this.addDebuggerWindow(url, group);
                 parent.add(item);
@@ -145,15 +146,16 @@ export class FactoryClass {
         var members = options.children;
         for (let index = 0; index < members.length; index++) {
             
-            //console.log('updateScene element.type=', element.type);
-            //console.log('updateScene element=', index, element);
+            const element = members[index];
+            console.log('updateScene element.type=', element.type);
+            console.log('updateScene element=', index, element);
             
             try {
                 //add these back in when we have the builders
                 //TextPanelBuilder.BuildTextPanels(scene, options);
                 //PanelGroupBuilder.BuildPanelGroup(scene, options);
                 
-                const element = members[index];
+
                 var funct = this.makers.get(element.type);
                 if (funct) 
                     funct(element, parent);
