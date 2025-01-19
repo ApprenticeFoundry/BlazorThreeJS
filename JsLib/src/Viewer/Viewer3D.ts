@@ -489,18 +489,7 @@ export class Viewer3D {
         this.scene.add(grid);
     }
 
-    // private addAxes() {
-    //     // const axesHelper = new AxesHelper(3);
-    //     // this.scene.add(axesHelper);
 
-    //     const url = 'assets/fiveMeterAxis.glb';
-
-    //     const loader = new GLTFLoader();
-    //     loader.loadAsync(url).then((model: GLTF) => {
-    //         this.scene.add(model.scene);
-    //         this.playGltfAnimation(model);
-    //     });
-    // }
 
 
 

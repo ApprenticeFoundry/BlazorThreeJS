@@ -111,7 +111,10 @@ export class FactoryClass {
     }
 
     private playGltfAnimation(model: GLTF) {
+        if ( Boolean(model) == false ) return;
+
         const animations = model.animations;
+
         animations?.forEach((animation) => {
             if (Boolean(animation) && Boolean(animation.tracks.length)) {
                 const mixer = new AnimationMixer(model.scene);
@@ -120,15 +123,15 @@ export class FactoryClass {
                 animationAction.play();
             }
         });
+
     }
 
     public establish3DModel(options: any, parent: Object3D) {
         console.log('establish3DModel modelOptions=', options);
         
-
         const loaders = new Loaders();
         loaders.import3DModel(options, 
-            (model: GLTF) => this.playGltfAnimation(model),
+            (model: GLTF) => {}, //this.playGltfAnimation(model),
             (item) => {
                 console.log('Callback  Added to Scene', item);
                 ObjectLookup.addModel(item.uuid, item);
@@ -141,14 +144,15 @@ export class FactoryClass {
 
 
     //can we be smart here and call the correct method based on the type of object we are adding?
-    public establish3DChildren(options: any, parent: Object3D) {
-        
+    public establish3DChildren(options: any, parent: Object3D) 
+    {
+        console.log('establish3DChildren options=', options);
         var members = options.children;
         for (let index = 0; index < members.length; index++) {
             
             const element = members[index];
-            console.log('updateScene element.type=', element.type);
-            console.log('updateScene element=', index, element);
+            console.log('establish3DChildren element.type=', element.type);
+            console.log('establish3DChildren element=', index, element);
             
             try {
                 //add these back in when we have the builders
@@ -159,6 +163,8 @@ export class FactoryClass {
                 var funct = this.makers.get(element.type);
                 if (funct) 
                     funct(element, parent);
+                else
+                    console.log('No Constructor for', element.type);
                 
 
                 // } else

@@ -194,7 +194,7 @@ export class Loaders {
         let url = member.url;
 
 
-        console.log('In import3DModel', member);
+        console.log('In loader import3DModel', member);
 
         if (format == 'Gltf') {
             console.log('Calling loadGltf', member);
