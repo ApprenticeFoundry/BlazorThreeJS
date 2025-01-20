@@ -75,7 +75,7 @@ namespace BlazorThreeJS.Core
             if ( IsDirty() )
                 dirtyObjects?.Add(this);
          
-            foreach (var child in children)
+            foreach (var child in Children)
             {
                 child.UpdateForAnimation(tick, fps, dirtyObjects);
             } 
@@ -92,7 +92,7 @@ namespace BlazorThreeJS.Core
 
         public virtual string GetTreeNodeTitle()
         {
-            return $"{Name} [{Uuid}] => {Type} C#: ({GetType().Name})";
+            return $"{Name} [{Uuid}] => {Type}({GetType().Name})";
         }
 
         public virtual bool IsDirty()

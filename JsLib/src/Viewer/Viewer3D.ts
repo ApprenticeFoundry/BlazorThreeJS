@@ -52,7 +52,7 @@ export class Viewer3D {
     private raycaster: Raycaster = new Raycaster();
     private uiElementSelectState = false;
     private lastSelectedGuid = null;
-    private animationMixers: Array<AnimationMixer> = [];
+
     private clock: Clock;
     private blockTest: Mesh;
 
@@ -182,19 +182,19 @@ export class Viewer3D {
         this.updateUIElements();
         this.selectObject();
 
-        for (let i = 1, l = this.scene.children.length; i < l; i++) {
-            const item = this.scene.children[i];
-            if (item.userData.isTextLabel) {
-                item.lookAt(this.camera.position);
-            }
+        var pos = this.camera.position;
+        for (const label of ObjectLookup.AllLabels()) {
+            label.lookAt(pos);
         }
 
+ 
+
         var delta = this.clock.getDelta();
-        if (Boolean(this.animationMixers.length)) {
-            for (const mixer of this.animationMixers) {
-                mixer.update(delta);
-            }
-        }
+        // if (Boolean(this.animationMixers.length)) {
+        //     for (const mixer of this.animationMixers) {
+        //         mixer.update(delta);
+        //     }
+        // }
         this.webGLRenderer.render(this.scene, this.camera);
     }
 

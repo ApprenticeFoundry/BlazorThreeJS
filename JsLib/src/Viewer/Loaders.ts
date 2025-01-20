@@ -68,7 +68,7 @@ export class Loaders {
     //     gltfFolder.open();
     // }
 
-    private loadGltf(url: string, guid: string, member: any, animationCallBack: Function, onComplete: Function) {
+    private loadGltf(url: string, guid: string, member: any, onComplete: Function) {
         
         console.log('inside loadGltf', url, guid, member);
         var found = ObjectLookup.findGLTF(url);
@@ -80,7 +80,7 @@ export class Loaders {
                 (gltf: GLTF) => {
                     console.log('gltf is now loaded', gltf);
 
-                    animationCallBack(gltf);
+                    //animationCallBack(gltf);
                     ObjectLookup.casheGLTF(url, gltf);
 
                     const clone = gltf.scene; //.clone();
@@ -188,7 +188,7 @@ export class Loaders {
     //     });
     // }
 
-    public import3DModel(member: any, animationCallBack: Function, onComplete: Function) {
+    public import3DModel(member: any, onComplete: Function) {
         const format = member.format;
         let uuid = member.uuid;
         let url = member.url;
@@ -198,7 +198,7 @@ export class Loaders {
 
         if (format == 'Gltf') {
             console.log('Calling loadGltf', member);
-            this.loadGltf(url, uuid, member, animationCallBack, onComplete);
+            this.loadGltf(url, uuid, member, onComplete);
         }
 
         // else if (format == 'Obj') {

@@ -32,10 +32,10 @@ public class Mesh3D : Object3D
         if ( IsDirty() )
             dirtyObjects?.Add(this);
         
-        // foreach (var child in children)
-        // {
-        //     child.UpdateForAnimation(tick, fps, dirtyObjects);
-        // } 
+        foreach (var child in Children)
+        {
+            child.UpdateForAnimation(tick, fps, dirtyObjects);
+        } 
     }
 
 }

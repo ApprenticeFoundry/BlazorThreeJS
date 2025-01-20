@@ -44,7 +44,7 @@ namespace BlazorThreeJS.Settings
         public void ResetChildren(List<Object3D> children)
         {
             ClearChildren();
-            foreach (var child in children)
+            foreach (var child in Children)
             {
                 AddChild(child);
                 child.SetDirty(false);

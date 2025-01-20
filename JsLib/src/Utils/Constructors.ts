@@ -12,6 +12,7 @@ import {
     Mesh,
 } from 'three';
 
+//import { Text } from 'three-mesh-ui';
 import { Text } from 'troika-three-text';
 import { LightBuilder } from '../Builders/LightBuilder';
 import { Transforms } from './Transforms';
@@ -70,7 +71,7 @@ export class FactoryClass {
 
         const guid = options.uuid;
 
-        var entity = ObjectLookup.findLabel(guid);
+        var entity = ObjectLookup.findLabel(guid) as Text;
         var exist = Boolean(entity)
         if ( !exist ) {
             entity = new Text();
@@ -82,11 +83,18 @@ export class FactoryClass {
             entity.color = options.color;
             entity.fontSize = options.fontSize;
             entity.userData = { isTextLabel: true, };
-            //Transforms.setTransform(entity, options.transform);
-    
-            // Update the rendering:
-            //entity.sync();
         }
+        
+        //Transforms.setTransform(entity, options.transform);
+        if ( Boolean(options.transform) ) {
+            const { position: pos } = options.transform;
+            entity.position.x = pos.x;
+            entity.position.y = pos.y;
+            entity.position.z = pos.z;
+        }
+
+        // Update the rendering:
+        entity.sync();
 
         //MeshBuilder.ApplyMeshTransform(options, entity);
         this.establish3DChildren(options, entity);
@@ -122,16 +130,14 @@ export class FactoryClass {
         const callback = this.playGltfAnimation.bind(this);
 
         const loaders = new Loaders();
-        loaders.import3DModel(options, 
-            (model: GLTF) => {},
-            (item) => {
-                console.log('Model Added to Scene', item);
-                console.log('establish3DModel Callback  Added to Scene', item);
-                ObjectLookup.addModel(item.uuid, item);
-                //this.addDebuggerWindow(url, group);
-                parent.add(item);
-                this.LoadedObjectComplete(item.uuid);
-            })
+        loaders.import3DModel(options, (item) => {
+            console.log('Model Added to Scene', item);
+            console.log('establish3DModel Callback  Added to Scene', item);
+            ObjectLookup.addModel(item.uuid, item);
+            //this.addDebuggerWindow(url, group);
+            parent.add(item);
+            this.LoadedObjectComplete(item.uuid);
+        })
     }
 
 

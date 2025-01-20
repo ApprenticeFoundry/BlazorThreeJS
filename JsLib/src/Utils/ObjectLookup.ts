@@ -1,4 +1,4 @@
-import { Group, Object3D } from 'three';
+import { AnimationMixer, Group, Object3D } from 'three';
 import { Text } from 'troika-three-text';
 import { GLTF } from 'three/examples/jsm/loaders/GLTFLoader';
 import * as ThreeMeshUI from 'three-mesh-ui';
@@ -13,6 +13,9 @@ export class ObjectLookupClass
     private primitives = new Map<string, Object3D>();
     private panels = new Map<string, ThreeMeshUI.Block>();
     private buttons = new Map<string, ThreeMeshUI.Block>();
+    private mixers = new Map<string, AnimationMixer[]>();
+        
+    
 
     public findGLTF(url: string): GLTF | null {
         return this.gltfURLs.get(url) || null;
@@ -45,6 +48,9 @@ export class ObjectLookupClass
         this.models.delete(key);
     }
 
+    public AllLabels(): any {
+        return this.labels.values();
+    }
 
     public addLabel(key: string, value: Text) {
         this.labels.set(key, value);
