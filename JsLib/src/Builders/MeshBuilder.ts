@@ -40,13 +40,13 @@ export class MeshBuilder {
         var list = [result] as any;
         group.add(list);
 
-        console.log('MeshBuilder.CreateMesh Group', group);
+        console.log('Success MeshBuilder.CreateMesh Group', group);
         return group;
 
     }
     public static ApplyMeshTransform(options: any, entity: Object3D): Object3D {
 
-        console.log('MeshBuilder.RefreshMesh', options);
+        console.log('MeshBuilder.ApplyMeshTransform', options);
         if (Boolean(options.pivot)) {
             Transforms.setPosition(entity, options.pivot);
         }

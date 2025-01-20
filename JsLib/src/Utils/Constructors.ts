@@ -95,7 +95,7 @@ export class FactoryClass {
             //Transforms.setTransform(entity, options.transform);
     
             // Update the rendering:
-            entity.sync();
+            //entity.sync();
         }
 
         MeshBuilder.ApplyMeshTransform(options, entity);
@@ -129,16 +129,18 @@ export class FactoryClass {
     public establish3DModel(options: any, parent: Object3D) {
         console.log('establish3DModel modelOptions=', options);
         
+        const callback = this.playGltfAnimation.bind(this);
+
         const loaders = new Loaders();
         loaders.import3DModel(options, 
-            (model: GLTF) => {}, //this.playGltfAnimation(model),
+            (model: GLTF) => {},
             (item) => {
-                console.log('Callback  Added to Scene', item);
+                console.log('Model Added to Scene', item);
+                console.log('establish3DModel Callback  Added to Scene', item);
                 ObjectLookup.addModel(item.uuid, item);
                 //this.addDebuggerWindow(url, group);
                 parent.add(item);
                 this.LoadedObjectComplete(item.uuid);
-                console.log('Model Added to Scene', item);
             })
     }
 
@@ -151,8 +153,8 @@ export class FactoryClass {
         for (let index = 0; index < members.length; index++) {
             
             const element = members[index];
-            console.log('establish3DChildren element.type=', element.type);
-            console.log('establish3DChildren element=', index, element);
+            console.log('establish3DChildren element.type=', element.type, element);
+            //console.log('establish3DChildren element=', index, element);
             
             try {
                 //add these back in when we have the builders
