@@ -74,15 +74,14 @@ export class FactoryClass {
         var exist = Boolean(entity)
         if ( !exist ) {
             entity = new Text();
+            entity.uuid = guid;
             ObjectLookup.addLabel(guid, entity);
             parent.add(entity);
-
-            entity.uuid = guid;
-            entity.text = options.text;
-            entity.color = options.color;
-            entity.fontSize = options.fontSize;
-            //entity.userData = { isTextLabel: true, };
         }
+        
+        entity.text = options.text;
+        entity.color = options.color;
+        entity.fontSize = options.fontSize;
         
         //Transforms.setTransform(entity, options.transform);
         if ( Boolean(options.transform) ) {
