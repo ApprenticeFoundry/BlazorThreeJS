@@ -38,11 +38,11 @@ export class FactoryClass {
         
         this.makers.set('AmbientLight', LightBuilder.BuildAmbientLight);
         this.makers.set('PointLight', LightBuilder.BuildPointLight);
-        this.makers.set('Mesh3D', this.establish3DGeometry);
-        this.makers.set('Model3D', this.establish3DModel);
-        this.makers.set('Text3D', this.establish3DLabel);
-        //this.makers.set('Group3D', this.establish3DGroup);
-        //this.makers.set('PanelMenu3D', this.establish3DMenu);
+        this.makers.set('Mesh3D', this.establish3DGeometry.bind(this));
+        this.makers.set('Model3D', this.establish3DModel.bind(this));
+        this.makers.set('Text3D', this.establish3DLabel.bind(this));
+        //this.makers.set('Group3D', this.establish3DGroup.bind(this));
+        //this.makers.set('PanelMenu3D', this.establish3DMenu.bind(this));
 
 
     }
