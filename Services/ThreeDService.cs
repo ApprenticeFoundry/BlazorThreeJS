@@ -98,11 +98,13 @@ public class ThreeDService : IThreeDService
 
         var dirtyObjects = new List<Object3D>();
         ActiveScene.UpdateForAnimation(tick++, fps, dirtyObjects);
-        if ( dirtyObjects.Count == 0)
-            return;
+
 
         var settings = new ImportSettings();
         settings.ResetChildren(dirtyObjects);
+
+        if ( dirtyObjects.Count == 0)
+            return;
 
         await ActiveScene.Request3DSceneRefresh(settings, (_) =>
         {

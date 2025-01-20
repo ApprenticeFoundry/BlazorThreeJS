@@ -8,6 +8,7 @@ using BlazorThreeJS.Core;
 using BlazorThreeJS.Objects;
 
 using System.Text.Json.Serialization;
+using FoundryRulesAndUnits.Extensions;
 
 
 
@@ -41,14 +42,16 @@ namespace BlazorThreeJS.Settings
         }
 
 
-        public void ResetChildren(List<Object3D> children)
+        public void ResetChildren(List<Object3D> items)
         {
             ClearChildren();
-            foreach (var child in Children)
+            foreach (var child in items)
             {
                 AddChild(child);
                 child.SetDirty(false);
+                //$"ResetChildren {child.Name} is dirty".WriteInfo();
             }
+            //$"ResetChildren {Children.Count()} are dirty".WriteInfo();
         }
 
 

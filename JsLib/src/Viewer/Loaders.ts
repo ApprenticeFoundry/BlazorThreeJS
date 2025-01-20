@@ -4,6 +4,7 @@ import { FBXLoader } from 'three/examples/jsm/loaders/FBXLoader';
 import { GLTF, GLTFLoader } from 'three/examples/jsm/loaders/GLTFLoader';
 import { STLLoader } from 'three/examples/jsm/loaders/STLLoader.js';
 import { MaterialBuilder } from '../Builders/MaterialBuilder';
+import { Transforms } from '../Utils/Transforms';
 import { Box3, Group, LoadingManager, Mesh, Object3D, Scene, TextureLoader, Vector3 } from 'three';
 import { ObjectLookup } from '../Utils/ObjectLookup';
 //import { GUI } from 'dat.gui';
@@ -12,50 +13,16 @@ import { ObjectLookup } from '../Utils/ObjectLookup';
 
 export class Loaders {
     
-    //private LoadedObjectComplete(uuid: string) {
-    //    DotNet.invokeMethodAsync('BlazorThreeJS', 'LoadedObjectComplete', uuid);
-    //}
 
-    private assignPosition(object: Group | Object3D, transform: any) {
-        const { x, y, z } = transform.position;
-        object.position.x = x;
-        object.position.y = y;
-        object.position.z = z;
-        return object;
-    }
-
-    private assignRotation(object: Group | Object3D, transform: any) {
-        const { x, y, z } = transform.rotation;
-        object.rotation.x = x;
-        object.rotation.y = y;
-        object.rotation.z = z;
-        return object;
-    }
-
-    private assignScale(object: Group | Object3D, transform: any) {
-        const { x, y, z } = transform.scale;
-        object.scale.x = x * object.scale.x;
-        object.scale.y = y * object.scale.y;
-        object.scale.z = z * object.scale.z;
-        return object;
-    }
-
-    private setGLTFSceneProps(gltfScene: Group, guid: string, options: any): Group {
-        gltfScene.name = `name-${guid}`;
-
+    private createGLTFGroups(gltfScene: Group, options: any): Group {
+        
         const group = new Group();
         group.uuid = options.uuid;
-
-        var transform = options.transform;
-        if (Boolean(options.pivot) && Boolean(transform)) {
-            this.assignPosition(gltfScene, { position: transform.pivot });
-        }
+        gltfScene.name = `name-${group.uuid}`;
         group.add(gltfScene);
-        if ( Boolean(transform) ) {
-            this.assignScale(group, transform);
-            this.assignPosition(group, transform);
-            this.assignRotation(group, transform);
-        }
+        
+        Transforms.setTransform(group, options.transform);
+
         return group;
     }
 
@@ -84,7 +51,7 @@ export class Loaders {
                     ObjectLookup.casheGLTF(url, gltf);
 
                     const clone = gltf.scene; //.clone();
-                    const group = this.setGLTFSceneProps(clone, guid, member);
+                    const group = this.createGLTFGroups(clone, member);
 
                     const box = new Box3().setFromObject(group);
                     const size = box.getSize(new Vector3());
@@ -105,7 +72,7 @@ export class Loaders {
                 console.log('gltf is found in cashe', gltf);
 
                 const clone = gltf.scene.clone();
-                const group = this.setGLTFSceneProps(clone, guid, member);
+                const group = this.createGLTFGroups(clone, member);
 
                 const box = new Box3().setFromObject(group);
                 const size = box.getSize(new Vector3());

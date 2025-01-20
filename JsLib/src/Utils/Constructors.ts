@@ -127,16 +127,27 @@ export class FactoryClass {
     public establish3DModel(options: any, parent: Object3D) {
         console.log('establish3DModel modelOptions=', options);
         
-        const callback = this.playGltfAnimation.bind(this);
+
+        var model = ObjectLookup.findModel(options.uuid) as Group;
+        if (Boolean(model)) {
+            Transforms.setTransform(model, options.transform);
+            return;
+        }
+
+        //if the model exist then just update the transform
+        //const callback = this.playGltfAnimation.bind(this);
 
         const loaders = new Loaders();
         loaders.import3DModel(options, (item) => {
             console.log('Model Added to Scene', item);
-            console.log('establish3DModel Callback  Added to Scene', item);
+
+            parent.add(item);
             ObjectLookup.addModel(item.uuid, item);
             //this.addDebuggerWindow(url, group);
-            parent.add(item);
-            this.LoadedObjectComplete(item.uuid);
+            if ( parent.type === 'Scene' )
+            {
+                this.LoadedObjectComplete(item.uuid);
+            }
         })
     }
 

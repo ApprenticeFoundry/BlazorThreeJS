@@ -2,6 +2,7 @@
 
 using System.Text.Json.Serialization;
 using BlazorThreeJS.Core;
+using FoundryRulesAndUnits.Extensions;
 using FoundryRulesAndUnits.Models;
 
 namespace BlazorThreeJS.Objects;
@@ -66,13 +67,9 @@ public class Model3D : Object3D
 
     public override void UpdateForAnimation(int tick, double fps, List<Object3D>? dirtyObjects)
     {
-        $"Model3D.UpdateForAnimation {Name} {tick} {fps}".WriteSuccess(2);
         if ( !RunAnimation  || OnAnimationUpdate == null) return;
 
         OnAnimationUpdate.Invoke(this, tick, fps);
-
-        if ( IsDirty() )
-            dirtyObjects?.Add(this);
             
         base.UpdateForAnimation(tick, fps, dirtyObjects);
     }

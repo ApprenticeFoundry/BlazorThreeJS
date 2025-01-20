@@ -29,13 +29,7 @@ public class Mesh3D : Object3D
     public override void UpdateForAnimation(int tick, double fps, List<Object3D>? dirtyObjects)
     {
         //send this message to all the children
-        if ( IsDirty() )
-            dirtyObjects?.Add(this);
-        
-        foreach (var child in Children)
-        {
-            child.UpdateForAnimation(tick, fps, dirtyObjects);
-        } 
+        base.UpdateForAnimation(tick, fps, dirtyObjects);
     }
 
 }

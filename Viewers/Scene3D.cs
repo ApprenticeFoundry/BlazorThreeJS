@@ -49,12 +49,9 @@ public class Scene3D : Object3D
 
     public override void UpdateForAnimation(int tick, double fps, List<Object3D>? dirtyObjects)
     {
-        $"Scene3D UpdateForAnimation {Title} {tick}".WriteInfo();
+        //$"Scene3D UpdateForAnimation {Title} {tick}".WriteInfo();
         
-        foreach (var child in Children)
-        {
-            child.UpdateForAnimation(tick, fps, dirtyObjects);
-        } 
+        base.UpdateForAnimation(tick, fps, dirtyObjects);
     }
 
     public void SetAfterUpdateAction(Action<Scene3D,string> afterUpdate)
