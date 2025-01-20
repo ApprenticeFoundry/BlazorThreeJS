@@ -3,19 +3,7 @@ import { MeshBuilder } from '../Builders/MeshBuilder';
 
 import {
     AnimationMixer,
-    Clock,
-    Color,
-    GridHelper,
-    LineBasicMaterial,
-    LineSegments,
     Object3D,
-    OrthographicCamera,
-    PerspectiveCamera,
-    Raycaster,
-    Scene,
-    Vector2,
-    Vector3,
-    WebGLRenderer,
     Event as ThreeEvent,
     Group,
     BoxGeometry,
@@ -23,6 +11,8 @@ import {
     MeshBasicMaterial,
     Mesh,
 } from 'three';
+
+import { Text } from 'troika-three-text';
 import { LightBuilder } from '../Builders/LightBuilder';
 import { Transforms } from './Transforms';
 import { GLTF } from 'three/examples/jsm/loaders/GLTFLoader';
@@ -98,7 +88,7 @@ export class FactoryClass {
             //entity.sync();
         }
 
-        MeshBuilder.ApplyMeshTransform(options, entity);
+        //MeshBuilder.ApplyMeshTransform(options, entity);
         this.establish3DChildren(options, entity);
 
 
