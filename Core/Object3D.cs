@@ -1,13 +1,7 @@
-﻿// Decompiled with JetBrains decompiler
-// Type: Blazor3D.Core.Object3D
-// Assembly: Blazor3D, Version=0.1.24.0, Culture=neutral, PublicKeyToken=null
-// MVID: 8589B0D0-D62F-4099-9D8A-332F65D16B15
-// Assembly location: Blazor3D.dll
-
-using BlazorThreeJS.Labels;
+﻿
 using BlazorThreeJS.Lights;
 using BlazorThreeJS.Maths;
-using BlazorThreeJS.Menus;
+
 using BlazorThreeJS.Objects;
 using BlazorThreeJS.Viewers;
 using FoundryRulesAndUnits.Models;
@@ -16,20 +10,35 @@ using System.Text.Json.Serialization;
 using Microsoft.AspNetCore.Mvc.ViewFeatures;
 using static System.Formats.Asn1.AsnWriter;
 using static System.Net.Mime.MediaTypeNames;
+using BlazorThreeJS.Settings;
 
 
 
 namespace BlazorThreeJS.Core
 {
+    public class Transform3D 
+    {
+        public Vector3 Position { get; set; } = new Vector3();
+
+        public Vector3 Pivot { get; set; } = new Vector3();
+
+        public Euler Rotation { get; set; } = new Euler();
+
+        public Vector3 Scale { get; set; } = new Vector3(1, 1, 1);
+    }
+
+
+    [JsonDerivedType(typeof(ImportSettings))]
     [JsonDerivedType(typeof(Mesh3D))]
+    [JsonDerivedType(typeof(Model3D))]
     [JsonDerivedType(typeof(Group3D))]
-    [JsonDerivedType(typeof(TextPanel))]
-    [JsonDerivedType(typeof(PanelMenu))]
-    [JsonDerivedType(typeof(Button))]
-    [JsonDerivedType(typeof(PanelGroup))]
+    [JsonDerivedType(typeof(TextPanel3D))]
+    [JsonDerivedType(typeof(PanelMenu3D))]
+    [JsonDerivedType(typeof(Button3D))]
+    [JsonDerivedType(typeof(PanelGroup3D))]
     [JsonDerivedType(typeof(AmbientLight))]
     [JsonDerivedType(typeof(PointLight))]
-    [JsonDerivedType(typeof(LabelText))]
+    [JsonDerivedType(typeof(Text3D))]
     [JsonDerivedType(typeof(Scene3D))]
     public abstract class Object3D : ITreeNode
     {
@@ -41,16 +50,7 @@ namespace BlazorThreeJS.Core
         [JsonIgnore]
         public Action<Object3D>? OnDelete { get; set; }
 
-
-
-
-        public Vector3 Position { get; set; } = new Vector3();
-
-        public Vector3 Pivot { get; set; } = new Vector3();
-
-        public Euler Rotation { get; set; } = new Euler();
-
-        public Vector3 Scale { get; set; } = new Vector3(1, 1, 1);
+        public Transform3D Transform { get; set; } = new Transform3D();
 
         public string Type { get; } = nameof(Object3D);
 
@@ -66,6 +66,24 @@ namespace BlazorThreeJS.Core
             Object3DCount++;
             this.Type = type;
             Uuid = Object3DCount.ToString();
+            StatusBits.IsDirty = true;
+        }
+
+        public virtual void UpdateForAnimation(int tick, double fps, List<Object3D>? dirtyObjects)
+        {
+            //send this message to all the children
+            if ( IsDirty() )
+                dirtyObjects?.Add(this);
+         
+            foreach (var child in Children)
+            {
+                child.UpdateForAnimation(tick, fps, dirtyObjects);
+            } 
+        }
+
+        public void ClearChildren()
+        {
+            children.Clear();
         }
         public List<Object3D> GetAllChildren()
         {
@@ -74,7 +92,17 @@ namespace BlazorThreeJS.Core
 
         public virtual string GetTreeNodeTitle()
         {
-            return $"{Name} [{Uuid}] => {Type} C#: ({GetType().Name})";
+            return $"{Name} [{Uuid}] => {Type}({GetType().Name})";
+        }
+
+        public virtual bool IsDirty()
+        {
+            return StatusBits.IsDirty;
+        }
+        
+        public virtual void SetDirty(bool value)
+        {
+            StatusBits.IsDirty = value;
         }
 
 
@@ -103,32 +131,40 @@ namespace BlazorThreeJS.Core
             OnDelete?.Invoke(this);
         }
 
-        public virtual Object3D AddChild(Object3D child)
+        public virtual (bool success, Object3D result) AddChild(Object3D child)
         {
             var uuid = child.Uuid;
             if ( string.IsNullOrEmpty(uuid))
             {
-                $"AddChild missing  Uuid, {child.Name}".WriteError();  
-                return child;
+                //$"AddChild missing  Uuid, {child.Name}".WriteError();  
+                return (false, child);
             }
 
-            var found = this.children.Find((item) => item.Uuid == uuid);
-            if ( found != null )
+            //what if you have a child with the same uuid? but it is a different object?
+            var (found, item) = FindChild(uuid);
+            if ( found )
             {
-                $"Object3D AddChild already existing {child.Name} -> {found.Name} {found.Uuid}".WriteError();  
-                return found;
+                //$"Object3D AddChild Exist: returning existing {child.Name} -> {item.Name} {item.Uuid}".WriteError();  
+                return (false, item!);
             }
-            $"Object3D AddChild {child.Name} -> {this.Name} {this.Uuid}".WriteInfo();
 
+            //$"Object3D AddChild {child.Name} -> {this.Name} {this.Uuid}".WriteInfo();
             this.children.Add(child);
-            return child;
+            this.SetDirty(true);
+            return (true, child);
         }
 
 
-        public virtual Object3D RemoveChild(Object3D child)
+        public virtual (bool success, Object3D result) RemoveChild(Object3D child)
         {
+            var found = this.children.Find((item) => item == child);
+            if (found == null)
+            {
+                $"Object3D RemoveChild missing {child.Name} -> {this.Name} {this.Uuid}".WriteError();  
+                return (false, child);
+            }
             this.children.Remove(child);
-            return child;
+            return (true, child);
         }
 
         public bool HasChildren()
@@ -137,25 +173,12 @@ namespace BlazorThreeJS.Core
         }
 
 
-
-        public Object3D Update(Object3D child)
+        public (bool success, Object3D child) FindChild(string uuid)
         {
-            var uuid = child.Uuid;
-            if ( string.IsNullOrEmpty(uuid))
-            {
-                $"AddChild missing  Uuid, {child.Name}".WriteError();  
-                return child;
-            }
-
             var found = this.children.Find((item) => item.Uuid == uuid);
-            if (found != null)
-            {
-                this.RemoveChild(found);
-            }
-
-            this.AddChild(child);
-            return child;
+            return (found != null, found!);
         }
+
 
         public bool GetIsExpanded()
         {

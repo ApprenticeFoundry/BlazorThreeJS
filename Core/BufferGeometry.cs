@@ -33,7 +33,7 @@ namespace BlazorThreeJS.Core
         public string Name { get; set; } = string.Empty;
 
 
-        public string Type { get; } = "Geometry";
+        public string Type { get; } = nameof(BufferGeometry);
 
         public virtual string GetTreeNodeTitle()
         {

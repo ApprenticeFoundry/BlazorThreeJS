@@ -1,7 +1,7 @@
 <Project Sdk="Microsoft.NET.Sdk.Web">
 
   <PropertyGroup>
-    <TargetFrameworks>net6.0;net8.0;net9.0</TargetFrameworks>
+    <TargetFrameworks>net8.0;net9.0</TargetFrameworks>
     <Nullable>enable</Nullable>
     <ImplicitUsings>enable</ImplicitUsings>
     <UserSecretsId>aa47adb6-d26c-4dde-b866-1ce704d22b3e</UserSecretsId>
@@ -34,8 +34,11 @@
 
   <ItemGroup>
     <!-- <ProjectReference Include="..\FoundryRulesAndUnits\FoundryRulesAndUnits.csproj" /> -->
-    <PackageReference Include="ApprenticeFoundryRulesAndUnits" Version="4.4.0" />
-    <PackageReference Include="System.Text.Json" Version="8.0.5" />
+    <!-- <PackageReference Include="ApprenticeFoundryRulesAndUnits" Version="5.0.1" /> -->
+    <PackageReference Include="ApprenticeFoundryRulesAndUnits" Version="5.0.2" />
+    <PackageReference Include="Blazor.Extensions.Canvas" Version="1.1.1" />
+    <PackageReference Include="BlazorComponentBus" Version="2.2.0" />
+    <PackageReference Include="System.Text.Json" Version="9.0.0" />
 
   </ItemGroup>
 

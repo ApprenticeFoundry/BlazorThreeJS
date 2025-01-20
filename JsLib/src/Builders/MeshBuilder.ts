@@ -2,48 +2,55 @@ import { BufferGeometry, Group, Mesh, Object3D } from 'three';
 import { Transforms } from '../Utils/Transforms';
 import { GeometryBuilder } from './GeometryBuilder';
 import { MaterialBuilder } from './MaterialBuilder';
-import { SceneState } from '../Utils/SceneState';
+
 
 export class MeshBuilder {
-    static BuildMesh(options: any, parent: Object3D) {
+    public static ConstructMesh(options: any): Mesh | Group | null {
         const geometry = GeometryBuilder.buildGeometry(options.geometry, options.material);
+
+        if (geometry['isGroup'])
+            return geometry as Group;
+        
+
+        const item = geometry as BufferGeometry;
         const material = MaterialBuilder.buildMaterial(options.material);
-        const children = options.children || [];
+        const entity = new Mesh(item, material);
+        entity.uuid = options.uuid;
+        
+        return entity;
+    }
 
-        let entity = null;
-        if (geometry['isGroup']) {
-            entity = geometry;
-        } else {
-            const item = geometry as BufferGeometry;
-            entity = new Mesh(item, material);
-            Transforms.setScale(entity, options.scale);
+    public static CreateMesh(options: any): Object3D | null {
+
+        console.log('MeshBuilder.CreateMesh', options);
+        if ( !Boolean(options.geometry) || !Boolean(options.material) )
+            return null;
+
+        let result = this.ConstructMesh(options);
+        if (!Boolean(result)) {
+            return null;
         }
-
-        let result = null
         if (!Boolean(options.pivot)) {
-            entity.uuid = options.uuid;
-            Transforms.setPosition(entity, options.position);
-            Transforms.setRotation(entity, options.rotation);
-            SceneState.addPrimitive(entity.uuid, entity);
-            result = entity;
-
-        } else {
-            Transforms.setPosition(entity, options.pivot);
-            const group = new Group();
-            group.uuid = options.uuid;
-            group.add(entity);
-            Transforms.setPosition(group, options.position);
-            Transforms.setRotation(group, options.rotation);
-            Transforms.setScale(group, options.scale);
-
-            SceneState.addPrimitive(group.uuid, group);
-            result =  group;
+            console.log('MeshBuilder.CreateMesh', result);
+            return result;
         }
-        console.log('MeshBuilder.BuildMesh', result, parent);
-        parent.add(result);
 
-        children.forEach((child: any) => {
-            MeshBuilder.BuildMesh(child, result);
-        });
+        const group = new Group();
+        group.uuid = options.uuid;
+        var list = [result] as any;
+        group.add(list);
+
+        console.log('Success MeshBuilder.CreateMesh Group', group);
+        return group;
+
+    }
+    public static ApplyMeshTransform(options: any, entity: Object3D): Object3D {
+
+        //console.log('MeshBuilder.ApplyMeshTransform', options);
+        if (Boolean(options.pivot)) {
+            Transforms.setPosition(entity, options.pivot);
+        }
+        Transforms.setTransform(entity, options.transform);
+        return entity;
     }
 }

@@ -1,10 +1,4 @@
-﻿// Decompiled with JetBrains decompiler
-// Type: Blazor3D.Settings.ImportSettings
-// Assembly: Blazor3D, Version=0.1.24.0, Culture=neutral, PublicKeyToken=null
-// MVID: 8589B0D0-D62F-4099-9D8A-332F65D16B15
-// Assembly location: Blazor3D.dll
-
-using BlazorThreeJS.Enums;
+﻿using BlazorThreeJS.Enums;
 using BlazorThreeJS.Materials;
 
 using BlazorThreeJS.Maths;
@@ -12,41 +6,53 @@ using BlazorThreeJS.Core;
 using BlazorThreeJS.Objects;
 
 using System.Text.Json.Serialization;
-using BlazorThreeJS.Viewers;
+using FoundryRulesAndUnits.Extensions;
+
 
 
 namespace BlazorThreeJS.Settings
 {
-    public class ImportSettings
+    public class ImportSettings : Object3D
     {
-        [JsonConverter(typeof(JsonStringEnumConverter))]
-        public Import3DFormats Format { get; set; }
-        public string? FileURL { get; set; }
-        //public string? TextureURL { get; set; }
-        public string? Uuid { get; set; }
-        public Vector3 Position { get; set; } = new Vector3();
-        public Vector3 Pivot { get; set; } = new Vector3();
-        public Vector3 Scale { get; set; } = new Vector3(1.0, 1.0, 1.0);
-        public Euler Rotation { get; set; } = new Euler();
+       //public Transform Transform { get; set; }
 
-        public Vector3? ComputedSize { get; set; }
+        public ImportSettings() : base(nameof(ImportSettings))
+        {
+            Transform = null!;
+        }
 
-        [JsonIgnore]
-        public MeshStandardMaterial? Material { get; set; }
-        [JsonIgnore]
-        public Action? OnComplete { get; set; }
-        [JsonIgnore]
-        public Action<ImportSettings> OnClick { get; set; } = (ImportSettings model3D) => { };
-        [JsonIgnore]
-        public int ClickCount { get; set; } = 0;
-        public bool IsShow()
+        public Model3D AddRequestedModel(Model3D model)
         {
-            return ClickCount % 2 == 1;
+            Uuid = model.Uuid;  //use the same uuid as the model
+            AddChild(model);
+            return model;
         }
-        public int Increment()
+
+        public (bool success, Model3D result) FindRequestedModel()
         {
-            return ++ClickCount;
+            var (found, item) = FindChild(Uuid!);
+            if (!found)
+                return (false, null!);
+
+            if (item is Model3D model)
+                return (true, model);
+            
+            return (false, null!);
         }
+
+
+        public void ResetChildren(List<Object3D> items)
+        {
+            ClearChildren();
+            foreach (var child in items)
+            {
+                AddChild(child);
+                child.SetDirty(false);
+                //$"ResetChildren {child.Name} is dirty".WriteInfo();
+            }
+            //$"ResetChildren {Children.Count()} are dirty".WriteInfo();
+        }
+
 
     }
 }

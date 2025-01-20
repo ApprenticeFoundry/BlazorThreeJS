@@ -10,11 +10,11 @@ namespace BlazorThreeJS.Objects;
 public class Mesh3D : Object3D
 {
     public Mesh3D()
-      : base("Mesh")
+      : base(nameof(Mesh3D))
     {
     }
 
-    public Material Material { get; set; } = (Material)new MeshStandardMaterial();
+    public Material Material { get; set; } = (Material)new MeshStandardMaterial("orange");
 
     public BufferGeometry Geometry { get; set; } = (BufferGeometry)new BoxGeometry();
 
@@ -26,6 +26,11 @@ public class Mesh3D : Object3D
         return result;
     }
 
+    public override void UpdateForAnimation(int tick, double fps, List<Object3D>? dirtyObjects)
+    {
+        //send this message to all the children
+        base.UpdateForAnimation(tick, fps, dirtyObjects);
+    }
 
 }
 

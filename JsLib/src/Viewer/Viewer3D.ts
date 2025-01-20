@@ -1,9 +1,14 @@
+import { Transforms } from '../Utils/Transforms';
+import { Constructors } from "../Utils/Constructors";
+import { Text } from 'troika-three-text';
+import { Loaders } from './Loaders';
 import { OrbitControls } from 'three/examples/jsm/controls/OrbitControls';
 import { BoxLineGeometry } from 'three/examples/jsm/geometries/BoxLineGeometry';
-import { Loaders } from './Loaders';
-import { SceneBuilder } from '../Builders/SceneBuilder';
+import { ObjectLookup } from '../Utils/ObjectLookup';
 import { CameraBuilder } from '../Builders/CameraBuilder';
-import { Transforms } from '../Utils/Transforms';
+import { MeshBuilder } from '../Builders/MeshBuilder';
+import { MenuBuilder } from '../Builders/MenuBuilder';
+
 import {
     AnimationMixer,
     Clock,
@@ -20,18 +25,26 @@ import {
     Vector3,
     WebGLRenderer,
     Event as ThreeEvent,
+    Group,
+    BoxGeometry,
+    CylinderGeometry,
+    MeshBasicMaterial,
+    Mesh,
 } from 'three';
 
-import { SceneState } from '../Utils/SceneState';
+
 import ThreeMeshUI from 'three-mesh-ui';
-import { MenuBuilder } from '../Builders/MenuBuilder';
 import { GLTF, GLTFLoader } from 'three/examples/jsm/loaders/GLTFLoader';
+import { TextPanelBuilder } from '../Builders/TextPanelBuilder';
+import { PanelGroupBuilder } from '../Builders/PanelGroupBuilder';
+import { LightBuilder } from '../Builders/LightBuilder';
+import { HelperBuilder } from '../Builders/HelperBuilder';
 
 export class Viewer3D {
     private options: any;
     private container: any;
     private settings: any;
-    private renderer: WebGLRenderer;
+    private webGLRenderer: WebGLRenderer;
     private scene: Scene;
     private camera: OrthographicCamera | PerspectiveCamera;
     private controls: OrbitControls;
@@ -39,23 +52,29 @@ export class Viewer3D {
     private raycaster: Raycaster = new Raycaster();
     private uiElementSelectState = false;
     private lastSelectedGuid = null;
-    private animationMixers: Array<AnimationMixer> = [];
+
     private clock: Clock;
+    private blockTest: Mesh;
 
     private INTERSECTED: any = null;
     private HasLoaded = false;
     public AnimationRequest: any = null;
 
+    // private LoadedObjectComplete(uuid: string) {
+    //     DotNet.invokeMethodAsync('BlazorThreeJS', 'LoadedObjectComplete', uuid);
+    // }
+    private onObjectSelected(uuid: string) {
+        DotNet.invokeMethodAsync('BlazorThreeJS', 'OnClickButton', uuid);
+    }
 
-
-    public Initialize3DViewer(json: string) {
+    public Initialize3DViewer(spec: string) {
         if ( this.HasLoaded ) return;
         this.HasLoaded = true;
+        this.clock = new Clock();
 
         console.log('In Initialize3DViewer');
 
-        const options = JSON.parse(json);
-        this.clock = new Clock();
+        const options = JSON.parse(spec);
 
         this.setListeners();
         this.settings = options.viewerSettings;
@@ -71,10 +90,10 @@ export class Viewer3D {
         this.container = container;
 
         this.scene = new Scene();
-        this.setScene();
+        this.InitializeScene(this.scene, options);
         this.setCamera();
 
-        this.renderer = new WebGLRenderer({
+        this.webGLRenderer = new WebGLRenderer({
             antialias: this.settings.webGLRendererSettings.antialias,
             preserveDrawingBuffer: true
         });
@@ -82,12 +101,14 @@ export class Viewer3D {
         const requestedWidth = this.settings.width;
         const requestedHeight = this.settings.height;
         if (Boolean(requestedWidth) && Boolean(requestedHeight)) {
-            this.renderer.setSize(requestedWidth, requestedHeight, true);
+            this.webGLRenderer.setSize(requestedWidth, requestedHeight, true);
         }
         else {
-            this.renderer.domElement.style.width = '100%';
-            this.renderer.domElement.style.height = '100%';
+            this.webGLRenderer.domElement.style.width = '100%';
+            this.webGLRenderer.domElement.style.height = '100%';
         }
+
+        this.container.appendChild(this.webGLRenderer.domElement);
 
         // this.renderer.domElement.onclick = (event) => {
         //     if (this.options.viewerSettings.canSelect == true) {
@@ -98,23 +119,35 @@ export class Viewer3D {
         //     }
         // };
 
-        this.container.appendChild(this.renderer.domElement);
 
         // this.addTestText('How do we pass text values?');
 
         this.setOrbitControls();
         this.onResize();
 
-        // const animate = () => {
-        //     window.requestAnimationFrame(animate);
-        //     this.render();
-        // };
-        // animate();
-
+        //this.blockTest = this.GeomExample();
         this.StartAnimation();
+
         console.log('Exit Initialize3DViewer');
-        
-        //this.render();
+    }
+
+    public InitializeScene(scene: Scene, options: any) {
+        // console.log('in setScene this.options=', this.options);
+        scene.background = new Color(options.scene.backGroundColor);
+        scene.uuid = options.scene.uuid;
+
+        //add the floor
+        const grid = new GridHelper(30, 30, 0x848484, 0x848484);
+        scene.add(grid);
+
+        // this.addAxes();  we should control this from FoundryBlazor by default
+        //this.addRoom();
+
+        if (Boolean(options.scene.children))
+        {
+            console.log('In InitializeScene options.scene.children=', options.scene.children);
+            Constructors.establish3DChildren(options.scene, scene);
+        }
     }
 
     //clear out animation
@@ -127,8 +160,16 @@ export class Viewer3D {
     private RenderJS(self: any) 
     {
         if ( self.AnimationRequest == null ) return;
+
+        // if ( this.blockTest != null) {
+        //     this.blockTest.rotation.x += 0.01;
+        //     this.blockTest.rotation.y += 0.01;
+        //     this.blockTest.rotation.z += 0.01;
+        // }
+
         // request another animation frame
         try {
+            DotNet.invokeMethodAsync('BlazorThreeJS', 'TriggerAnimationFrame');  
             self.AnimationRequest = window.requestAnimationFrame(() => self.RenderJS(self));
             self.render();
         } catch (error) {
@@ -136,10 +177,30 @@ export class Viewer3D {
         }
     }
 
+    private render() {
+        ThreeMeshUI.update();
+        this.updateUIElements();
+        this.selectObject();
+
+        var pos = this.camera.position;
+        for (const label of ObjectLookup.allLabels()) {
+            label.lookAt(pos);
+        }
+
+
+        var delta = this.clock.getDelta();
+        for ( const mixer of ObjectLookup.allMixers() ) {
+            mixer.update(delta);
+        }
+
+        this.webGLRenderer.render(this.scene, this.camera);
+    }
+
     public StartAnimation() {
         console.log('In StartAnimation');
         if (this.AnimationRequest == null)
             this.AnimationRequest = window.requestAnimationFrame(() => {
+
                 this.RenderJS(this);
             });
     }
@@ -152,30 +213,21 @@ export class Viewer3D {
         this.AnimationRequest = null;
     }
 
-    private render() {
-        ThreeMeshUI.update();
-        this.updateUIElements();
-        // this.selectObject();
-
-        for (let i = 1, l = this.scene.children.length; i < l; i++) {
-            const item = this.scene.children[i];
-            if (item.userData.isTextLabel) {
-                item.lookAt(this.camera.position);
-            }
+    public deleteFromScene(uuid: string):boolean {
+        let obj = this.scene.getObjectByProperty('uuid', uuid);
+        console.log('deleteFromScene obj=', obj);
+        if (obj) {
+            this.scene.remove(obj);
+            return true;
         }
-
-        var delta = this.clock.getDelta();
-        if (Boolean(this.animationMixers.length)) {
-            for (const mixer of this.animationMixers) {
-                mixer.update(delta);
-            }
-        }
-        this.renderer.render(this.scene, this.camera);
+        return false
     }
+
+
 
     private setListeners() {
         window.addEventListener('pointermove', (event: PointerEvent) => {
-            let canvas = this.renderer.domElement;
+            let canvas = this.webGLRenderer.domElement;
 
             this.mouse.x = (event.offsetX / canvas.clientWidth) * 2 - 1;
             this.mouse.y = -(event.offsetY / canvas.clientHeight) * 2 + 1;
@@ -207,39 +259,45 @@ export class Viewer3D {
 
         this.camera.updateProjectionMatrix();
 
-        this.renderer.setSize(
+        this.webGLRenderer.setSize(
             this.container.offsetWidth,
             this.container.offsetHeight,
             false // required
         );
     }
 
-    public setScene() {
-        // console.log('in setScene this.options=', this.options);
-        this.scene.background = new Color(this.options.scene.backGroundColor);
-        this.scene.uuid = this.options.scene.uuid;
-        //this.addFloor();
-        // this.addAxes();  we should control this from FoundryBlazor by default
-        this.addRoom();
 
-        if (Boolean(this.options.scene.children)) {
-            this.options.scene.children.forEach((childOptions: any) => {
-                const child = SceneBuilder.BuildPeripherals(this.scene, childOptions);
-                if (child) {
-                    this.scene.add(child);
-                }
-            });
-        }
-        // Add cached meshes.
-        SceneState.renderToScene(this.scene, this.options);
+
+    public GeomExample():Mesh
+    {
+
+        // Create box (parent)
+        const boxGeometry = new BoxGeometry(2, 2, 2);
+        const boxMaterial = new MeshBasicMaterial({ color: 0x00ff00, wireframe: false });
+        const box = new Mesh(boxGeometry, boxMaterial);
+        this.scene.add(box);
+
+        // Create cylinder (child)
+        const cylinderGeometry = new CylinderGeometry(0.5, 0.5, 3, 32);
+        const cylinderMaterial = new MeshBasicMaterial({ color: 0xff0000, wireframe: false });
+        const cylinder = new Mesh(cylinderGeometry, cylinderMaterial);
+
+        // Position cylinder relative to box
+        cylinder.position.set(1, 2, 1);  // Place cylinder on top of box
+
+        // Add cylinder as child of box
+        box.add(cylinder);
+        return box;
+
     }
 
-    public updateScene(options: string) {
-        const sceneOptions = JSON.parse(options);
-        //console.log('updateScene sceneOptions=', sceneOptions);
-        this.options.scene = sceneOptions;
-        SceneState.refreshScene(this.scene, sceneOptions);
+    public request3DScene(importSettings: string) {
+        const options = JSON.parse(importSettings);
+        
+        console.log('request3DScene importSettings=', options);
+        Constructors.establish3DChildren(options, this.scene);
     }
+
 
     public setCamera() {
         const builder = new CameraBuilder();
@@ -256,13 +314,10 @@ export class Viewer3D {
         this.setOrbitControls();
     }
 
-    public showCurrentCameraInfo() {
-        console.log('Current camera info:', this.camera);
-        console.log('Orbit controls info:', this.controls);
-    }
+
 
     private setOrbitControls() {
-        this.controls = new OrbitControls(this.camera, this.renderer.domElement);
+        this.controls = new OrbitControls(this.camera, this.webGLRenderer.domElement);
         this.controls.screenSpacePanning = true;
         this.controls.minDistance = this.options.orbitControls.minDistance;
         this.controls.maxDistance = this.options.orbitControls.maxDistance;
@@ -271,60 +326,88 @@ export class Viewer3D {
         this.controls.update();
     }
 
-    private playGltfAnimation(model: GLTF) {
-        const animations = model.animations;
-        animations?.forEach((animation) => {
-            if (Boolean(animation) && Boolean(animation.tracks.length)) {
-                const mixer = new AnimationMixer(model.scene);
-                this.animationMixers.push(mixer);
-                const animationAction = mixer.clipAction(animation);
-                animationAction.play();
-            }
-        });
-    }
+ 
 
-    public import3DModel(options: string) {
-        const modelOptions = JSON.parse(options);
-        const loaders = new Loaders();
-        return loaders.import3DModel(this.scene, modelOptions, this.settings.containerId, (model: GLTF) => {
-            this.playGltfAnimation(model);
-        });
-    }
+    public establish3DMenu(options: any): ThreeMeshUI.Block | null {
 
-    public clone3DModel(sourceGuid: string, options: string) {
-        const modelOptions = JSON.parse(options);
-        const loaders = new Loaders();
-        return loaders.clone3DModel(this.scene, sourceGuid, modelOptions, this.settings.containerId);
-    }
+        const guid = options.uuid;
 
-    public moveObject(object3D: Object3D): boolean {
-        const moved = SceneState.moveObject(this.scene, object3D);
-        return Boolean(moved);
-    }
+        var entity = ObjectLookup.findPanel(guid) as ThreeMeshUI.Block;
+        var exist = Boolean(entity)
+        entity = exist ? entity : MenuBuilder.CreateMenuPanel(options);
 
-    public getSceneItemByGuid(guid: string) {
-        let item = this.scene.getObjectByProperty('uuid', guid);
-        const json = {
-            uuid: item.uuid,
-            type: item.type,
-            name: item.name,
-            children: item.type == 'Group' ? this.iterateGroup(item.children) : [],
-        };
-        return JSON.stringify(json);
-    }
+        MenuBuilder.RefreshMenuPanel(options, entity);
 
-    private iterateGroup(children: any[]) {
-        let result = [];
-        for (let i = 0; i < children.length; i++) {
-            result.push({
-                uuid: children[i].uuid,
-                type: children[i].type,
-                name: children[i].name,
-                children: children[i].type == 'Group' ? this.iterateGroup(children[i].children) : [],
-            });
+        if ( !exist )
+        {
+            this.scene.add(entity);
+            ObjectLookup.addPanel(guid, entity);
+            //this.LoadedObjectComplete(guid);
+            console.log('MenuPanel Added to Scene', entity);
         }
-        return result;
+        return entity;
     }
+
+
+ 
+
+
+    //spec is always a importSettings
+    public request3DGeometry(importSettings: string) {
+        const options = JSON.parse(importSettings);
+        if ( options.type != 'ImportSettings' ) return null;
+        
+        console.log('request3DGeometry importSettings=', options);
+        Constructors.establish3DChildren(options, this.scene);
+    }
+
+
+
+    //spec is always a importSettings
+    public request3DLabel(importSettings: string) {
+        const options = JSON.parse(importSettings);
+        if ( options.type != 'ImportSettings' ) return null;
+
+        console.log('request3DLabel modelOptions=', options);
+        Constructors.establish3DChildren(options, this.scene);
+    }
+
+
+
+    //spec is always a importSettings
+    public request3DModel(importSettings: string) {
+        const options = JSON.parse(importSettings);
+        if ( options.type != 'ImportSettings' ) return null;
+
+        console.log('request3DModel modelOptions=', options);
+        Constructors.establish3DChildren(options, this.scene);
+    }
+
+
+
+    // public getSceneItemByGuid(guid: string):string {
+    //     let item = this.scene.getObjectByProperty('uuid', guid);
+    //     const json = {
+    //         uuid: item.uuid,
+    //         type: item.type,
+    //         name: item.name,
+    //         children: item.type == 'Group' ? this.iterateGroup(item.children) : [],
+    //     };
+    //     return JSON.stringify(json);
+    // }
+
+    // private iterateGroup(children: any[]) {
+    //     let result = [];
+    //     for (let i = 0; i < children.length; i++) {
+    //         result.push({
+    //             uuid: children[i].uuid,
+    //             type: children[i].type,
+    //             name: children[i].name,
+    //             children: children[i].type == 'Group' ? this.iterateGroup(children[i].children) : [],
+    //         });
+    //     }
+    //     return result;
+    // }
 
     private findRootGuid(item: Object3D<ThreeEvent>): Object3D<ThreeEvent> {
         const userData = item.userData;
@@ -336,10 +419,11 @@ export class Viewer3D {
 
     private selectObject() {
         let intersect: any = null;
+        let allButtons = ObjectLookup.getAllButtons();
 
         if (this.mouse.x !== null && this.mouse.y !== null) {
             this.raycaster.setFromCamera(this.mouse, this.camera);
-            intersect = this.raycast(Array.from(MenuBuilder.elementButtons.values()));
+            intersect = this.raycast(Array.from(allButtons));
         }
 
         const intersects = this.raycaster.intersectObjects(this.scene.children, true);
@@ -349,13 +433,8 @@ export class Viewer3D {
             return;
         } else {
             if (intersects.length === 0) {
-                // this.INTERSECTED = null;
-                // DotNet.invokeMethodAsync(
-                //     'BlazorThreeJS',
-                //     'ReceiveSelectedObjectUUID',
-                //     this.options.viewerSettings.containerId,
-                //     null
-                // );
+                this.INTERSECTED = null;
+                //DotNet.invokeMethodAsync('BlazorThreeJS','ReceiveSelectedObjectUUID', this.INTERSECTED.uuid, size);
                 return;
             }
 
@@ -392,17 +471,8 @@ export class Viewer3D {
     //     return null;
     // }
 
-    public deleteByUuid(uuid: string) {
-        return SceneState.removeItem(this.scene, uuid);
-    }
 
-    public clearScene() {
-        const self = this;
-        SceneState.clearScene(this.scene, this.options.scene, function onClearScene() {
-            self.setScene();
-            self.setOrbitControls();
-        });
-    }
+
 
     private addRoom() {
         const room = new LineSegments(
@@ -417,36 +487,24 @@ export class Viewer3D {
         this.scene.add(grid);
     }
 
-    private addAxes() {
-        // const axesHelper = new AxesHelper(3);
-        // this.scene.add(axesHelper);
 
-        const url = 'assets/fiveMeterAxis.glb';
 
-        const loader = new GLTFLoader();
-        loader.loadAsync(url).then((model: GLTF) => {
-            this.scene.add(model.scene);
-            this.playGltfAnimation(model);
-        });
-    }
 
-    private onObjectSelected(uuid: string) {
-        DotNet.invokeMethodAsync('BlazorThreeJS', 'OnClickButton', this.settings.containerId, uuid);
-    }
 
     private updateUIElements() {
         // Find closest intersecting object
         let intersect: any = null;
+        let allButtons = ObjectLookup.getAllButtons();
 
         if (this.mouse.x !== null && this.mouse.y !== null) {
             this.raycaster.setFromCamera(this.mouse, this.camera);
 
             // intersect = this.raycastUIElements();
-            intersect = this.raycast(Array.from(MenuBuilder.elementButtons.values()));
+            intersect = this.raycast(Array.from(allButtons));
         }
 
         // Update non-targeted buttons state
-        MenuBuilder.elementButtons.forEach((obj) => {
+        allButtons.forEach((obj) => {
             obj['setState']('idle');
         });
         // Update targeted button state (if any)

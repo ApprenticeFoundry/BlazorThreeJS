@@ -6,7 +6,7 @@ namespace BlazorThreeJS.Lights;
 
     public abstract class Light : Object3D
     {
-        protected Light(string type = "Light")
+        protected Light(string type)
           : base(type)
         {
         }

@@ -5,22 +5,17 @@
 // Assembly location: Blazor3D.dll
 
 using System.Text.Json;
-using System.Text.Json.Nodes;
 using System.Text.Json.Serialization;
-using BlazorThreeJS.Cameras;
-using BlazorThreeJS.ComponentHelpers;
+
 using BlazorThreeJS.Controls;
 using BlazorThreeJS.Core;
-using BlazorThreeJS.Events;
 
 using BlazorThreeJS.Lights;
 using BlazorThreeJS.Maths;
-using BlazorThreeJS.Menus;
-using BlazorThreeJS.Objects;
 
 using BlazorThreeJS.Settings;
+using BlazorThreeJS.Solutions;
 using FoundryRulesAndUnits.Extensions;
-using FoundryRulesAndUnits.Units;
 using Microsoft.AspNetCore.Components;
 using Microsoft.AspNetCore.Components.Rendering;
 using Microsoft.JSInterop;
@@ -32,6 +27,7 @@ namespace BlazorThreeJS.Viewers
     {
         private bool HasRendered = false;
         [Inject] private IJSRuntime? JsRuntime { get; set; }
+        [Inject] private IThreeDService? RenderService { get; set; }
 
         [Parameter,EditorRequired] public string SceneName { get; set; } = "Viewer3D";
 
@@ -44,19 +40,8 @@ namespace BlazorThreeJS.Viewers
             IgnoreReadOnlyFields = true
         };
 
-        private static Dictionary<string, Button> Buttons { get; set; } = new();
-        //private static Dictionary<string, ImportSettings> ImportPromises { get; set; } = new();
-        private static Dictionary<string, ImportSettings> LoadedModels { get; set; } = new();
-
-        // private event LoadedObjectEventHandler? ObjectLoadedPrivate;
-        // public event LoadedObjectEventHandler? ObjectLoaded;
-        // public event LoadedModuleEventHandler? JsModuleLoaded;
-
-        //public event SelectedObjectEventHandler? ObjectSelected;
-        //private delegate void SelectedObjectStaticEventHandler(Object3DStaticArgs e);
-        //private delegate void LoadedObjectStaticEventHandler(Object3DStaticArgs e);
-        //private static event ViewerThreeDSelectedObjectStaticEventHandler ObjectSelectedStatic;
-        //private static event ViewerThreeDLoadedObjectStaticEventHandler ObjectLoadedStatic;
+        private static Dictionary<string, Button3D> Buttons { get; set; } = new();
+        
 
         private ViewerSettings _viewingSettings = null!;
         private Scene3D _activeScene = null!;
@@ -81,7 +66,14 @@ namespace BlazorThreeJS.Viewers
 
         public OrbitControls OrbitControls { get; set; } = new OrbitControls();
 
-
+        protected override void BuildRenderTree(RenderTreeBuilder builder)
+        {
+            builder.OpenElement(0, "div");
+            builder.AddAttribute(1, "class", "viewer3dContainer");
+            builder.AddAttribute(2, "id", this.SceneName);
+           // __builder.AddAttribute(3, "b-h6holr0slw");
+            builder.CloseElement();
+        }
 
         private ViewerSettings ComputeViewingSettings()
         {
@@ -128,11 +120,13 @@ namespace BlazorThreeJS.Viewers
                 {
                     Name = "Point Light",
                     Uuid = Guid.NewGuid().ToString(),
-                    Position = new Vector3()
-                    {
-                        X = 1f,
-                        Y = 3f,
-                        Z = 0.0f
+                    Transform = new Transform3D() {
+                        Position = new Vector3()
+                        {
+                            X = 1f,
+                            Y = 3f,
+                            Z = 0.0f
+                        }
                     }
                 };
                 scene.AddChild(point);
@@ -153,18 +147,11 @@ namespace BlazorThreeJS.Viewers
 
             if (firstRender)
             {
-                //ViewerThreeD.ObjectSelectedStatic += new ViewerThreeD.SelectedObjectStaticEventHandler(ViewerThreeD.OnObjectSelectedStatic);
-                //ViewerThreeD.ObjectLoadedStatic += new ViewerThreeD.LoadedObjectStaticEventHandler(ViewerThreeD.OnObjectLoadedStatic);
-                //ObjectLoadedPrivate += new LoadedObjectEventHandler(OnObjectLoadedPrivate);
-
                 HasRendered = true;
-                LoadedModels.Clear();
 
                 var scene = GetActiveScene();
-                //var jsNameSpace = scene.Title;
+                RenderService?.SetActiveScene(scene);
 
-                //await JsRuntime!.InvokeVoidAsync("import", DotNetObjectReference.Create(this));
-                //await JsRuntime!.InvokeVoidAsync("ViewManager.establishViewer3D", (object)jsNameSpace);
 
                 var dto = new SceneDTO()
                 {
@@ -182,9 +169,8 @@ namespace BlazorThreeJS.Viewers
                 {
                     string json = JsonSerializer.Serialize<SceneDTO>(dto, JSONOptions);
                     //$"ViewerThreeD calling {functionName} with {json}".WriteInfo();
-                    WriteToFolder("Data", "ViewerThreeD_OnAfterRenderAsync.json", json);  
+                    //WriteToFolder("Data", "ViewerThreeD_OnAfterRenderAsync.json", json);  
                     await JsRuntime!.InvokeVoidAsync(functionName, (object)json);
-                    await scene.UpdateScene();
                 }
                 catch (System.Exception ex)
                 {
@@ -199,19 +185,15 @@ namespace BlazorThreeJS.Viewers
 
         public async ValueTask DisposeAsync()
         {
-                        //ViewerThreeDObjectSelectedStatic -= new ViewerThreeDSelectedObjectStaticEventHandler(this.OnObjectSelectedStatic);
-            //ViewerThreeDObjectLoadedStatic -= new ViewerThreeDLoadedObjectStaticEventHandler(this.OnObjectLoadedStatic);
-            //this.ObjectLoadedPrivate -= new LoadedObjectEventHandler(this.OnObjectLoadedPrivate);
-
             try
             {
                 //$"ViewerThreeD [{SceneName}] TRY DisposeAsync".WriteWarning();
                 if (!HasRendered)
                     return;
                     
-                //var scene = GetActiveScene();
-                //var jsNameSpace = scene.Title;
                 $"ViewerThreeD [{SceneName}] DisposeAsync".WriteInfo();
+                RenderService?.SetActiveScene(null!);
+                
                 
                 var functionName = ResolveFunction("Finalize3DViewer");
                 await JsRuntime!.InvokeVoidAsync(functionName);
@@ -242,7 +224,7 @@ namespace BlazorThreeJS.Viewers
 
             foreach (var menu in menus)
             {
-                foreach (var button in ((PanelMenu)menu).Buttons)
+                foreach (var button in ((PanelMenu3D)menu).Buttons)
                 {
                     var uuid = button.Uuid!;
                     $"From FoundryBlazor Button UUID={uuid}".WriteInfo();
@@ -255,39 +237,37 @@ namespace BlazorThreeJS.Viewers
         }
 
 
+        // [JSInvokable]
+        // public static void ReceiveSelectedObjectUUID(string uuid, Vector3 size)
+        // {
+
+        //     $"ReceiveSelectedObjectUUID size={size.X}, {size.Y}, {size.Z}".WriteInfo();
+
+        //     try
+        //     {
+        //         var item = LoadedModels[uuid];
+        //         $"LoadedModels {uuid} item={item}".WriteInfo();
+        //         if (item != null)
+        //         {
+        //             //item.ComputedSize = size;
+        //             //item.OnClick.Invoke(item);
+        //         }
+        //         else
+        //         {
+        //             $"uuid={uuid} not found in LoadedModels".WriteError();
+        //         }
+        //     }
+        //     catch (Exception ex)
+        //     {
+        //         $"uuid={uuid} problem (could be a problem in onClick callback). Message={ex.Message}".WriteError();
+        //     }
+
+        // }
+
+
         [JSInvokable]
-        public static void ReceiveSelectedObjectUUID(string uuid, Vector3 size)
+        public static Task OnClickButton(string uuid)
         {
-
-            $"ReceiveSelectedObjectUUID size={size.X}, {size.Y}, {size.Z}".WriteInfo();
-
-            try
-            {
-                var item = LoadedModels[uuid];
-                $"LoadedModels {uuid} item={item}".WriteInfo();
-                if (item != null)
-                {
-                    item.ComputedSize = size;
-                    item.OnClick.Invoke(item);
-                }
-                else
-                {
-                    $"uuid={uuid} not found in LoadedModels".WriteError();
-                }
-            }
-            catch (Exception ex)
-            {
-                $"uuid={uuid} problem (could be a problem in onClick callback). Message={ex.Message}".WriteError();
-            }
-
-        }
-
-
-        [JSInvokable]
-        public static Task OnClickButton(string containerId, string uuid)
-        {
-
-            Console.WriteLine($"OnClickButton containerId, uuid={containerId}, {uuid}");
             Console.WriteLine($"After OnClickButton, ViewerThreeD.Buttons ContainsKey ={ViewerThreeD.Buttons.ContainsKey(uuid)}");
 
             if (ViewerThreeD.Buttons.ContainsKey(uuid))
@@ -299,10 +279,10 @@ namespace BlazorThreeJS.Viewers
             return Task.CompletedTask;
         }
 
-        public static Object3D? GetObjectByUuid(string uuid, List<Object3D> children) 
-        {
-            return ChildrenHelper.GetObjectByUuid(uuid, children);
-        }
+        // public static Object3D? GetObjectByUuid(string uuid, List<Object3D> children) 
+        // {
+        //     return ChildrenHelper.GetObjectByUuid(uuid, children);
+        // }
 
 
 
@@ -422,14 +402,7 @@ namespace BlazorThreeJS.Viewers
 
 
 
-        protected override void BuildRenderTree(RenderTreeBuilder builder)
-        {
-            builder.OpenElement(0, "div");
-            builder.AddAttribute(1, "class", "viewer3dContainer");
-            builder.AddAttribute(2, "id", this.SceneName);
-           // __builder.AddAttribute(3, "b-h6holr0slw");
-            builder.CloseElement();
-        }
+
 
 
 

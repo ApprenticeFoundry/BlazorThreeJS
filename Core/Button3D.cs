@@ -1,19 +1,20 @@
 ﻿
-using BlazorThreeJS.Core;
+
 using System.Text.Json.Serialization;
-namespace BlazorThreeJS.Menus
+
+namespace BlazorThreeJS.Core
 {
-    public sealed class Button : Object3D
+    public sealed class Button3D : Object3D
     {
         [JsonIgnore]
-        public Action<Button> OnClick = (Button b) => { };
+        public Action<Button3D> OnClick = (Button3D b) => { };
         public string Text { get; set; } = "Default Button Text";
-        public Button()
-          : base(nameof(Button))
+        public Button3D()
+          : base(nameof(Button3D))
         {
         }
 
-        public Button(string name = "BTN0",
+        public Button3D(string name = "BTN0",
           string text = "Default Button Text")
           : this()
         {
