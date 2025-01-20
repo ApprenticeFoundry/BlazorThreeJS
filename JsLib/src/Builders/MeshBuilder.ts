@@ -46,7 +46,7 @@ export class MeshBuilder {
     }
     public static ApplyMeshTransform(options: any, entity: Object3D): Object3D {
 
-        console.log('MeshBuilder.ApplyMeshTransform', options);
+        //console.log('MeshBuilder.ApplyMeshTransform', options);
         if (Boolean(options.pivot)) {
             Transforms.setPosition(entity, options.pivot);
         }

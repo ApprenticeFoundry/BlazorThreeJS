@@ -13,9 +13,15 @@ export class ObjectLookupClass
     private primitives = new Map<string, Object3D>();
     private panels = new Map<string, ThreeMeshUI.Block>();
     private buttons = new Map<string, ThreeMeshUI.Block>();
-    private mixers = new Map<string, AnimationMixer[]>();
+    private mixers = new Array<AnimationMixer>();
         
-    
+    public addMixer(value: AnimationMixer) {
+        this.mixers.push(value);
+    }
+
+    public allMixers(): AnimationMixer[] {
+        return this.mixers;
+    }
 
     public findGLTF(url: string): GLTF | null {
         return this.gltfURLs.get(url) || null;
@@ -48,7 +54,7 @@ export class ObjectLookupClass
         this.models.delete(key);
     }
 
-    public AllLabels(): any {
+    public allLabels(): any {
         return this.labels.values();
     }
 

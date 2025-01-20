@@ -183,18 +183,16 @@ export class Viewer3D {
         this.selectObject();
 
         var pos = this.camera.position;
-        for (const label of ObjectLookup.AllLabels()) {
+        for (const label of ObjectLookup.allLabels()) {
             label.lookAt(pos);
         }
 
- 
 
         var delta = this.clock.getDelta();
-        // if (Boolean(this.animationMixers.length)) {
-        //     for (const mixer of this.animationMixers) {
-        //         mixer.update(delta);
-        //     }
-        // }
+        for ( const mixer of ObjectLookup.allMixers() ) {
+            mixer.update(delta);
+        }
+
         this.webGLRenderer.render(this.scene, this.camera);
     }
 

@@ -240,7 +240,7 @@ public class Scene3D : Object3D
 
             var functionName = ResolveFunction("request3DModel");
             var json = JsonSerializer.Serialize((object)spec, JSONOptions);
-            WriteToFolder("Data", "Scene3D_Request3DModel.json", json); 
+            //WriteToFolder("Data", "Scene3D_Request3DModel.json", json); 
             //$"Request3DModel calling {functionName} with {json}".WriteInfo();
 
             await JsRuntime!.InvokeVoidAsync(functionName, (object)json);  

@@ -23,7 +23,6 @@ import { Loaders } from '../Viewer/Loaders';
 export class FactoryClass {
     
     private makers = new Map<string, Function>();
-    private animationMixers: Array<AnimationMixer> = [];
 
     public constructor() {
         
@@ -82,7 +81,7 @@ export class FactoryClass {
             entity.text = options.text;
             entity.color = options.color;
             entity.fontSize = options.fontSize;
-            entity.userData = { isTextLabel: true, };
+            //entity.userData = { isTextLabel: true, };
         }
         
         //Transforms.setTransform(entity, options.transform);
@@ -108,21 +107,8 @@ export class FactoryClass {
         return entity;
     }
 
-    private playGltfAnimation(model: GLTF) {
-        if ( Boolean(model) == false ) return;
 
-        const animations = model.animations;
 
-        animations?.forEach((animation) => {
-            if (Boolean(animation) && Boolean(animation.tracks.length)) {
-                const mixer = new AnimationMixer(model.scene);
-                this.animationMixers.push(mixer);
-                const animationAction = mixer.clipAction(animation);
-                animationAction.play();
-            }
-        });
-
-    }
 
     public establish3DModel(options: any, parent: Object3D) {
         console.log('establish3DModel modelOptions=', options);
@@ -134,11 +120,8 @@ export class FactoryClass {
             return;
         }
 
-        //if the model exist then just update the transform
-        //const callback = this.playGltfAnimation.bind(this);
-
         const loaders = new Loaders();
-        loaders.import3DModel(options, (item) => {
+        loaders.import3DModel(options, (gltf, item) => {
             console.log('Model Added to Scene', item);
 
             parent.add(item);
@@ -160,7 +143,7 @@ export class FactoryClass {
         for (let index = 0; index < members.length; index++) {
             
             const element = members[index];
-            console.log('establish3DChildren element.type=', element.type, element);
+            //console.log('establish3DChildren element.type=', element.type, element);
             //console.log('establish3DChildren element=', index, element);
             
             try {

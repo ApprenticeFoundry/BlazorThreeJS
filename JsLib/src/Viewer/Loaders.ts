@@ -5,7 +5,7 @@ import { GLTF, GLTFLoader } from 'three/examples/jsm/loaders/GLTFLoader';
 import { STLLoader } from 'three/examples/jsm/loaders/STLLoader.js';
 import { MaterialBuilder } from '../Builders/MaterialBuilder';
 import { Transforms } from '../Utils/Transforms';
-import { Box3, Group, LoadingManager, Mesh, Object3D, Scene, TextureLoader, Vector3 } from 'three';
+import { AnimationMixer, Box3, Group, LoadingManager, Mesh, Object3D, Scene, TextureLoader, Vector3 } from 'three';
 import { ObjectLookup } from '../Utils/ObjectLookup';
 //import { GUI } from 'dat.gui';
 
@@ -35,8 +35,23 @@ export class Loaders {
     //     gltfFolder.open();
     // }
 
-    private loadGltf(url: string, guid: string, member: any, onComplete: Function) {
-        
+    private CaptureAnimations(model: GLTF, group: Group) {
+        if ( Boolean(model) == false ) return;
+
+        const animations = model.animations;
+
+        animations?.forEach((animation) => {
+            if (Boolean(animation) && Boolean(animation.tracks.length)) {
+                const mixer = new AnimationMixer(group);
+                const animationAction = mixer.clipAction(animation);
+                animationAction.play();
+
+                ObjectLookup.addMixer(mixer);
+            }
+        });
+    }
+
+    private loadGltf(url: string, guid: string, member: any, onComplete: (gltf: GLTF, group: Group) => void) {
         console.log('inside loadGltf', url, guid, member);
         var found = ObjectLookup.findGLTF(url);
 
@@ -47,18 +62,18 @@ export class Loaders {
                 (gltf: GLTF) => {
                     console.log('gltf is now loaded', gltf);
 
-                    //animationCallBack(gltf);
                     ObjectLookup.casheGLTF(url, gltf);
 
-                    const clone = gltf.scene; //.clone();
+                    const clone = gltf.scene;
                     const group = this.createGLTFGroups(clone, member);
-
+                    
                     const box = new Box3().setFromObject(group);
                     const size = box.getSize(new Vector3());
                     group.userData = { isGLTFGroup: true, url, uuid: guid, size };
                     // console.log('userData', group.userData);
-
-                    onComplete(group);
+                    
+                    this.CaptureAnimations(gltf,group)
+                    onComplete(gltf, group);
             }, 
             (xhr) => {}, 
             (error) => {
@@ -78,12 +93,38 @@ export class Loaders {
                 const size = box.getSize(new Vector3());
                 group.userData = { isGLTFGroup: true, url, uuid: guid, size: size };
                 // console.log('clone userData', group.userData);
-                onComplete(group);
+                this.CaptureAnimations(gltf,group)
+                onComplete(gltf, group);
             }
         }
     }
 
+    public import3DModel(member: any, onComplete: (gltf: GLTF, group: Group) => void) {
+        const format = member.format;
+        let uuid = member.uuid;
+        let url = member.url;
 
+        console.log('In loader import3DModel', member);
+
+        if (format == 'Gltf') {
+            console.log('Calling loadGltf', member);
+            this.loadGltf(url, uuid, member, onComplete);
+        }
+
+        // else if (format == 'Obj') {
+        //     this.loadOBJ(scene, objUrl, textureUrl, guid, containerId, settings);
+        // }
+        // else if (format == 'Collada') {
+        //     this.loadCollada(scene, objUrl, guid, containerId, settings);
+        // }
+        // else if (format == 'Fbx') {
+        //     this.loadFbx(scene, objUrl, guid, containerId, settings);
+        // }
+
+        // else if (format == 'Stl') {
+        //     this.loadStl(scene, objUrl, guid, containerId, material, settings);
+        // }
+    }
 
     // private loadFbx(url: string, guid: string, options: any, onComplerCallback: Function) {
     //     const loader = new FBXLoader();
@@ -155,33 +196,7 @@ export class Loaders {
     //     });
     // }
 
-    public import3DModel(member: any, onComplete: Function) {
-        const format = member.format;
-        let uuid = member.uuid;
-        let url = member.url;
 
-
-        console.log('In loader import3DModel', member);
-
-        if (format == 'Gltf') {
-            console.log('Calling loadGltf', member);
-            this.loadGltf(url, uuid, member, onComplete);
-        }
-
-        // else if (format == 'Obj') {
-        //     this.loadOBJ(scene, objUrl, textureUrl, guid, containerId, settings);
-        // }
-        // else if (format == 'Collada') {
-        //     this.loadCollada(scene, objUrl, guid, containerId, settings);
-        // }
-        // else if (format == 'Fbx') {
-        //     this.loadFbx(scene, objUrl, guid, containerId, settings);
-        // }
-
-        // else if (format == 'Stl') {
-        //     this.loadStl(scene, objUrl, guid, containerId, material, settings);
-        // }
-    }
 
 
 
