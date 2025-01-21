@@ -16,8 +16,6 @@ using BlazorThreeJS.Settings;
 
 namespace BlazorThreeJS.Core
 {
-
-
     [JsonDerivedType(typeof(ImportSettings))]
     [JsonDerivedType(typeof(Mesh3D))]
     [JsonDerivedType(typeof(Model3D))]
@@ -40,6 +38,9 @@ namespace BlazorThreeJS.Core
         [JsonIgnore]
         public Action<Object3D>? OnDelete { get; set; }
 
+        public bool RunAnimation { get; set; } = true;
+        protected Action<Object3D, int, double>? OnAnimationUpdate { get; set; } = null;
+
         public Transform3 Transform { get; set; } = new Transform3();
 
         public string Type { get; } = nameof(Object3D);
@@ -58,9 +59,16 @@ namespace BlazorThreeJS.Core
             Uuid = Object3DCount.ToString();
             StatusBits.IsDirty = true;
         }
-
+        public void SetAnimationUpdate(Action<Object3D, int, double> update)
+        {
+            OnAnimationUpdate = update;
+        }
         public virtual void UpdateForAnimation(int tick, double fps, List<Object3D>? dirtyObjects)
         {
+            if ( !RunAnimation  || OnAnimationUpdate == null) return;
+
+            OnAnimationUpdate.Invoke(this, tick, fps);
+
             //send this message to all the children
             if ( IsDirty() )
                 dirtyObjects?.Add(this);
@@ -104,6 +112,21 @@ namespace BlazorThreeJS.Core
                 result.AddAction("Del", "btn-danger", () =>
                 {
                     Delete();
+                });
+
+            if ( OnAnimationUpdate == null)
+                return result;
+
+            if (RunAnimation == false)
+                result.AddAction("Run", "btn-success", () =>
+                {
+                    RunAnimation = true;
+                });
+
+            if (RunAnimation == true)
+                result.AddAction("Stop", "btn-success", () =>
+                {
+                    RunAnimation = false;
                 });
             return result;
         }
