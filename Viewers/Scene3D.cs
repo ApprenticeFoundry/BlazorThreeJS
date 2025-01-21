@@ -214,7 +214,7 @@ public class Scene3D : Object3D
     public async Task<string> Request3DModel(Model3D model, Func<string,Task>? onComplete = null)
     {
 
-        $"Request3DModel {model.Name} {model.Url}".WriteInfo();
+        //$"Request3DModel {model.Name} {model.Url}".WriteInfo();
         var uuid = model.Uuid!;
         if (ImportPromises.ContainsKey(uuid))
         {
