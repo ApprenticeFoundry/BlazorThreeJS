@@ -213,15 +213,15 @@ export class Viewer3D {
         this.AnimationRequest = null;
     }
 
-    public deleteFromScene(uuid: string):boolean {
-        let obj = this.scene.getObjectByProperty('uuid', uuid);
-        console.log('deleteFromScene obj=', obj);
-        if (obj) {
-            this.scene.remove(obj);
-            return true;
-        }
-        return false
-    }
+    // public deleteFromScene(uuid: string):boolean {
+    //     let obj = this.scene.getObjectByProperty('uuid', uuid);
+    //     console.log('deleteFromScene obj=', obj);
+    //     if (obj) {
+    //         this.scene.remove(obj);
+    //         return true;
+    //     }
+    //     return false
+    // }
 
 
 

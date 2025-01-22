@@ -174,6 +174,8 @@ export class FactoryClass {
             return;
 
         ObjectLookup.deleteModel(guid);
+        this.destroy3DChildren(options, model, scene);
+        parent.remove(model);
     }
 
 
@@ -185,7 +187,7 @@ export class FactoryClass {
         for (let index = 0; index < members.length; index++) {
             
             const element = members[index];
-            //console.log('establish3DChildren element.type=', element.type, element);
+            console.log('establish3DChildren element.type=', element.type, element);
             //console.log('establish3DChildren element=', index, element);
             
             try {
@@ -201,7 +203,7 @@ export class FactoryClass {
         }    
     }
 
-    public deleteFromScene(scene: Scene, uuid: string):boolean {
+    public removeFromSceneByUuid(scene: Scene, uuid: string):boolean {
         let obj = scene.getObjectByProperty('uuid', uuid);
         if (obj) {
             scene.remove(obj);
@@ -217,12 +219,14 @@ export class FactoryClass {
         for (let index = 0; index < members.length; index++) {
             
             const element = members[index];
-            //console.log('establish3DChildren element.type=', element.type, element);
-            //console.log('establish3DChildren element=', index, element);
             var uuid = element.uuid;
-            // if (this.deleteFromScene(scene, uuid)) {
-            //     console.log('Removed from Scene', uuid);
-            // }
+
+            console.log('destroy3DChildren element.type=', element.type, uuid, element);
+            //console.log('establish3DChildren element=', index, element);
+
+            if (this.removeFromSceneByUuid(scene, uuid)) {
+                console.log('destroy3DChildren', uuid);
+            }
             
             try {
                 var funct = this.destroyers.get(element.type);

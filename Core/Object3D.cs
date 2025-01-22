@@ -84,6 +84,10 @@ namespace BlazorThreeJS.Core
                 deletedObjects.Add(child);
             }
             
+            if (ShouldDelete())
+                deletedObjects.Add(this);
+
+            
             return dirtyObjects.Count > 0 || deletedObjects.Count > 0;
         }
 

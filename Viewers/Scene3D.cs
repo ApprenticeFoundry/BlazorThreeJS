@@ -185,7 +185,7 @@ public class Scene3D : Object3D
             //$"Request3DSceneRefresh {uuids.Count}".WriteInfo();
             var functionName = ResolveFunction("request3DSceneRefresh");
             var json = JsonSerializer.Serialize((object)settings, JSONOptions);
-            //WriteToFolder("Data", "Scene3D_Request3Scene.json", json); 
+            //WriteToFolder("Data", "Scene3D_Request3SceneRefresh.json", json); 
 
             await JsRuntime!.InvokeVoidAsync(functionName, (object)json);
             if (onComplete != null)
@@ -213,7 +213,7 @@ public class Scene3D : Object3D
             //$"Request3DSceneRefresh {uuids.Count}".WriteInfo();
             var functionName = ResolveFunction("request3DSceneDelete");
             var json = JsonSerializer.Serialize((object)settings, JSONOptions);
-            //WriteToFolder("Data", "Scene3D_Request3Scene.json", json); 
+            WriteToFolder("Data", "Scene3D_Request3SceneDelete.json", json); 
 
             await JsRuntime!.InvokeVoidAsync(functionName, (object)json);
             if (onComplete != null)
@@ -355,6 +355,7 @@ public class Scene3D : Object3D
         //var scene = this;
         child.OnDelete = (Object3D item) =>
         {
+            $"Scene3D  OnDelete {item.Name}  RemoveChild".WriteWarning();
             this.RemoveChild(item);
         };
         return base.AddChild(child);
@@ -365,20 +366,19 @@ public class Scene3D : Object3D
         if (child == null) 
             return (false, child!);
 
-        var uuid = child.Uuid ?? "";
-        Task.Run(async () => { await RemoveByUuid(uuid); });
+        child.SetShouldDelete(true);
         return base.RemoveChild(child);
     }
 
-    public async Task RemoveByUuid(string uuid)
-    {
-        var functionName = ResolveFunction("deleteFromScene");
-        var success = await JsRuntime!.InvokeAsync<bool>(functionName, (object)uuid);
-        if ( !success)
-            return;
+    // public async Task RemoveByUuid(string uuid)
+    // {
+    //     var functionName = ResolveFunction("deleteFromScene");
+    //     var success = await JsRuntime!.InvokeAsync<bool>(functionName, (object)uuid);
+    //     if ( !success)
+    //         return;
 
-        //ChildrenHelper.RemoveObjectByUuid(uuid, GetAllChildren());
-    }
+    //     //ChildrenHelper.RemoveObjectByUuid(uuid, GetAllChildren());
+    // }
 
 
     public async Task MoveObject(Object3D object3D)

@@ -106,27 +106,36 @@ public class ThreeDService : IThreeDService
             return;
         }
 
-        var refresh = new ImportSettings();
-        refresh.ResetChildren(dirtyObjects);
+        Task refreshTask = Task.CompletedTask;
+        Task deleteTask = Task.CompletedTask;
 
-
-        var refreshTask = ActiveScene.Request3DSceneRefresh(refresh, (_) =>
+        if ( dirtyObjects.Count > 0)
         {
-            $"TriggerAnimationFrame  {dirtyObjects.Count} dirty objects".WriteSuccess();
-            SetCurrentlyRendering(false, 0);
-        });
+            $"Need to refresh {dirtyObjects.Count} objects".WriteSuccess();
+            var refresh = new ImportSettings();
+            refresh.ResetChildren(dirtyObjects);
+            refreshTask = ActiveScene.Request3DSceneRefresh(refresh, (_) =>
+            {
+                $"TriggerAnimationFrame  {dirtyObjects.Count} dirty objects".WriteSuccess();
+            });
+        }
                 
-        var delete = new ImportSettings();
-        delete.ResetChildren(deletedObjects);
 
-        var deleteTask = ActiveScene.Request3DSceneDelete(refresh, (_) =>
+        if ( deletedObjects.Count > 0)
         {
-            $"TriggerAnimationFrame  {deletedObjects.Count} deleted objects".WriteSuccess();
-            SetCurrentlyRendering(false, 0);
-        });
+            $"Need to delete {deletedObjects.Count} objects".WriteSuccess();
+            var delete = new ImportSettings();
+            delete.ResetChildren(deletedObjects);
+            deleteTask = ActiveScene.Request3DSceneDelete(delete, (_) =>
+            {
+                $"TriggerAnimationFrame  {deletedObjects.Count} deleted objects".WriteSuccess();
+            });
+        }
+
 
         // Wait for both tasks to complete
         await Task.WhenAll(refreshTask, deleteTask);
+        SetCurrentlyRendering(false, 0);
     }
 
 
