@@ -352,11 +352,9 @@ public class Scene3D : Object3D
 
     public override (bool success, Object3D result) AddChild(Object3D child)
     {
-        //var scene = this;
         child.OnDelete = (Object3D item) =>
         {
-            $"Scene3D  OnDelete {item.Name}  RemoveChild".WriteWarning();
-            this.RemoveChild(item);
+            item.SetShouldDelete(true);
         };
         return base.AddChild(child);
     }

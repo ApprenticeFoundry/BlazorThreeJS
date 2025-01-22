@@ -83,7 +83,7 @@ namespace BlazorThreeJS.Core
                 this.children.Remove(child);
                 deletedObjects.Add(child);
             }
-            
+
             if (ShouldDelete())
                 deletedObjects.Add(this);
 
@@ -143,11 +143,10 @@ namespace BlazorThreeJS.Core
         {
             var result = new List<TreeNodeAction>();
 
-            if (OnDelete != null)
-                result.AddAction("Del", "btn-danger", () =>
-                {
-                    Delete();
-                });
+            result.AddAction("Del", "btn-danger", () =>
+            {
+                Delete();
+            });
 
             if ( OnAnimationUpdate == null)
                 return result;
@@ -175,7 +174,8 @@ namespace BlazorThreeJS.Core
 
         public virtual void Delete()
         {
-            $"Deleting {GetTreeNodeTitle()}".WriteWarning();
+            this.SetShouldDelete(true);
+            //$"Deleting {GetTreeNodeTitle()}".WriteWarning();
             OnDelete?.Invoke(this);
         }
 
