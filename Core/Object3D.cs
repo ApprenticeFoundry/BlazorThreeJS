@@ -103,6 +103,16 @@ namespace BlazorThreeJS.Core
             StatusBits.IsDirty = value;
         }
 
+        public virtual bool ShouldDelete()
+        {
+            return StatusBits.ShouldDelete;
+        }
+
+        public virtual void SetShouldDelete(bool value)
+        {
+            StatusBits.ShouldDelete = value;
+        }
+
 
         public virtual IEnumerable<TreeNodeAction> GetTreeNodeActions()
         {
@@ -162,8 +172,9 @@ namespace BlazorThreeJS.Core
             }
 
             //$"Object3D AddChild {child.Name} -> {this.Name} {this.Uuid}".WriteInfo();
-            this.children.Add(child);
-            this.SetDirty(true);
+            SetDirty(true);
+            children.Add(child);
+            child.SetDirty(true);
             return (true, child);
         }
 

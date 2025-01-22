@@ -49,9 +49,9 @@ public class Scene3D : Object3D
 
     public override void UpdateForAnimation(int tick, double fps, List<Object3D>? dirtyObjects)
     {
-        //$"Scene3D UpdateForAnimation {Title} {tick}".WriteInfo();
+       $"Scene3D UpdateForAnimation {Title} {tick}".WriteInfo();
         
-        base.UpdateForAnimation(tick, fps, dirtyObjects);
+       base.UpdateForAnimation(tick, fps, dirtyObjects);
     }
 
     public void SetAfterUpdateAction(Action<Scene3D,string> afterUpdate)
@@ -182,9 +182,10 @@ public class Scene3D : Object3D
 
         try
         {
+            $"Request3DSceneRefresh {uuids.Count}".WriteInfo();
             var functionName = ResolveFunction("request3DScene");
             var json = JsonSerializer.Serialize((object)settings, JSONOptions);
-            WriteToFolder("Data", "Scene3D_Request3Scene.json", json); 
+            //WriteToFolder("Data", "Scene3D_Request3Scene.json", json); 
 
             await JsRuntime!.InvokeVoidAsync(functionName, (object)json);
             if (onComplete != null)
@@ -195,7 +196,7 @@ public class Scene3D : Object3D
         }
         catch (System.Exception ex)
         {  
-           $"Request3DScene: {ex.Message}".WriteError();
+           $"Request3DSceneRefresh: {ex.Message}".WriteError();
         }
 
         return uuids!;

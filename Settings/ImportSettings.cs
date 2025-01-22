@@ -48,7 +48,7 @@ namespace BlazorThreeJS.Settings
             {
                 AddChild(child);
                 child.SetDirty(false);
-                //$"ResetChildren {child.Name} is dirty".WriteInfo();
+                $"ResetChildren {child.Name} is dirty".WriteInfo();
             }
             //$"ResetChildren {Children.Count()} are dirty".WriteInfo();
         }
