@@ -99,19 +99,34 @@ public class ThreeDService : IThreeDService
         ActiveScene.UpdateForAnimation(tick++, fps);
 
         var dirtyObjects = new List<Object3D>();
-        ActiveScene.CollectDirtyObjects(dirtyObjects);
-        if ( dirtyObjects.Count == 0)
-            return;
-
-        var settings = new ImportSettings();
-        settings.ResetChildren(dirtyObjects);
-
-        $"TriggerAnimationFrame  {dirtyObjects.Count} dirty objects".WriteSuccess();
-
-        await ActiveScene.Request3DSceneRefresh(settings, (_) =>
+        var deletedObjects = new List<Object3D>();
+        if ( !ActiveScene.CollectDirtyObjects(dirtyObjects, deletedObjects) )
         {
             SetCurrentlyRendering(false, 0);
+            return;
+        }
+
+        var refresh = new ImportSettings();
+        refresh.ResetChildren(dirtyObjects);
+
+
+        var refreshTask = ActiveScene.Request3DSceneRefresh(refresh, (_) =>
+        {
+            $"TriggerAnimationFrame  {dirtyObjects.Count} dirty objects".WriteSuccess();
+            SetCurrentlyRendering(false, 0);
         });
+                
+        var delete = new ImportSettings();
+        delete.ResetChildren(deletedObjects);
+
+        var deleteTask = ActiveScene.Request3DSceneDelete(refresh, (_) =>
+        {
+            $"TriggerAnimationFrame  {deletedObjects.Count} deleted objects".WriteSuccess();
+            SetCurrentlyRendering(false, 0);
+        });
+
+        // Wait for both tasks to complete
+        await Task.WhenAll(refreshTask, deleteTask);
     }
 
 

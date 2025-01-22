@@ -291,13 +291,19 @@ export class Viewer3D {
 
     }
 
-    public request3DScene(importSettings: string) {
+    public request3DSceneRefresh(importSettings: string) {
         const options = JSON.parse(importSettings);
         
-        console.log('request3DScene importSettings=', options);
+        console.log('request3DSceneRefresh importSettings=', options);
         Constructors.establish3DChildren(options, this.scene);
     }
 
+    public request3DSceneDelete(importSettings: string) {
+        const options = JSON.parse(importSettings);
+        
+        console.log('request3DSceneDelete importSettings=', options);
+        Constructors.destroy3DChildren(options, this.scene, this.scene);
+    }
 
     public setCamera() {
         const builder = new CameraBuilder();
@@ -385,29 +391,6 @@ export class Viewer3D {
 
 
 
-    // public getSceneItemByGuid(guid: string):string {
-    //     let item = this.scene.getObjectByProperty('uuid', guid);
-    //     const json = {
-    //         uuid: item.uuid,
-    //         type: item.type,
-    //         name: item.name,
-    //         children: item.type == 'Group' ? this.iterateGroup(item.children) : [],
-    //     };
-    //     return JSON.stringify(json);
-    // }
-
-    // private iterateGroup(children: any[]) {
-    //     let result = [];
-    //     for (let i = 0; i < children.length; i++) {
-    //         result.push({
-    //             uuid: children[i].uuid,
-    //             type: children[i].type,
-    //             name: children[i].name,
-    //             children: children[i].type == 'Group' ? this.iterateGroup(children[i].children) : [],
-    //         });
-    //     }
-    //     return result;
-    // }
 
     private findRootGuid(item: Object3D<ThreeEvent>): Object3D<ThreeEvent> {
         const userData = item.userData;

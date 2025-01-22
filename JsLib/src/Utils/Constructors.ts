@@ -10,6 +10,7 @@ import {
     CylinderGeometry,
     MeshBasicMaterial,
     Mesh,
+    Scene,
 } from 'three';
 
 //import { Text } from 'three-mesh-ui';
@@ -23,6 +24,7 @@ import { Loaders } from '../Viewer/Loaders';
 export class FactoryClass {
     
     private makers = new Map<string, Function>();
+    private destroyers = new Map<string, Function>();
 
     public constructor() {
         
@@ -34,7 +36,9 @@ export class FactoryClass {
         //this.makers.set('Group3D', this.establish3DGroup.bind(this));
         //this.makers.set('PanelMenu3D', this.establish3DMenu.bind(this));
 
-
+        this.destroyers.set('Mesh3D', this.destroy3DGeometry.bind(this));
+        this.destroyers.set('Model3D', this.destroy3DModel.bind(this));
+        this.destroyers.set('Text3D', this.destroy3DLabel.bind(this));
     }
 
     private LoadedObjectComplete(uuid: string) {
@@ -64,6 +68,22 @@ export class FactoryClass {
         }
         return entity;
     }
+
+    public destroy3DGeometry(options: any, parent: Object3D, scene : Scene) {
+
+        const guid = options.uuid;
+
+        var entity = ObjectLookup.findPrimitive(guid) as Object3D;
+        var exist = Boolean(entity)
+        if ( !exist )
+            return;
+
+
+        ObjectLookup.deletePrimitive(guid);
+        this.destroy3DChildren(options, entity, scene);
+        parent.remove(entity);
+    }
+
 
     private establish3DLabel(options: any, parent: Object3D): Text | null {
         console.log('establish3DLabel modelOptions=', options);
@@ -106,13 +126,25 @@ export class FactoryClass {
         return entity;
     }
 
+    private destroy3DLabel(options: any, parent: Object3D, scene: Scene) {
+        console.log('destroy3DLabel modelOptions=', options);
 
+        const guid = options.uuid;
+
+        var entity = ObjectLookup.findLabel(guid) as Text;
+        var exist = Boolean(entity)
+        if ( !exist ) 
+            return;
+
+        ObjectLookup.deleteLabel(guid);
+        this.destroy3DChildren(options, entity, scene);
+        parent.remove(entity);
+    }
 
 
     public establish3DModel(options: any, parent: Object3D) {
         console.log('establish3DModel modelOptions=', options);
         
-
         var model = ObjectLookup.findModel(options.uuid) as Group;
         if (Boolean(model)) {
             Transforms.setTransform(model, options.transform);
@@ -133,6 +165,17 @@ export class FactoryClass {
         })
     }
 
+    public destroy3DModel(options: any, parent: Object3D, scene: Scene) {
+        console.log('destroy3DModel modelOptions=', options);
+        const guid = options.uuid;
+
+        var model = ObjectLookup.findModel(guid) as Group;
+        if ( !Boolean(model) )
+            return;
+
+        ObjectLookup.deleteModel(guid);
+    }
+
 
     //can we be smart here and call the correct method based on the type of object we are adding?
     public establish3DChildren(options: any, parent: Object3D) 
@@ -146,34 +189,50 @@ export class FactoryClass {
             //console.log('establish3DChildren element=', index, element);
             
             try {
-                //add these back in when we have the builders
-                //TextPanelBuilder.BuildTextPanels(scene, options);
-                //PanelGroupBuilder.BuildPanelGroup(scene, options);
-                
-
                 var funct = this.makers.get(element.type);
                 if (funct) 
                     funct(element, parent);
                 else
                     console.log('No Constructor for', element.type);
                 
-
-                // } else
-                // if ( element.type == 'Group3D' ) {
-                //     this.establish3DGroup(element);
-                // } else
-                // if ( element.type == 'PanelMenu3D' ) {
-                //     this.establish3DMenu(element);
-                // } else
-
-                // } else
-                // if (element.type.includes('Helper')) {
-                //     const obj = this.scene.getObjectByProperty('uuid', element.uuid);
-                //     var helper = HelperBuilder.BuildHelper(options, obj);
-                //     this.scene.add(helper);
-                // }
             } catch (error) {
                 console.log('Error in establish3DChildren', error);
+            }
+        }    
+    }
+
+    public deleteFromScene(scene: Scene, uuid: string):boolean {
+        let obj = scene.getObjectByProperty('uuid', uuid);
+        if (obj) {
+            scene.remove(obj);
+            return true;
+        }
+        return false
+    }
+
+    public destroy3DChildren(options: any, parent: Object3D, scene: Scene) 
+    {
+        console.log('destroy3DChildren options=', options);
+        var members = options.children;
+        for (let index = 0; index < members.length; index++) {
+            
+            const element = members[index];
+            //console.log('establish3DChildren element.type=', element.type, element);
+            //console.log('establish3DChildren element=', index, element);
+            var uuid = element.uuid;
+            // if (this.deleteFromScene(scene, uuid)) {
+            //     console.log('Removed from Scene', uuid);
+            // }
+            
+            try {
+                var funct = this.destroyers.get(element.type);
+                if (funct) 
+                    funct(element, parent, scene);
+                else
+                    console.log('No Deconstructor for', element.type);
+                
+            } catch (error) {
+                console.log('Error in destroy3DChildren', error);
             }
         }    
     }

@@ -63,16 +63,28 @@ namespace BlazorThreeJS.Core
         {
             OnAnimationUpdate = update;
         }
-        public virtual void CollectDirtyObjects(List<Object3D> dirtyObjects)
+        public virtual bool CollectDirtyObjects(List<Object3D> dirtyObjects, List<Object3D> deletedObjects)
         {
+
             if (IsDirty())
                 dirtyObjects.Add(this);
             
-
+            var deleteThese = new List<Object3D>();
             foreach (var child in Children)
             {
-                child.CollectDirtyObjects(dirtyObjects);
+                if ( child.ShouldDelete())
+                    deleteThese.Add(child);
+
+                child.CollectDirtyObjects(dirtyObjects, deletedObjects);
             }
+
+            foreach (var child in deleteThese)
+            {
+                this.children.Remove(child);
+                deletedObjects.Add(child);
+            }
+            
+            return dirtyObjects.Count > 0 || deletedObjects.Count > 0;
         }
 
         public virtual void UpdateForAnimation(int tick, double fps)

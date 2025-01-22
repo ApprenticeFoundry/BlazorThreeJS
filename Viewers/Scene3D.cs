@@ -182,21 +182,49 @@ public class Scene3D : Object3D
 
         try
         {
-            $"Request3DSceneRefresh {uuids.Count}".WriteInfo();
-            var functionName = ResolveFunction("request3DScene");
+            //$"Request3DSceneRefresh {uuids.Count}".WriteInfo();
+            var functionName = ResolveFunction("request3DSceneRefresh");
             var json = JsonSerializer.Serialize((object)settings, JSONOptions);
             //WriteToFolder("Data", "Scene3D_Request3Scene.json", json); 
 
             await JsRuntime!.InvokeVoidAsync(functionName, (object)json);
             if (onComplete != null)
             {
-                //$"Request3DScene onComplete {uuids.Count}".WriteInfo();
+                //$"Request3DSceneRefresh onComplete {uuids.Count}".WriteInfo();
                 onComplete(uuids!);  // Now we can await the async callback
             }
         }
         catch (System.Exception ex)
         {  
            $"Request3DSceneRefresh: {ex.Message}".WriteError();
+        }
+
+        return uuids!;
+    }
+
+    public async Task<List<string>> Request3DSceneDelete(ImportSettings settings, Action<List<string>>? onComplete = null)
+    {
+        var uuids = settings.Children.Select(child => child.Uuid).ToList();
+        if (uuids.Count == 0)
+            return uuids!;
+
+        try
+        {
+            //$"Request3DSceneRefresh {uuids.Count}".WriteInfo();
+            var functionName = ResolveFunction("request3DSceneDelete");
+            var json = JsonSerializer.Serialize((object)settings, JSONOptions);
+            //WriteToFolder("Data", "Scene3D_Request3Scene.json", json); 
+
+            await JsRuntime!.InvokeVoidAsync(functionName, (object)json);
+            if (onComplete != null)
+            {
+                //$"Request3DSceneDelete onComplete {uuids.Count}".WriteInfo();
+                onComplete(uuids!);  // Now we can await the async callback
+            }
+        }
+        catch (System.Exception ex)
+        {  
+           $"Request3DSceneDelete: {ex.Message}".WriteError();
         }
 
         return uuids!;
