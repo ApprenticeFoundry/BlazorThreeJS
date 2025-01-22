@@ -94,17 +94,19 @@ public class ThreeDService : IThreeDService
 
         var fps = 1.0 / (DateTime.Now - _lastRender).TotalSeconds;
         _lastRender = DateTime.Now; // update for the next time 
-        //$"TriggerAnimationFrame  {framerate}".WriteSuccess();
+        //$"TriggerAnimationFrame  {fps}".WriteSuccess();
+
+        ActiveScene.UpdateForAnimation(tick++, fps);
 
         var dirtyObjects = new List<Object3D>();
-        ActiveScene.UpdateForAnimation(tick++, fps, dirtyObjects);
-
+        ActiveScene.CollectDirtyObjects(dirtyObjects);
+        if ( dirtyObjects.Count == 0)
+            return;
 
         var settings = new ImportSettings();
         settings.ResetChildren(dirtyObjects);
 
-        if ( dirtyObjects.Count == 0)
-            return;
+        $"TriggerAnimationFrame  {dirtyObjects.Count} dirty objects".WriteSuccess();
 
         await ActiveScene.Request3DSceneRefresh(settings, (_) =>
         {

@@ -63,19 +63,28 @@ namespace BlazorThreeJS.Core
         {
             OnAnimationUpdate = update;
         }
-        public virtual void UpdateForAnimation(int tick, double fps, List<Object3D>? dirtyObjects)
+        public virtual void CollectDirtyObjects(List<Object3D> dirtyObjects)
+        {
+            if (IsDirty())
+                dirtyObjects.Add(this);
+            
+
+            foreach (var child in Children)
+            {
+                child.CollectDirtyObjects(dirtyObjects);
+            }
+        }
+
+        public virtual void UpdateForAnimation(int tick, double fps)
         {
             if ( !RunAnimation  || OnAnimationUpdate == null) return;
 
             OnAnimationUpdate.Invoke(this, tick, fps);
 
             //send this message to all the children
-            if ( IsDirty() )
-                dirtyObjects?.Add(this);
-         
             foreach (var child in Children)
             {
-                child.UpdateForAnimation(tick, fps, dirtyObjects);
+                child.UpdateForAnimation(tick, fps);
             } 
         }
 

@@ -26,11 +26,6 @@ public class Mesh3D : Object3D
         return result;
     }
 
-    public override void UpdateForAnimation(int tick, double fps, List<Object3D>? dirtyObjects)
-    {
-        //send this message to all the children
-        base.UpdateForAnimation(tick, fps, dirtyObjects);
-    }
 
 }
 
