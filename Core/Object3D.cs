@@ -150,8 +150,6 @@ namespace BlazorThreeJS.Core
                 Delete();
             });
 
-
-
             if ( OnAnimationUpdate == null)
                 return result;
 

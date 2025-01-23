@@ -228,12 +228,12 @@ export class FactoryClass {
     //can we be smart here and call the correct method based on the type of object we are adding?
     public establish3DChildren(options: any, parent: Object3D) 
     {
-        console.log('establish3DChildren options=', options);
+        //console.log('establish3DChildren options=', options);
         var members = options.children;
         for (let index = 0; index < members.length; index++) {
             
             const element = members[index];
-            console.log('establish3DChildren element.type=', element.type, element);
+            //console.log('establish3DChildren element.type=', element.type, element);
             //console.log('establish3DChildren element=', index, element);
             
             try {
@@ -260,7 +260,7 @@ export class FactoryClass {
 
     public destroy3DChildren(options: any, parent: Object3D, scene: Scene) 
     {
-        console.log('destroy3DChildren options=', options);
+        //console.log('destroy3DChildren options=', options);
         var members = options.children;
         for (let index = 0; index < members.length; index++) {
             

@@ -302,14 +302,14 @@ export class Viewer3D {
     public request3DSceneRefresh(importSettings: string) {
         const options = JSON.parse(importSettings);
         
-        console.log('request3DSceneRefresh importSettings=', options);
+        //console.log('request3DSceneRefresh importSettings=', options);
         Constructors.establish3DChildren(options, this.scene);
     }
 
     public request3DSceneDelete(importSettings: string) {
         const options = JSON.parse(importSettings);
         
-        console.log('request3DSceneDelete importSettings=', options);
+        //console.log('request3DSceneDelete importSettings=', options);
         Constructors.destroy3DChildren(options, this.scene, this.scene);
     }
 
