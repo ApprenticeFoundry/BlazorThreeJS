@@ -172,7 +172,24 @@ public class Scene3D : Object3D
         await JsRuntime!.InvokeVoidAsync(functionName);
     }
 
+    public async Task Request3DHitBoundary(Object3D source)
+    {
+        $"Request3DHitBoundary {source}".WriteInfo();
+        try
+        {
+            var functionName = ResolveFunction("request3DHitBoundary");
+            var json = JsonSerializer.Serialize((object)source, JSONOptions);
+            var boundary = await JsRuntime!.InvokeAsync<HitBoundary3D>(functionName, (object)json);
+            source.HitBoundary = boundary;
+             
+            $"HitBoundary: {source.HitBoundary}".WriteNote();
 
+        }
+        catch (System.Exception ex)
+        {  
+           $"Request3DHitBoundary: {ex.Message}".WriteError();
+        }
+    }
 
     public async Task<List<string>> Request3DSceneRefresh(ImportSettings settings, Action<List<string>>? onComplete = null)
     {
@@ -364,19 +381,11 @@ public class Scene3D : Object3D
         if (child == null) 
             return (false, child!);
 
-        child.SetShouldDelete(true);
+        child.Delete();  //mark this as dirty so that value ill also smash
         return base.RemoveChild(child);
     }
 
-    // public async Task RemoveByUuid(string uuid)
-    // {
-    //     var functionName = ResolveFunction("deleteFromScene");
-    //     var success = await JsRuntime!.InvokeAsync<bool>(functionName, (object)uuid);
-    //     if ( !success)
-    //         return;
 
-    //     //ChildrenHelper.RemoveObjectByUuid(uuid, GetAllChildren());
-    // }
 
 
     public async Task MoveObject(Object3D object3D)

@@ -34,6 +34,8 @@ namespace BlazorThreeJS.Core
         public string? Uuid { get; set; }
         public static int Object3DCount { get; set; } = 0;
 
+        [JsonIgnore]
+        public HitBoundary3D? HitBoundary { get; set; }
 
         [JsonIgnore]
         public Action<Object3D>? OnDelete { get; set; }
@@ -148,6 +150,8 @@ namespace BlazorThreeJS.Core
                 Delete();
             });
 
+
+
             if ( OnAnimationUpdate == null)
                 return result;
 
@@ -175,6 +179,7 @@ namespace BlazorThreeJS.Core
         public virtual void Delete()
         {
             this.SetShouldDelete(true);
+            this.SetDirty(true); //mark this as dirty so that value ill also smash
             //$"Deleting {GetTreeNodeTitle()}".WriteWarning();
             OnDelete?.Invoke(this);
         }

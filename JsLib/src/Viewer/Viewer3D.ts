@@ -288,7 +288,15 @@ export class Viewer3D {
         // Add cylinder as child of box
         box.add(cylinder);
         return box;
+    }
 
+
+
+    public request3DHitBoundary(importSettings: string) {
+        const options = JSON.parse(importSettings);
+        
+        console.log('request3DHitBoundary importSettings=', options);
+        Constructors.establish3DHitBoundary(options, this.scene);
     }
 
     public request3DSceneRefresh(importSettings: string) {

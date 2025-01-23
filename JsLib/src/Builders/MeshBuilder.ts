@@ -27,9 +27,10 @@ export class MeshBuilder {
             return null;
 
         let result = this.ConstructMesh(options);
-        if (!Boolean(result)) {
+        if (!Boolean(result)) 
             return null;
-        }
+        
+        
         if (!Boolean(options.pivot)) {
             console.log('MeshBuilder.CreateMesh', result);
             return result;

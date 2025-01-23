@@ -11,6 +11,8 @@ import {
     MeshBasicMaterial,
     Mesh,
     Scene,
+    Box3,
+    Vector3,
 } from 'three';
 
 //import { Text } from 'three-mesh-ui';
@@ -59,6 +61,19 @@ export class FactoryClass {
 
         MeshBuilder.ApplyMeshTransform(options, entity);
         this.establish3DChildren(options, entity);
+
+        if ( options.geometry.type === 'BoundaryGeometry' )
+        {
+            const box = new Box3().setFromObject(entity);
+            const size = box.getSize(new Vector3());
+            var mesh = entity as Mesh;
+            var geom = mesh.geometry as BoxGeometry;
+            geom.parameters.width = size.x;
+            geom.parameters.height = size.y;
+            geom.parameters.depth = size.z;
+
+            console.log('BoundaryGeometry is sized to fit the children', geom);
+        }
 
 
         if ( !exist && parent.type === 'Scene' )
@@ -178,6 +193,37 @@ export class FactoryClass {
         parent.remove(model);
     }
 
+    public establish3DHitBoundary(options: any, parent: Object3D) 
+    {
+        console.log('establish3DHitBoundary options=', options);
+
+        const guid = options.uuid;
+        var entity = ObjectLookup.findPrimitive(guid) as Object3D;
+        var exist = Boolean(entity)
+        if ( !exist ) return;
+
+
+        const globalPosition = new Vector3();
+        entity.getWorldPosition(globalPosition);
+
+        const box = new Box3().setFromObject(entity);
+        const size = box.getSize(new Vector3());
+
+        var boundary = {
+            uuid: guid,
+            name: entity.name,
+            x: globalPosition.x,
+            y: globalPosition.y,
+            z: globalPosition.z,
+            width: size.x,
+            height: size.y,
+            depth: size.z,  
+        }
+
+        console.log('establish3DHitBoundary', boundary);
+
+   
+    }
 
     //can we be smart here and call the correct method based on the type of object we are adding?
     public establish3DChildren(options: any, parent: Object3D) 

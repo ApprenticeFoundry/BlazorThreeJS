@@ -1,5 +1,6 @@
 import {
     BoxGeometry,
+
     CapsuleGeometry,
     CircleGeometry,
     ConeGeometry,
@@ -26,6 +27,18 @@ import {
 export class GeometryBuilder {
     static buildGeometry(options: any, requestedMaterial: any): BufferGeometry | Group {
         if (options.type == 'BoxGeometry') {
+            const geometry = new BoxGeometry(
+                options.width,
+                options.height,
+                options.depth,
+                options.widthSegments,
+                options.heightSegments,
+                options.depthSegments
+            );
+            geometry.uuid = options.uuid;
+            return geometry;
+        }
+        if (options.type == 'BoundaryGeometry') {
             const geometry = new BoxGeometry(
                 options.width,
                 options.height,

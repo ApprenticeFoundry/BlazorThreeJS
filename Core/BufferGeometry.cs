@@ -9,6 +9,7 @@ using FoundryRulesAndUnits.Models;
 namespace BlazorThreeJS.Core
 {
     [JsonDerivedType(typeof(BoxGeometry))]
+    [JsonDerivedType(typeof(BoundaryGeometry))]
     [JsonDerivedType(typeof(CapsuleGeometry))]
     [JsonDerivedType(typeof(CircleGeometry))]
     [JsonDerivedType(typeof(ConeGeometry))]

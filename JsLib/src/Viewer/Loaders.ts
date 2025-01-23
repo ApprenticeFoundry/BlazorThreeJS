@@ -69,6 +69,7 @@ export class Loaders {
                     
                     const box = new Box3().setFromObject(group);
                     const size = box.getSize(new Vector3());
+
                     group.userData = { isGLTFGroup: true, url, uuid: guid, size };
                     // console.log('userData', group.userData);
                     
