@@ -5,7 +5,7 @@ import { GLTF, GLTFLoader } from 'three/examples/jsm/loaders/GLTFLoader';
 import { STLLoader } from 'three/examples/jsm/loaders/STLLoader.js';
 import { MaterialBuilder } from '../Builders/MaterialBuilder';
 import { Transforms } from '../Utils/Transforms';
-import { AnimationMixer, Box3, Group, LoadingManager, Mesh, Object3D, Scene, TextureLoader, Vector3 } from 'three';
+import { AnimationMixer, Box3, Group, AnimationClip, LoadingManager, Mesh, Object3D, Scene, TextureLoader, Vector3 } from 'three';
 import { ObjectLookup } from '../Utils/ObjectLookup';
 //import { GUI } from 'dat.gui';
 
@@ -20,6 +20,9 @@ export class Loaders {
         group.uuid = options.uuid;
         gltfScene.name = `name-${group.uuid}`;
         group.add(gltfScene);
+
+        
+        group.userData = { isGLTFGroup: true, uuid: options.uuid };
         
         Transforms.setTransform(group, options.transform);
 
@@ -35,10 +38,7 @@ export class Loaders {
     //     gltfFolder.open();
     // }
 
-    private CaptureAnimations(model: GLTF, group: Group) {
-        if ( Boolean(model) == false ) return;
-
-        const animations = model.animations;
+    private CaptureAnimations(animations: AnimationClip[], group: Group) {
 
         animations?.forEach((animation) => {
             if (Boolean(animation) && Boolean(animation.tracks.length)) {
@@ -53,47 +53,23 @@ export class Loaders {
 
     private loadGltf(url: string, guid: string, member: any, onComplete: (gltf: GLTF, group: Group) => void) {
         console.log('inside loadGltf', url, guid, member);
-        var found = ObjectLookup.findGLTF(url);
 
-        if (Boolean(found) == false) {
-            console.log('gltf is not loaded', url);
-            const loader = new GLTFLoader();
-            loader.load(url, 
-                (gltf: GLTF) => {
-                    console.log('gltf is now loaded', gltf);
+        const loader = new GLTFLoader();
+        loader.load(url, 
+            (gltf: GLTF) => {
+                console.log('gltf is now loaded', gltf);
 
-                    ObjectLookup.casheGLTF(url, gltf);
+                ObjectLookup.casheGLTF(url, gltf);
 
-                    const clone = gltf.scene;
-                    const group = this.createGLTFGroups(clone, member);
-                    
-
-                    group.userData = { isGLTFGroup: true, url, uuid: guid };
-                    // console.log('userData', group.userData);
-                    
-                    this.CaptureAnimations(gltf,group)
-                    onComplete(gltf, group);
-            }, 
-            (xhr) => {}, 
-            (error) => {
-                console.error('Error loading GLTF', error);
-            });
-
-        } else {
-            // Found GLTF by URL or GUID so we don't want to load it again.
-            var gltf = found as GLTF;
-            if (Boolean(gltf)) {
-                console.log('gltf is found in cashe', gltf);
-
-                const clone = gltf.scene.clone();
+                const clone = gltf.scene;
                 const group = this.createGLTFGroups(clone, member);
 
-                group.userData = { isGLTFGroup: true, url, uuid: guid };
-                // console.log('clone userData', group.userData);
-                this.CaptureAnimations(gltf,group)
                 onComplete(gltf, group);
-            }
-        }
+        }, 
+        (xhr) => {}, 
+        (error) => {
+            console.error('Error loading GLTF', error);
+        });
     }
 
     public import3DModel(member: any, onComplete: (gltf: GLTF, group: Group) => void) {
@@ -104,8 +80,24 @@ export class Loaders {
         console.log('In loader import3DModel', member);
 
         if (format == 'Gltf') {
-            console.log('Calling loadGltf', member);
-            this.loadGltf(url, uuid, member, onComplete);
+
+            var found = ObjectLookup.findGLTF(url);
+            if (Boolean(found)) {
+                console.log('gltf is found in cashe', found);
+
+                const clone = found.scene.clone();
+                const group = this.createGLTFGroups(clone, member);
+
+                this.CaptureAnimations(found.animations,group)
+                onComplete(found, group);
+            }
+            else {
+                this.loadGltf(url, uuid, member, (gltf: GLTF, group: Group) =>
+                {
+                    this.CaptureAnimations(gltf.animations,group)
+                    onComplete(gltf, group);
+                });
+            }
         }
 
         // else if (format == 'Obj') {

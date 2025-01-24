@@ -31,6 +31,20 @@ export class ObjectLookupClass
         console.log('casheGLTF url=', url, ' obj=', obj);
     }
 
+    public findAny(guid: string): Group | Text | Object3D | null {
+        let prim = this.findPrimitive(guid);
+        if (prim) return prim;
+
+        let obj = this.findGroup(guid);
+        if (obj) return obj;
+
+        obj = this.findModel(guid);
+        if (obj) return obj;
+
+        let txt = this.findLabel(guid);
+        if (txt) return txt;
+    }
+
 
     public findGroup(guid: string): Group | null {
         return this.groups.get(guid) || null;

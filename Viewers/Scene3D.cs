@@ -209,7 +209,7 @@ public class Scene3D : Object3D
                     Depth = dto.Depth
                 };
             } else {
-                $"Request3DHitBoundary: boundary is null".WriteError();
+                $"Request3DHitBoundary: boundary for {source.Name} {source.Type} is null".WriteError();
             }
 
              

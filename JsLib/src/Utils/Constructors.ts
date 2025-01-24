@@ -197,17 +197,12 @@ export class FactoryClass {
         parent.remove(model);
     }
 
-    public establish3DHitBoundary(options: any, parent: Object3D): any 
+    public establish3DHitBoundary(guid: string): any 
     {
-        
-        const guid = options.uuid;
-        const name = options.name;
-        //console.log('establish3DHitBoundary guid=', guid);
-
-        var entity = ObjectLookup.findPrimitive(guid) as Object3D;
+        var entity = ObjectLookup.findAny(guid);
         var exist = Boolean(entity)
         if ( !exist ) {
-            console.log('findPrimitive NOT FOUND guid=', guid);
+            console.log('UUID NOT FOUND guid=', guid);
             return;
         }
 
@@ -215,7 +210,7 @@ export class FactoryClass {
 
         const gPosition = entity.getWorldPosition(new Vector3());
         const gQuaternion = entity.getWorldQuaternion(new Quaternion());
-        const gScale = entity.getWorldScale(new Vector3());
+        //const gScale = entity.getWorldScale(new Vector3());
 
         const box = new Box3().setFromObject(entity, true);
         const size = box.getSize(new Vector3());
