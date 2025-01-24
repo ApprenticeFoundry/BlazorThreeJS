@@ -8,6 +8,7 @@ import { ObjectLookup } from '../Utils/ObjectLookup';
 import { CameraBuilder } from '../Builders/CameraBuilder';
 import { MeshBuilder } from '../Builders/MeshBuilder';
 import { MenuBuilder } from '../Builders/MenuBuilder';
+import * as Ammo from 'ammo.js';
 
 import {
     AnimationMixer,
@@ -55,10 +56,14 @@ export class Viewer3D {
 
     private clock: Clock;
     private blockTest: Mesh;
+    private physicsWorld: Ammo.btDiscreteDynamicsWorld;
+    private cubeRigidBody: any;
+    private cubeMesh: Mesh;
 
     private INTERSECTED: any = null;
     private HasLoaded = false;
     public AnimationRequest: any = null;
+
 
     // private LoadedObjectComplete(uuid: string) {
     //     DotNet.invokeMethodAsync('BlazorThreeJS', 'LoadedObjectComplete', uuid);
@@ -125,10 +130,48 @@ export class Viewer3D {
         this.setOrbitControls();
         this.onResize();
 
-        //this.blockTest = this.GeomExample();
+        // this.blockTest = this.GeomExample();
+        this.InitializePhysics();
         this.StartAnimation();
 
         console.log('Exit Initialize3DViewer');
+    }
+
+    private InitializePhysics() {
+        // Physics setup
+        const collisionConfiguration = new Ammo.btDefaultCollisionConfiguration();
+        const dispatcher = new Ammo.btCollisionDispatcher(collisionConfiguration);
+        const broadphase = new Ammo.btDbvtBroadphase();
+        const solver = new Ammo.btSequentialImpulseConstraintSolver();
+        this.physicsWorld = new Ammo.btDiscreteDynamicsWorld(dispatcher, broadphase, solver, collisionConfiguration);
+        this.physicsWorld.setGravity(new Ammo.btVector3(0, -10, 0));
+
+        const groundShape = new Ammo.btStaticPlaneShape(new Ammo.btVector3(0, 1, 0), 0);
+        const groundTransform = new Ammo.btTransform();
+        groundTransform.setIdentity();
+        groundTransform.setOrigin(new Ammo.btVector3(0, -1, 0));
+        const groundMotionState = new Ammo.btDefaultMotionState(groundTransform);
+        const groundRigidBodyInfo = new Ammo.btRigidBodyConstructionInfo(0, groundMotionState, groundShape, new Ammo.btVector3(0, 0, 0));
+        const groundRigidBody = new Ammo.btRigidBody(groundRigidBodyInfo);
+        this.physicsWorld.addRigidBody(groundRigidBody);        
+
+// Create a cube
+        const cubeGeometry = new BoxGeometry(1, 1, 1);
+        const cubeMaterial = new MeshBasicMaterial({ color: 0xff0000 });
+        this.cubeMesh = new Mesh(cubeGeometry, cubeMaterial);
+        this.scene.add(this.cubeMesh);
+
+        const cubeShape = new Ammo.btBoxShape(new Ammo.btVector3(0.5, 0.5, 0.5));
+        const cubeTransform = new Ammo.btTransform();
+        cubeTransform.setIdentity();
+        cubeTransform.setOrigin(new Ammo.btVector3(0, 5, 0));
+        const cubeMotionState = new Ammo.btDefaultMotionState(cubeTransform);
+        const cubeMass = 1;
+        const cubeInertia = new Ammo.btVector3(0, 0, 0);
+        cubeShape.calculateLocalInertia(cubeMass, cubeInertia);
+        const cubeRigidBodyInfo = new Ammo.btRigidBodyConstructionInfo(cubeMass, cubeMotionState, cubeShape, cubeInertia);
+        this.cubeRigidBody = new Ammo.btRigidBody(cubeRigidBodyInfo);
+        this.physicsWorld.addRigidBody(this.cubeRigidBody);        
     }
 
     public InitializeScene(scene: Scene, options: any) {
@@ -166,6 +209,14 @@ export class Viewer3D {
         //     this.blockTest.rotation.y += 0.01;
         //     this.blockTest.rotation.z += 0.01;
         // }
+
+        this.physicsWorld.stepSimulation(1 / 60, 10);
+
+        // Update cube position
+        const cubeTransform = new Ammo.btTransform();
+        this.cubeRigidBody.getMotionState().getWorldTransform(cubeTransform);
+        const cubePosition = cubeTransform.getOrigin();
+        this.cubeMesh.position.set(cubePosition.x(), cubePosition.y(), cubePosition.z());        
 
         // request another animation frame
         try {
