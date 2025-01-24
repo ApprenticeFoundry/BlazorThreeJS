@@ -14,6 +14,24 @@ using BlazorThreeJS.Settings;
 
 namespace BlazorThreeJS.Core
 {
+    public class HitBoundaryDTO
+    {
+        public string Uuid { get; set; } = string.Empty;
+        public string Name { get; set; } = string.Empty;
+        public double Width { get; set; } = 0;
+        public double Height { get; set; } = 0;
+        public double Depth { get; set; } = 0;
+
+        public double X { get; set; } = 0;
+        public double Y { get; set; } = 0;
+        public double Z { get; set; } = 0;
+
+        public double QX { get; set; } = 0;
+        public double QY { get; set; } = 0;
+        public double QZ { get; set; } = 0;
+        public double QW { get; set; } = 0;
+    }
+
     public class HitBoundary3D :ITreeNode
     {
         protected StatusBitArray StatusBits = new();
@@ -35,6 +53,11 @@ namespace BlazorThreeJS.Core
         {
         }
 
+        public Vector3 GetPosition()
+        {
+            return new Vector3(X, Y, Z);
+        }
+
         public IEnumerable<ITreeNode> GetTreeChildren()
         {
             var result = new List<ITreeNode>();
@@ -49,7 +72,7 @@ namespace BlazorThreeJS.Core
 
         public string GetTreeNodeTitle()
         {
-            return $"{Name} [{Uuid}] => {Type}({GetType().Name})";
+            return $"{Name} BB {Width:F2} x {Height:F2} x {Depth:F2} at {X:F2}, {Y:F2}, {Z:F2}";
         }
         public bool GetIsExpanded()
         {

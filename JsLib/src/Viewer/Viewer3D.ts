@@ -292,11 +292,11 @@ export class Viewer3D {
 
 
 
-    public request3DHitBoundary(importSettings: string) {
+    public request3DHitBoundary(importSettings: string): any {
         const options = JSON.parse(importSettings);
         
-        console.log('request3DHitBoundary importSettings=', options);
-        Constructors.establish3DHitBoundary(options, this.scene);
+        console.log('request3DHitBoundary Object3D=', options);
+        return Constructors.establish3DHitBoundary(options, this.scene);
     }
 
     public request3DSceneRefresh(importSettings: string) {

@@ -15,6 +15,7 @@ export class MeshBuilder {
         const item = geometry as BufferGeometry;
         const material = MaterialBuilder.buildMaterial(options.material);
         const entity = new Mesh(item, material);
+        entity.name = options.name;
         entity.uuid = options.uuid;
         
         return entity;
@@ -22,35 +23,17 @@ export class MeshBuilder {
 
     public static CreateMesh(options: any): Object3D | null {
 
-        console.log('MeshBuilder.CreateMesh', options);
+        //console.log('MeshBuilder.CreateMesh', options);
         if ( !Boolean(options.geometry) || !Boolean(options.material) )
             return null;
 
         let result = this.ConstructMesh(options);
-        if (!Boolean(result)) 
-            return null;
-        
-        
-        if (!Boolean(options.pivot)) {
-            console.log('MeshBuilder.CreateMesh', result);
-            return result;
-        }
-
-        const group = new Group();
-        group.uuid = options.uuid;
-        var list = [result] as any;
-        group.add(list);
-
-        console.log('Success MeshBuilder.CreateMesh Group', group);
-        return group;
-
+        return result;
     }
+
     public static ApplyMeshTransform(options: any, entity: Object3D): Object3D {
 
         //console.log('MeshBuilder.ApplyMeshTransform', options);
-        if (Boolean(options.pivot)) {
-            Transforms.setPosition(entity, options.pivot);
-        }
         Transforms.setTransform(entity, options.transform);
         return entity;
     }

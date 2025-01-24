@@ -89,25 +89,26 @@ public class ThreeDService : IThreeDService
         if ( ActiveScene == null)
             return;
 
-        SetCurrentlyRendering(true, 0);
+        SetCurrentlyRendering(true, tick++);
 
 
         var fps = 1.0 / (DateTime.Now - _lastRender).TotalSeconds;
         _lastRender = DateTime.Now; // update for the next time 
         //$"TriggerAnimationFrame  {fps}".WriteSuccess();
 
-        ActiveScene.UpdateForAnimation(tick++, fps);
+        //you last change to change something before it renders
+        ActiveScene.UpdateForAnimation(tick, fps);
 
         var dirtyObjects = new List<Object3D>();
         var deletedObjects = new List<Object3D>();
         if ( !ActiveScene.CollectDirtyObjects(dirtyObjects, deletedObjects) )
         {
-            SetCurrentlyRendering(false, 0);
+            SetCurrentlyRendering(false, tick);
             return;
         }
 
-        Task refreshTask = Task.CompletedTask;
-        Task deleteTask = Task.CompletedTask;
+        var refreshTask = Task.CompletedTask;
+        var deleteTask = Task.CompletedTask;
 
         if ( dirtyObjects.Count > 0)
         {
@@ -135,7 +136,7 @@ public class ThreeDService : IThreeDService
 
         // Wait for both tasks to complete
         await Task.WhenAll(refreshTask, deleteTask);
-        SetCurrentlyRendering(false, 0);
+        SetCurrentlyRendering(false, tick);
     }
 
 

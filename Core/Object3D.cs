@@ -140,6 +140,37 @@ namespace BlazorThreeJS.Core
             StatusBits.ShouldDelete = value;
         }
 
+        public async Task ComputeHitBoundary(Scene3D scene, bool deep=true)
+        {
+            //$"Request3DHitBoundary for {Name}  {Uuid}".WriteInfo();
+            var boundary = await scene.Request3DHitBoundary(this);
+
+            if ( boundary != null)
+            {
+                SetExpanded(false);
+                HitBoundary = new HitBoundary3D()
+                {
+                    Uuid = boundary.Uuid,
+                    Name = boundary.Name,
+                    X = boundary.X,
+                    Y = boundary.Y,
+                    Z = boundary.Z,
+                    Width = boundary.Width,
+                    Height = boundary.Height,
+                    Depth = boundary.Depth
+                };
+            }
+
+
+            if (!deep) return;
+
+            
+            foreach (var child in Children)
+            {
+                await child.ComputeHitBoundary(scene, deep);
+            }
+            
+        }
 
         public virtual IEnumerable<TreeNodeAction> GetTreeNodeActions()
         {
@@ -170,6 +201,9 @@ namespace BlazorThreeJS.Core
         public virtual IEnumerable<ITreeNode> GetTreeChildren()
         {
             var result = new List<ITreeNode>();
+            if ( HitBoundary != null)
+                result.Add(HitBoundary);
+
             result.AddRange(GetAllChildren());
             return result;
         }
@@ -221,6 +255,8 @@ namespace BlazorThreeJS.Core
 
         public bool HasChildren()
         {
+            if ( HitBoundary != null)
+                return true;    
             return children.Count > 0;
         }
 

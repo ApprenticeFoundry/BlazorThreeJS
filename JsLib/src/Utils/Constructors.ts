@@ -13,6 +13,7 @@ import {
     Scene,
     Box3,
     Vector3,
+    Quaternion,
 } from 'three';
 
 //import { Text } from 'three-mesh-ui';
@@ -166,6 +167,9 @@ export class FactoryClass {
             return;
         }
 
+
+        //if you have this glrf resource then just clone 
+
         const loaders = new Loaders();
         loaders.import3DModel(options, (gltf, item) => {
             console.log('Model Added to Scene', item);
@@ -193,35 +197,46 @@ export class FactoryClass {
         parent.remove(model);
     }
 
-    public establish3DHitBoundary(options: any, parent: Object3D) 
+    public establish3DHitBoundary(options: any, parent: Object3D): any 
     {
-        console.log('establish3DHitBoundary options=', options);
-
+        
         const guid = options.uuid;
+        const name = options.name;
+        //console.log('establish3DHitBoundary guid=', guid);
+
         var entity = ObjectLookup.findPrimitive(guid) as Object3D;
         var exist = Boolean(entity)
-        if ( !exist ) return;
+        if ( !exist ) {
+            console.log('findPrimitive NOT FOUND guid=', guid);
+            return;
+        }
 
+        entity.updateMatrixWorld(true);
 
-        const globalPosition = new Vector3();
-        entity.getWorldPosition(globalPosition);
+        const gPosition = entity.getWorldPosition(new Vector3());
+        const gQuaternion = entity.getWorldQuaternion(new Quaternion());
+        const gScale = entity.getWorldScale(new Vector3());
 
-        const box = new Box3().setFromObject(entity);
+        const box = new Box3().setFromObject(entity, true);
         const size = box.getSize(new Vector3());
 
         var boundary = {
             uuid: guid,
             name: entity.name,
-            x: globalPosition.x,
-            y: globalPosition.y,
-            z: globalPosition.z,
+            x: gPosition.x,
+            y: gPosition.y,
+            z: gPosition.z,
+            qx: gQuaternion.x,
+            qy: gQuaternion.y,
+            qz: gQuaternion.z,
+            qw: gQuaternion.w,
             width: size.x,
             height: size.y,
             depth: size.z,  
         }
 
-        console.log('establish3DHitBoundary', boundary);
-
+        //console.log('Boundary Computed!', boundary);
+        return boundary;
    
     }
 
@@ -268,18 +283,18 @@ export class FactoryClass {
             var uuid = element.uuid;
 
             console.log('destroy3DChildren element.type=', element.type, uuid, element);
-            //console.log('establish3DChildren element=', index, element);
+            //console.log('destroy3DChildren element=', index, element);
 
-            if (this.removeFromSceneByUuid(scene, uuid)) {
-                console.log('destroy3DChildren', uuid);
-            }
-            
             try {
                 var funct = this.destroyers.get(element.type);
                 if (funct) 
                     funct(element, parent, scene);
                 else
                     console.log('No Deconstructor for', element.type);
+
+                if (this.removeFromSceneByUuid(scene, uuid)) {
+                    console.log('destroy3DChildren', uuid);
+                }
                 
             } catch (error) {
                 console.log('Error in destroy3DChildren', error);

@@ -67,10 +67,8 @@ export class Loaders {
                     const clone = gltf.scene;
                     const group = this.createGLTFGroups(clone, member);
                     
-                    const box = new Box3().setFromObject(group);
-                    const size = box.getSize(new Vector3());
 
-                    group.userData = { isGLTFGroup: true, url, uuid: guid, size };
+                    group.userData = { isGLTFGroup: true, url, uuid: guid };
                     // console.log('userData', group.userData);
                     
                     this.CaptureAnimations(gltf,group)
@@ -90,9 +88,7 @@ export class Loaders {
                 const clone = gltf.scene.clone();
                 const group = this.createGLTFGroups(clone, member);
 
-                const box = new Box3().setFromObject(group);
-                const size = box.getSize(new Vector3());
-                group.userData = { isGLTFGroup: true, url, uuid: guid, size: size };
+                group.userData = { isGLTFGroup: true, url, uuid: guid };
                 // console.log('clone userData', group.userData);
                 this.CaptureAnimations(gltf,group)
                 onComplete(gltf, group);

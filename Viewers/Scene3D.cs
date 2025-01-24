@@ -122,6 +122,16 @@ public class Scene3D : Object3D
             Task.Run(async () => await ClearAll());
         });
 
+        result.AddAction("Boundary", "btn-primary", () => 
+        {
+            Task.Run(async () => {
+                foreach (var item in Children)
+                {
+                    await item.ComputeHitBoundary(this, true);
+                }
+            });
+        });
+
 
         return result;
     }
@@ -172,23 +182,45 @@ public class Scene3D : Object3D
         await JsRuntime!.InvokeVoidAsync(functionName);
     }
 
-    public async Task Request3DHitBoundary(Object3D source)
+    public async Task<HitBoundaryDTO> Request3DHitBoundary(Object3D source)
     {
-        $"Request3DHitBoundary {source}".WriteInfo();
+        //$"Request3DHitBoundary {source}".WriteInfo();
         try
         {
             var functionName = ResolveFunction("request3DHitBoundary");
             var json = JsonSerializer.Serialize((object)source, JSONOptions);
-            var boundary = await JsRuntime!.InvokeAsync<HitBoundary3D>(functionName, (object)json);
-            source.HitBoundary = boundary;
+            WriteToFolder("Data", "Request3DHitBoundary.json", json); 
+            var boundary = await JsRuntime!.InvokeAsync<HitBoundaryDTO>(functionName, (object)json);
+
+            //var result = JsonSerializer.Serialize((object)boundary, JSONOptions);
+            //$"Return HitBoundary: {result}".WriteNote();
+            
+            if ( boundary is HitBoundaryDTO dto)
+            {
+                source.HitBoundary = new HitBoundary3D()
+                {
+                    Uuid = dto.Uuid,
+                    Name = dto.Name,
+                    X = dto.X,
+                    Y = dto.Y,
+                    Z = dto.Z,
+                    Width = dto.Width,
+                    Height = dto.Height,
+                    Depth = dto.Depth
+                };
+            } else {
+                $"Request3DHitBoundary: boundary is null".WriteError();
+            }
+
              
-            $"HitBoundary: {source.HitBoundary}".WriteNote();
+            return boundary;
 
         }
         catch (System.Exception ex)
         {  
            $"Request3DHitBoundary: {ex.Message}".WriteError();
         }
+        return null!;
     }
 
     public async Task<List<string>> Request3DSceneRefresh(ImportSettings settings, Action<List<string>>? onComplete = null)
