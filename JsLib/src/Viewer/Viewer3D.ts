@@ -164,7 +164,7 @@ export class Viewer3D {
         const cubeShape = new Ammo.btBoxShape(new Ammo.btVector3(0.5, 0.5, 0.5));
         const cubeTransform = new Ammo.btTransform();
         cubeTransform.setIdentity();
-        cubeTransform.setOrigin(new Ammo.btVector3(0, 5, 0));
+        cubeTransform.setOrigin(new Ammo.btVector3(0, 15, 0));
         const cubeMotionState = new Ammo.btDefaultMotionState(cubeTransform);
         const cubeMass = 1;
         const cubeInertia = new Ammo.btVector3(0, 0, 0);
@@ -296,11 +296,11 @@ export class Viewer3D {
 
     private onResize() {
         // OrthographicCamera does not have aspect property
-        if (this.camera.type === 'PerspectiveCamera') {
+        if (this.camera instanceof PerspectiveCamera) {
             this.camera.aspect = this.container.offsetWidth / this.container.offsetHeight;
         }
 
-        if (this.camera.type === 'OrthographicCamera' && this.options && this.options.camera) {
+        if (this.camera instanceof OrthographicCamera && this.options && this.options.camera) {
             this.camera.left = this.options.camera.left;
             this.camera.right = this.options.camera.right;
             // OrthographicCamera does not have aspect property
@@ -451,7 +451,7 @@ export class Viewer3D {
 
 
 
-    private findRootGuid(item: Object3D<ThreeEvent>): Object3D<ThreeEvent> {
+    private findRootGuid(item: Object3D): Object3D {
         const userData = item.userData;
         if (userData.isGLTFGroup) return item;
 

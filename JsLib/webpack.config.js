@@ -38,9 +38,17 @@ module.exports = {
                     },
                 ],
             },
+            {
+                test: /\.wasm$/,
+                type: 'webassembly/async', // Use async WebAssembly
+            },            
         ],
     },
     resolve: {
+        fallback: {
+            path: require.resolve("path-browserify"),
+            fs: false, // Prevent Webpack from bundling 'fs'
+        },        
         extensions: ['.tsx', '.ts', '.jsx', '.js', '.png', '.jpg', '.jpeg', '.glb', '.gltf'],
     },
     output: {
@@ -49,4 +57,7 @@ module.exports = {
         library: 'AppLib',
         clean: true,
     },
+    experiments: {
+        asyncWebAssembly: true
+    }
 };

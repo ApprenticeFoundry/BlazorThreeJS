@@ -69,9 +69,12 @@ export class FactoryClass {
             const size = box.getSize(new Vector3());
             var mesh = entity as Mesh;
             var geom = mesh.geometry as BoxGeometry;
-            geom.parameters.width = size.x;
-            geom.parameters.height = size.y;
-            geom.parameters.depth = size.z;
+            mesh.geometry.dispose(); // Free memory
+            mesh.geometry = new BoxGeometry(size.x, size.y, size.z); // New width of 2
+
+            // geom.parameters.width = size.x;
+            // geom.parameters.height = size.y;
+            // geom.parameters.depth = size.z;
 
             console.log('BoundaryGeometry is sized to fit the children', geom);
         }
