@@ -218,6 +218,12 @@ namespace BlazorThreeJS.Core
 
         public virtual (bool success, Object3D result) AddChild(Object3D child)
         {
+            if ( child == null)
+            {
+                //$"AddChild missing  Uuid, {child.Name}".WriteError();  
+                return (false, child!);
+            }
+
             var uuid = child.Uuid;
             if ( string.IsNullOrEmpty(uuid))
             {
