@@ -401,6 +401,9 @@ public class Scene3D : Object3D
 
     public override (bool success, Object3D result) AddChild(Object3D child)
     {
+        if (child == null)
+            return (false, null!);
+
         child.OnDelete = (Object3D item) =>
         {
             item.SetShouldDelete(true);
