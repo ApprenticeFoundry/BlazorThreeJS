@@ -24,8 +24,10 @@ public class Scene3D : Object3D
 {
     public string Title { get; init; }
     public string BackGroundColor { get; set; } = "#505050";
+    //public bool SuspendAnimation { get; set; } = true;
 
-    
+
+
     private static Dictionary<string, Func<string,Task>> ImportPromises { get; set; } = new();
     private IJSRuntime JsRuntime { get; set; }
     private Action<Scene3D,string>? AfterUpdate { get; set; } = (scene,json) => { };
@@ -100,7 +102,19 @@ public class Scene3D : Object3D
         return GetAllScenes();
     }
 
-
+    public void UpdateHitBoundaries(Action? OnComplete = null)
+    {
+        var list = new List<Task>();
+        foreach (var item in Children)
+        {
+            list.Add(item.ComputeHitBoundary(this, true));
+        }
+        Task.WhenAll(list).ContinueWith((task) => 
+        {
+            OnComplete?.Invoke();
+        });
+        
+    }
 
     public override string GetTreeNodeTitle()
     {
@@ -124,12 +138,10 @@ public class Scene3D : Object3D
 
         result.AddAction("Boundary", "btn-primary", () => 
         {
-            Task.Run(async () => {
-                foreach (var item in Children)
-                {
-                    await item.ComputeHitBoundary(this, true);
-                }
-            });
+            UpdateHitBoundaries(()=>
+            {
+                $"UpdateHitBoundaries for {Title} complete".WriteInfo();
+            }); 
         });
 
 
@@ -221,6 +233,14 @@ public class Scene3D : Object3D
            $"Request3DHitBoundary: {ex.Message}".WriteError();
         }
         return null!;
+    }
+
+    public override void UpdateForAnimation(int tick, double fps)
+    {
+        //if (SuspendAnimation)
+        //    return;
+
+        base.UpdateForAnimation(tick, fps);
     }
 
     public async Task<List<string>> Request3DSceneRefresh(ImportSettings settings, Action<List<string>>? onComplete = null)
@@ -423,11 +443,11 @@ public class Scene3D : Object3D
 
 
 
-    public async Task MoveObject(Object3D object3D)
-    {
-        var functionName = ResolveFunction("moveObject");
-        await JsRuntime!.InvokeAsync<bool>(functionName, object3D);
-    }
+    //public async Task MoveObject(Object3D object3D)
+    //{
+    //    var functionName = ResolveFunction("moveObject");
+    //    await JsRuntime!.InvokeAsync<bool>(functionName, object3D);
+    //}
 
 
     [JSInvokable]
