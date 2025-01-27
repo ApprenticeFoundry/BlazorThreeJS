@@ -112,24 +112,24 @@ public class ThreeDService : IThreeDService
 
         if ( dirtyObjects.Count > 0)
         {
-            $"Need to refresh {dirtyObjects.Count} objects".WriteSuccess();
+            //$"Need to refresh {dirtyObjects.Count} objects".WriteSuccess();
             var refresh = new ImportSettings();
             refresh.ResetChildren(dirtyObjects);
             refreshTask = ActiveScene.Request3DSceneRefresh(refresh, (_) =>
             {
-                $"TriggerAnimationFrame  {dirtyObjects.Count} dirty objects".WriteSuccess();
+                //$"TriggerAnimationFrame  {dirtyObjects.Count} dirty objects".WriteSuccess();
             });
         }
                 
 
         if ( deletedObjects.Count > 0)
         {
-            $"Need to delete {deletedObjects.Count} objects".WriteSuccess();
+            //$"Need to delete {deletedObjects.Count} objects".WriteSuccess();
             var delete = new ImportSettings();
             delete.ResetChildren(deletedObjects);
             deleteTask = ActiveScene.Request3DSceneDelete(delete, (_) =>
             {
-                $"TriggerAnimationFrame  {deletedObjects.Count} deleted objects".WriteSuccess();
+                //$"TriggerAnimationFrame  {deletedObjects.Count} deleted objects".WriteSuccess();
             });
         }
 

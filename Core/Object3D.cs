@@ -95,15 +95,18 @@ namespace BlazorThreeJS.Core
 
         public virtual void UpdateForAnimation(int tick, double fps)
         {
-            if ( !RunAnimation  || OnAnimationUpdate == null) return;
 
-            OnAnimationUpdate.Invoke(this, tick, fps);
 
             //send this message to all the children
             foreach (var child in Children)
             {
                 child.UpdateForAnimation(tick, fps);
-            } 
+            }
+
+            if ( RunAnimation && OnAnimationUpdate != null)
+            {
+                OnAnimationUpdate?.Invoke(this, tick, fps);
+            }
         }
 
         public void ClearChildren()
@@ -140,9 +143,23 @@ namespace BlazorThreeJS.Core
             StatusBits.ShouldDelete = value;
         }
 
-        public async Task ComputeHitBoundary(Scene3D scene, bool deep=true)
+        public async Task ComputeHitBoundary(Scene3D scene, bool deep=true, bool force=false)
         {
+            
+            if (deep) {
+                var list = new List<Task>();
+                foreach (var item in Children)
+                {
+                    list.Add(item.ComputeHitBoundary(scene, true, force));
+                }
+                await Task.WhenAll(list);
+            }
+            
+            if (HitBoundary != null && !force)
+                return;
+
             //$"Request3DHitBoundary for {Name}  {Uuid}".WriteInfo();
+
             var boundary = await scene.Request3DHitBoundary(this);
 
             if ( boundary != null)
@@ -162,13 +179,6 @@ namespace BlazorThreeJS.Core
             }
 
 
-            if (!deep) return;
-
-            
-            foreach (var child in Children)
-            {
-                await child.ComputeHitBoundary(scene, deep);
-            }
             
         }
 
