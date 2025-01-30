@@ -20,6 +20,7 @@ public interface IThreeDService
     IJSRuntime JS();
     void SetActiveScene(Scene3D scene);
     void WhenFrameRefreshComplete(Action action);
+    void ForceRenderAnimationFrame();
 
 }
 
@@ -81,61 +82,35 @@ public class ThreeDService : IThreeDService
         return oldValue;
     }
 
+    public void ForceRenderAnimationFrame()
+    {
+        Task.Run(() => ThreeDService.TriggerAnimationFrame());
+    }
+
 
 
     [JSInvokable]
     public static async void TriggerAnimationFrame()
     {
-        if ( ActiveScene == null)
+        if (ActiveScene == null)
             return;
-
-        SetCurrentlyRendering(true, tick++);
-
 
         var fps = 1.0 / (DateTime.Now - _lastRender).TotalSeconds;
         _lastRender = DateTime.Now; // update for the next time 
         //$"TriggerAnimationFrame  {fps}".WriteSuccess();
 
+
+        SetCurrentlyRendering(true, tick++);
         //you last change to change something before it renders
         ActiveScene.UpdateForAnimation(tick, fps);
 
-        var dirtyObjects = new List<Object3D>();
-        var deletedObjects = new List<Object3D>();
-        if ( !ActiveScene.CollectDirtyObjects(dirtyObjects, deletedObjects) )
+        var (mustRefresh, refreshTask, deleteTask) = ActiveScene.ComputeRefreshObjects();
+        if (mustRefresh)
         {
-            SetCurrentlyRendering(false, tick);
-            return;
+            // Wait for both tasks to complete
+            await Task.WhenAll(refreshTask, deleteTask);
         }
 
-        var refreshTask = Task.CompletedTask;
-        var deleteTask = Task.CompletedTask;
-
-        if ( dirtyObjects.Count > 0)
-        {
-            //$"Need to refresh {dirtyObjects.Count} objects".WriteSuccess();
-            var refresh = new ImportSettings();
-            refresh.ResetChildren(dirtyObjects);
-            refreshTask = ActiveScene.Request3DSceneRefresh(refresh, (_) =>
-            {
-                //$"TriggerAnimationFrame  {dirtyObjects.Count} dirty objects".WriteSuccess();
-            });
-        }
-                
-
-        if ( deletedObjects.Count > 0)
-        {
-            //$"Need to delete {deletedObjects.Count} objects".WriteSuccess();
-            var delete = new ImportSettings();
-            delete.ResetChildren(deletedObjects);
-            deleteTask = ActiveScene.Request3DSceneDelete(delete, (_) =>
-            {
-                //$"TriggerAnimationFrame  {deletedObjects.Count} deleted objects".WriteSuccess();
-            });
-        }
-
-
-        // Wait for both tasks to complete
-        await Task.WhenAll(refreshTask, deleteTask);
         SetCurrentlyRendering(false, tick);
     }
 

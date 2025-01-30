@@ -49,12 +49,7 @@ public class Scene3D : Object3D
         // $"Scene {Title} created".WriteInfo();
     }
 
-    // public override void UpdateForAnimation(int tick, double fps, List<Object3D>? dirtyObjects)
-    // {
-    //    $"Scene3D UpdateForAnimation {Title} {tick}".WriteInfo();
-        
-    //    base.UpdateForAnimation(tick, fps, dirtyObjects);
-    // }
+
 
     public void SetAfterUpdateAction(Action<Scene3D,string> afterUpdate)
     {
@@ -146,6 +141,43 @@ public class Scene3D : Object3D
 
 
         return result;
+    }
+
+    public (bool success, Task refresh, Task delete) ComputeRefreshObjects()
+    {
+        Task refreshTask = Task.CompletedTask;
+        Task deleteTask = Task.CompletedTask;
+
+        var dirtyObjects = new List<Object3D>();
+        var deletedObjects = new List<Object3D>();
+        if (!this.CollectDirtyObjects(dirtyObjects, deletedObjects))
+        {
+            return (false, refreshTask, deleteTask);
+        }
+
+        if (dirtyObjects.Count > 0)
+        {
+            //$"Need to refresh {dirtyObjects.Count} objects".WriteSuccess();
+            var refresh = new ImportSettings();
+            refresh.ResetChildren(dirtyObjects);
+            refreshTask = this.Request3DSceneRefresh(refresh, (_) =>
+            {
+               // $"TriggerAnimationFrame  {dirtyObjects.Count} dirty objects".WriteSuccess();
+            });
+        }
+
+
+        if (deletedObjects.Count > 0)
+        {
+           // $"Need to delete {deletedObjects.Count} objects".WriteSuccess();
+            var delete = new ImportSettings();
+            delete.ResetChildren(deletedObjects);
+            deleteTask = this.Request3DSceneDelete(delete, (_) =>
+            {
+               // $"TriggerAnimationFrame  {deletedObjects.Count} deleted objects".WriteSuccess();
+            });
+        }
+        return (true, refreshTask, deleteTask);
     }
 
     public string ResolveFunction(string functionName)

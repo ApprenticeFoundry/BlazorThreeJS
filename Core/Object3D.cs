@@ -40,6 +40,9 @@ namespace BlazorThreeJS.Core
         [JsonIgnore]
         public Action<Object3D>? OnDelete { get; set; }
 
+        [JsonIgnore]
+        public Action<Object3D>? OnBeforeRefresh { get; set; }
+
         public bool RunAnimation { get; set; } = true;
         protected Action<Object3D, int, double>? OnAnimationUpdate { get; set; } = null;
 
@@ -69,7 +72,11 @@ namespace BlazorThreeJS.Core
         {
 
             if (IsDirty())
+            {
                 dirtyObjects.Add(this);
+                if (OnBeforeRefresh != null)
+                    OnBeforeRefresh?.Invoke(this);
+            }
             
             var deleteThese = new List<Object3D>();
             foreach (var child in Children)

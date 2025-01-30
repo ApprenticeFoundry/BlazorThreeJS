@@ -14,7 +14,7 @@ namespace BlazorThreeJS.Settings
 {
     public class ImportSettings : Object3D
     {
-       //public Transform Transform { get; set; }
+
 
         public ImportSettings() : base(nameof(ImportSettings))
         {

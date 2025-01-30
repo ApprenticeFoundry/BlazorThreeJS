@@ -137,13 +137,13 @@ export class FactoryClass {
         if ( !exist && parent.type === 'Scene' )
         {
             this.LoadedObjectComplete(guid);
-            console.log('Text Added to Scene', entity);
+            //console.log('Text Added to Scene', entity);
         }
         return entity;
     }
 
     private destroy3DLabel(options: any, parent: Object3D, scene: Scene) {
-        console.log('destroy3DLabel modelOptions=', options);
+        //console.log('destroy3DLabel modelOptions=', options);
 
         const guid = options.uuid;
 
@@ -159,11 +159,13 @@ export class FactoryClass {
 
 
     public establish3DModel(options: any, parent: Object3D) {
-        console.log('establish3DModel modelOptions=', options);
+        ////console.log('establish3DModel modelOptions=', options);
         
         var model = ObjectLookup.findModel(options.uuid) as Group;
         if (Boolean(model)) {
             Transforms.setTransform(model, options.transform);
+
+            this.establish3DChildren(options, model);
             return;
         }
 
@@ -172,10 +174,13 @@ export class FactoryClass {
 
         const loaders = new Loaders();
         loaders.import3DModel(options, (gltf, item) => {
-            console.log('Model Added to Scene', item);
+            //console.log('Model Added to Scene', item);
 
             parent.add(item);
             ObjectLookup.addModel(item.uuid, item);
+
+            Transforms.setTransform(item, options.transform);
+            this.establish3DChildren(options, item);
             //this.addDebuggerWindow(url, group);
             if ( parent.type === 'Scene' )
             {
@@ -185,7 +190,7 @@ export class FactoryClass {
     }
 
     public destroy3DModel(options: any, parent: Object3D, scene: Scene) {
-        console.log('destroy3DModel modelOptions=', options);
+        ////console.log('destroy3DModel modelOptions=', options);
         const guid = options.uuid;
 
         var model = ObjectLookup.findModel(guid) as Group;
@@ -202,7 +207,7 @@ export class FactoryClass {
         var entity = ObjectLookup.findAny(guid);
         var exist = Boolean(entity)
         if ( !exist ) {
-            console.log('UUID NOT FOUND guid=', guid);
+            //console.log('UUID NOT FOUND guid=', guid);
             return;
         }
 
@@ -230,7 +235,7 @@ export class FactoryClass {
             depth: size.z,  
         }
 
-        //console.log('Boundary Computed!', boundary);
+        ////console.log('Boundary Computed!', boundary);
         return boundary;
    
     }
@@ -238,13 +243,13 @@ export class FactoryClass {
     //can we be smart here and call the correct method based on the type of object we are adding?
     public establish3DChildren(options: any, parent: Object3D) 
     {
-        //console.log('establish3DChildren options=', options);
+        ////console.log('establish3DChildren options=', options);
         var members = options.children;
         for (let index = 0; index < members.length; index++) {
             
             const element = members[index];
-            //console.log('establish3DChildren element.type=', element.type, element);
-            //console.log('establish3DChildren element=', index, element);
+            ////console.log('establish3DChildren element.type=', element.type, element);
+            ////console.log('establish3DChildren element=', index, element);
             
             try {
                 var funct = this.makers.get(element.type);
