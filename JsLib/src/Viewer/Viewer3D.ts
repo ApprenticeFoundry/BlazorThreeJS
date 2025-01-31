@@ -110,6 +110,7 @@ export class Viewer3D {
 
         this.container.appendChild(this.webGLRenderer.domElement);
 
+        // used to rotate the camera around the selected object
         // this.renderer.domElement.onclick = (event) => {
         //     if (this.options.viewerSettings.canSelect == true) {
         //         this.selectObject(event);
