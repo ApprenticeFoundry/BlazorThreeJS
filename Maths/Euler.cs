@@ -26,6 +26,11 @@ namespace BlazorThreeJS.Maths
         {
             Set(x, y, z);
         }
+        public Euler(double x, double y, double z, string order):this(x,y,z)
+        {
+            Order = order;
+        }
+
         public Euler Set(double x, double y, double z)
         {
 

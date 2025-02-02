@@ -4,8 +4,8 @@ using BlazorThreeJS.Core;
 
 
 
-namespace BlazorThreeJS.Materials
-{
+namespace BlazorThreeJS.Materials;
+
     public sealed class MeshStandardMaterial : Material
     {
         public MeshStandardMaterial()
@@ -30,4 +30,4 @@ namespace BlazorThreeJS.Materials
 
         public Texture Map { get; set; } = new Texture();
     }
-}
+

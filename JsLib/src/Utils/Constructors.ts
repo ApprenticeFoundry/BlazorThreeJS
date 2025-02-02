@@ -118,6 +118,11 @@ export class FactoryClass {
         entity.text = options.text;
         entity.color = options.color;
         entity.fontSize = options.fontSize;
+        entity.textAlign = options.textAlign;
+        entity.anchorX = options.anchorX;
+        entity.anchorY = options.anchorY;
+        entity.maxWidth = options.maxWidth;
+        entity.lineHeight = options.lineHeight;
         
         //Transforms.setTransform(entity, options.transform);
         if ( Boolean(options.transform) ) {

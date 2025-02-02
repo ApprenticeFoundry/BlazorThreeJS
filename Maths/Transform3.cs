@@ -1,3 +1,4 @@
+using System.Text.Json.Serialization;
 using BlazorThreeJS.Maths;
 using FoundryRulesAndUnits.Models;
 
@@ -8,6 +9,14 @@ namespace BlazorThreeJS.Maths
     public class Transform3 
     {
         private StatusBitArray StatusBits = new();
+        [JsonIgnore]
+        public Action? OnChange { get; set; }
+
+        public Transform3()
+        {
+            SetDirty(true);
+        }
+
         protected Vector3 position = new Vector3();
         public Vector3 Position
         {
@@ -38,14 +47,16 @@ namespace BlazorThreeJS.Maths
 
 
 
-        public virtual bool IsDirty()
+        public bool IsDirty
         {
-            return StatusBits.IsDirty;
+            get { return this.StatusBits.IsDirty; }
+            set { this.StatusBits.IsDirty = value; }
         }
         
         public virtual void SetDirty(bool value)
         {
-            StatusBits.IsDirty = value;
+            IsDirty = value;
+            OnChange?.Invoke();
         }
 
         protected Vector3 AssignVector(Vector3 newValue, Vector3 oldValue)

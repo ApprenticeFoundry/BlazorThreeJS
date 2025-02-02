@@ -1,11 +1,11 @@
 import { Euler, Object3D, Vector3 } from 'three';
 
 export class Transforms {
-    static setPivot(object3d: Object3D, pivot: Vector3) {
-        let { x, y, z } = pivot;
-        if (Boolean(object3d)) //this will not work the math is wrong
-            object3d.position.set(x, y, z);
-    }
+    // static setPivot(object3d: Object3D, pivot: Vector3) {
+    //     let { x, y, z } = pivot;
+    //     if (Boolean(object3d)) //this will not work the math is wrong
+    //         object3d.position.set(x, y, z);
+    // }
     static setPosition(object3d: Object3D, position: Vector3) {
         let { x, y, z } = position;
         if (Boolean(object3d))
@@ -27,9 +27,9 @@ export class Transforms {
     static setTransform(object3d: Object3D, transform: any) {
         if ( !Boolean(transform) ) return;
 
-        if (transform.pivot) {
-            Transforms.setPivot(object3d, transform.pivot);
-        }
+        // if (transform.pivot) {
+        //     Transforms.setPivot(object3d, transform.pivot);
+        // }
 
         if (transform.position) {
             Transforms.setPosition(object3d, transform.position);

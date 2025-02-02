@@ -60,7 +60,7 @@ namespace BlazorThreeJS.Core
         protected Object3D(string type) 
         {
             Object3DCount++;
-            this.Type = type;
+            Type = type;
             Uuid = Object3DCount.ToString();
             StatusBits.IsDirty = true;
         }
@@ -89,7 +89,7 @@ namespace BlazorThreeJS.Core
 
             foreach (var child in deleteThese)
             {
-                this.children.Remove(child);
+                children.Remove(child);
                 deletedObjects.Add(child);
             }
 
@@ -102,8 +102,6 @@ namespace BlazorThreeJS.Core
 
         public virtual void UpdateForAnimation(int tick, double fps)
         {
-
-
             //send this message to all the children
             foreach (var child in Children)
             {
