@@ -1,10 +1,9 @@
-﻿
-using System.Text.Json.Serialization;
+﻿using System.Text.Json.Serialization;
 
 namespace BlazorThreeJS.Core;
 
     // Enums for text properties
-    public enum TextAlign
+    public enum Text3DAlign
     {
         Left,
         Center,
@@ -12,7 +11,7 @@ namespace BlazorThreeJS.Core;
         Justify
     }
     
-    public enum TextAnchor
+    public enum Text3DAnchor
     {
         Left,
         Center,
@@ -38,13 +37,13 @@ public sealed class Text3D : Object3D
     
     // Text alignment and anchoring
     [JsonConverter(typeof(JsonStringEnumConverter))]
-    public TextAlign TextAlign { get; set; } = TextAlign.Left;
+    public Text3DAlign TextAlign { get; set; } = Text3DAlign.Left;
 
     [JsonConverter(typeof(JsonStringEnumConverter))]
-    public TextAnchor AnchorX { get; set; } = TextAnchor.Center;
+    public Text3DAnchor AnchorX { get; set; } = Text3DAnchor.Center;
 
     [JsonConverter(typeof(JsonStringEnumConverter))]
-    public TextAnchor AnchorY { get; set; } = TextAnchor.Middle;
+    public Text3DAnchor AnchorY { get; set; } = Text3DAnchor.Middle;
     
     // Font styling
     public string FontFamily { get; set; } = "Arial";
@@ -52,7 +51,8 @@ public sealed class Text3D : Object3D
     public FontWeight FontWeight { get; set; } = FontWeight.Normal;
     public double LetterSpacing { get; set; } = 0;
     public double LineHeight { get; set; } = 1.15;
-    public double MaxWidth { get; set; } = double.PositiveInfinity;
+
+    public double MaxWidth { get; set; } = 10000000000.0;
     
     // Material properties
     public double Opacity { get; set; } = 1;
@@ -108,9 +108,9 @@ public sealed class Text3D : Object3D
         Color = "#FFFFFF";
         Intensity = 1;
         FontSize = 0.5;
-        TextAlign = TextAlign.Left;
-        AnchorX = TextAnchor.Center;
-        AnchorY = TextAnchor.Middle;
+        TextAlign = Text3DAlign.Left;
+        AnchorX = Text3DAnchor.Center;
+        AnchorY = Text3DAnchor.Middle;
         FontFamily = "Arial";
         FontWeight = FontWeight.Normal;
         LetterSpacing = 0;

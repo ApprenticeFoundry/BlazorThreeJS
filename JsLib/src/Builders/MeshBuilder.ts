@@ -15,13 +15,14 @@ export class MeshBuilder {
         const item = geometry as BufferGeometry;
         const material = MaterialBuilder.buildMaterial(options.material);
         const entity = new Mesh(item, material);
+
         entity.name = options.name;
         entity.uuid = options.uuid;
         
         return entity;
     }
 
-    public static CreateMesh(options: any): Object3D | null {
+    public static CreateMesh(options: any): Mesh | null {
 
         //console.log('MeshBuilder.CreateMesh', options);
         if ( !Boolean(options.geometry) || !Boolean(options.material) )
@@ -29,6 +30,14 @@ export class MeshBuilder {
 
         let result = this.ConstructMesh(options);
         return result;
+    }
+
+    public static ApplyMeshMaterial(options: any, entity: Mesh): Object3D {
+
+        //console.log('MeshBuilder.ApplyMeshTransform', options);
+        const material = MaterialBuilder.buildMaterial(options.material);
+        entity.material = material;
+        return entity;
     }
 
     public static ApplyMeshTransform(options: any, entity: Object3D): Object3D {

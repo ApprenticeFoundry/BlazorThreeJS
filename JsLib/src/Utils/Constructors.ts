@@ -9,6 +9,7 @@ import {
     BoxGeometry,
     CylinderGeometry,
     MeshBasicMaterial,
+    MeshPhongMaterial,
     Mesh,
     Scene,
     Box3,
@@ -52,7 +53,7 @@ export class FactoryClass {
 
         const guid = options.uuid;
 
-        var entity = ObjectLookup.findPrimitive(guid) as Object3D;
+        var entity = ObjectLookup.findPrimitive(guid) as Mesh;
         var exist = Boolean(entity)
         if ( !exist ) {
             entity = MeshBuilder.CreateMesh(options);
@@ -60,7 +61,9 @@ export class FactoryClass {
             parent.add(entity);
         }
 
+        MeshBuilder.ApplyMeshMaterial(options, entity);
         MeshBuilder.ApplyMeshTransform(options, entity);
+
         this.establish3DChildren(options, entity);
 
         if ( options.geometry.type === 'BoundaryGeometry' )
@@ -108,24 +111,24 @@ export class FactoryClass {
 
         var entity = ObjectLookup.findLabel(guid) as Text;
         var exist = Boolean(entity)
-        if ( !exist ) {
+        if (!exist) {
             entity = new Text();
             entity.uuid = guid;
             ObjectLookup.addLabel(guid, entity);
             parent.add(entity);
         }
-        
+
         entity.text = options.text;
         entity.color = options.color;
         entity.fontSize = options.fontSize;
-        entity.textAlign = options.textAlign;
-        entity.anchorX = options.anchorX;
-        entity.anchorY = options.anchorY;
+        entity.textAlign = options.textAlign; // "left", "center", "right", "justify"
+        entity.anchorX = options.anchorX; // "left", "center", "right"
+        entity.anchorY = options.anchorY; // "top", "middle", "bottom"
         entity.maxWidth = options.maxWidth;
         entity.lineHeight = options.lineHeight;
-        
+
         //Transforms.setTransform(entity, options.transform);
-        if ( Boolean(options.transform) ) {
+        if (Boolean(options.transform)) {
             const { position: pos } = options.transform;
             entity.position.x = pos.x;
             entity.position.y = pos.y;
@@ -135,12 +138,12 @@ export class FactoryClass {
         // Update the rendering:
         entity.sync();
 
+        console.log('Text establish3DLabel', entity);
+
         //MeshBuilder.ApplyMeshTransform(options, entity);
         this.establish3DChildren(options, entity);
 
-
-        if ( !exist && parent.type === 'Scene' )
-        {
+        if (!exist && parent.type === 'Scene') {
             this.LoadedObjectComplete(guid);
             //console.log('Text Added to Scene', entity);
         }
