@@ -60,8 +60,9 @@ export class FactoryClass {
             const result = MeshBuilder.CreateMesh(options);
             ObjectLookup.addMaterial(guid, result.material);
             ObjectLookup.addGeometry(guid, result.geometry);
-            entity = ObjectLookup.addPrimitive(guid, result.mesh) as Mesh;
+            ObjectLookup.addPrimitive(guid, result.mesh);
 
+            entity = result.mesh;
             parent.add(entity);
         }
 
