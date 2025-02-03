@@ -54,7 +54,6 @@ export class ObjectLookupClass
     }
     public addGroup(guid: string, obj: Group) {
         this.groups.set(guid, obj);
-        console.log('addGroup url=', guid, ' obj=', obj);
     }
     public deleteGroup(key: string) {
         this.groups.delete(key);
@@ -75,9 +74,8 @@ export class ObjectLookupClass
         return this.labels.values();
     }
 
-    public addLabel(key: string, value: Text): Text {
+    public addLabel(key: string, value: Text) {
         this.labels.set(key, value);
-        return value;
     }
     public deleteLabel(key: string) {
         this.labels.delete(key);
@@ -87,9 +85,8 @@ export class ObjectLookupClass
     }
 
 
-    public addPrimitive(key: string, value: Object3D): Object3D {
+    public addPrimitive(key: string, value: Object3D) {
         this.primitives.set(key, value);
-        return value;
     }
     public deletePrimitive(key: string) {
         this.primitives.delete(key);
