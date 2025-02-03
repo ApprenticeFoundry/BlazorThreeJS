@@ -1,44 +1,56 @@
-import { BufferGeometry, Group, Mesh, Object3D } from 'three';
+import { BufferGeometry, Material, Mesh, Object3D } from 'three';
 import { Transforms } from '../Utils/Transforms';
 import { GeometryBuilder } from './GeometryBuilder';
 import { MaterialBuilder } from './MaterialBuilder';
 
+export interface MeshCreationResult {
+    mesh: Mesh | null;
+    geometry: BufferGeometry | null;
+    material: Material | null;
+}
 
 export class MeshBuilder {
-    public static ConstructMesh(options: any): Mesh | Group | null {
-        const geometry = GeometryBuilder.buildGeometry(options.geometry, options.material);
-
-        if (geometry['isGroup'])
-            return geometry as Group;
+    public static ConstructGeometry(options: any): BufferGeometry | null {
+        const geometry = GeometryBuilder.buildGeometry(options.geometry);
+        geometry.name = options.name;
+        geometry.uuid = options.uuid;
         
-
-        const item = geometry as BufferGeometry;
-        const material = MaterialBuilder.buildMaterial(options.material);
-        const entity = new Mesh(item, material);
-
-        entity.name = options.name;
-        entity.uuid = options.uuid;
-        
-        return entity;
+        return geometry;
     }
 
-    public static CreateMesh(options: any): Mesh | null {
+    public static ConstructMaterial(options: any): Material | null {
+        const material = MaterialBuilder.buildMaterial(options.material);
+        material.name = options.name;
+        material.uuid = options.uuid;
+        
+        return material;
+    }
+
+    public static CreateMesh(options: any): MeshCreationResult {
 
         //console.log('MeshBuilder.CreateMesh', options);
-        if ( !Boolean(options.geometry) || !Boolean(options.material) )
-            return null;
+        if ( Boolean(options.geometry) || Boolean(options.material) )
+            return {
+                mesh: null,
+                geometry: null,
+                material: null
+            };
 
-        let result = this.ConstructMesh(options);
-        return result;
+        
+        const geometry = this.ConstructGeometry(options);
+        const material = this.ConstructMaterial(options);
+        const mesh = new Mesh(geometry, material);
+
+        mesh.name = options.name;
+        mesh.uuid = options.uuid;
+
+        return {
+            mesh,
+            geometry,
+            material
+        };
     }
 
-    public static ApplyMeshMaterial(options: any, entity: Mesh): Object3D {
-
-        //console.log('MeshBuilder.ApplyMeshTransform', options);
-        const material = MaterialBuilder.buildMaterial(options.material);
-        entity.material = material;
-        return entity;
-    }
 
     public static ApplyMeshTransform(options: any, entity: Object3D): Object3D {
 

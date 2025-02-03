@@ -1,7 +1,8 @@
-import { AnimationMixer, Group, Object3D } from 'three';
+import { AnimationMixer, Group, Material, Object3D } from 'three';
 import { Text } from 'troika-three-text';
 import { GLTF } from 'three/examples/jsm/loaders/GLTFLoader';
 import * as ThreeMeshUI from 'three-mesh-ui';
+import { GeometryBuilder } from '../Builders/GeometryBuilder';
 
 
 export class ObjectLookupClass 
@@ -11,6 +12,8 @@ export class ObjectLookupClass
     private gltfURLs = new Map<string, GLTF>();
     private labels = new Map<string, Text>();
     private primitives = new Map<string, Object3D>();
+    private materials = new Map<string, Material>();
+    private geometry = new Map<string, GeometryBuilder>();
     private panels = new Map<string, ThreeMeshUI.Block>();
     private buttons = new Map<string, ThreeMeshUI.Block>();
     private mixers = new Array<AnimationMixer>();
@@ -72,8 +75,9 @@ export class ObjectLookupClass
         return this.labels.values();
     }
 
-    public addLabel(key: string, value: Text) {
+    public addLabel(key: string, value: Text): Text {
         this.labels.set(key, value);
+        return value;
     }
     public deleteLabel(key: string) {
         this.labels.delete(key);
@@ -83,8 +87,9 @@ export class ObjectLookupClass
     }
 
 
-    public addPrimitive(key: string, value: Object3D) {
+    public addPrimitive(key: string, value: Object3D): Object3D {
         this.primitives.set(key, value);
+        return value;
     }
     public deletePrimitive(key: string) {
         this.primitives.delete(key);
@@ -92,6 +97,27 @@ export class ObjectLookupClass
     public findPrimitive(key: string): Object3D {
         return this.primitives.get(key) || null;
     }
+
+    public addMaterial(key: string, value: Material) {
+        this.materials.set(key, value);
+    }
+    public deleteMaterial(key: string) {
+        this.materials.delete(key);
+    }
+    public findMaterial(key: string): Material {
+        return this.materials.get(key) || null;
+    }
+
+    public addGeometry(key: string, value: GeometryBuilder) {
+        this.geometry.set(key, value);
+    }
+    public deleteGeometry(key: string) {
+        this.geometry.delete(key);
+    }
+    public findGeometry(key: string): GeometryBuilder {
+        return this.geometry.get(key) || null;
+    }
+
 
 
     public addButton(key: string, value: ThreeMeshUI.Block) {

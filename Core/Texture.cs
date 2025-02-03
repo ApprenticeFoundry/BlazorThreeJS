@@ -14,7 +14,6 @@ namespace BlazorThreeJS.Core
 {
     public class Texture
     {
-        protected StatusBitArray StatusBits = new();
         public string? Uuid { get; set; }
 
         public Texture() {}

@@ -14,7 +14,7 @@ public class Mesh3D : Object3D
     {
     }
 
-    public Material Material { get; set; } = (Material)new MeshStandardMaterial("orange");
+    public Material Material { get; set; } = (Material)new MeshStandardMaterial("orange", 1.0);
 
     public BufferGeometry Geometry { get; set; } = (BufferGeometry)new BoxGeometry();
 

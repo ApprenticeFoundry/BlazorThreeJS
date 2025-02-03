@@ -1,4 +1,4 @@
-import { MeshStandardMaterial } from 'three';
+import { MeshStandardMaterial, MeshPhongMaterial } from 'three';
 import { TextureBuilder } from './TextureBuilder';
 
 export class MaterialBuilder {
@@ -6,15 +6,30 @@ export class MaterialBuilder {
         if (options.type == 'MeshStandardMaterial') {
             const material = new MeshStandardMaterial({
                 color: options.color,
+                opacity: options.opacity,
+                transparent: options.transparent,
+                wireframe: options.wireframe,
                 flatShading: options.flatShading,
                 metalness: options.metalness,
                 roughness: options.roughness,
-                wireframe: options.wireframe,
             });
             material.uuid = options.uuid;
             if ( Boolean(options.map) )
                 material.map = TextureBuilder.buildTexture(options.map);
             return material;
         }
+        if (options.type == 'MeshPhongMaterial') {
+            const material = new MeshPhongMaterial({
+                color: options.color,
+                opacity: options.opacity,
+                transparent: options.transparent,
+                wireframe: options.wireframe,
+                flatShading: options.flatShading,
+            });
+            material.uuid = options.uuid;
+            if ( Boolean(options.map) )
+                material.map = TextureBuilder.buildTexture(options.map);
+            return material;
+        }        
     }
 }

@@ -97,18 +97,28 @@ class PanelGroupBuilderClass {
         return panel;
     }
 
-    private EstablishMesh(options: any) : Group | Mesh {
-        const geometry = GeometryBuilder.buildGeometry(options.geometry, options.material);
+    private EstablishMesh(options: any) : Mesh {
+        const geometry = GeometryBuilder.buildGeometry(options.geometry);
         const material = MaterialBuilder.buildMaterial(options.material);
 
-        if (geometry.type === 'Group') {
-            return geometry as Group;
-        } else {
-            const item = geometry as BufferGeometry;
-            const entity = new Mesh(item, material);
-            return entity;
-        }
+        const item = geometry as BufferGeometry;
+        const entity = new Mesh(item, material);
+        return entity;
+        
     }
+
+    // private EstablishMesh(options: any) : Group | Mesh {
+    //     const geometry = GeometryBuilder.buildGeometry(options.geometry, options.material);
+    //     const material = MaterialBuilder.buildMaterial(options.material);
+
+    //     if (geometry.type === 'Group') {
+    //         return geometry as Group;
+    //     } else {
+    //         const item = geometry as BufferGeometry;
+    //         const entity = new Mesh(item, material);
+    //         return entity;
+    //     }
+    // }
 
     private RemovePanels(scene: Scene, options: any) {
         this.elementPanels.forEach((item) => {

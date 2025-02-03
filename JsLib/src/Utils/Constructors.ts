@@ -21,7 +21,7 @@ import {
 import { Text } from 'troika-three-text';
 import { LightBuilder } from '../Builders/LightBuilder';
 import { Transforms } from './Transforms';
-import { GLTF } from 'three/examples/jsm/loaders/GLTFLoader';
+
 import { Loaders } from '../Viewer/Loaders';
 
 
@@ -55,13 +55,17 @@ export class FactoryClass {
 
         var entity = ObjectLookup.findPrimitive(guid) as Mesh;
         var exist = Boolean(entity)
-        if ( !exist ) {
-            entity = MeshBuilder.CreateMesh(options);
-            ObjectLookup.addPrimitive(guid, entity);
+        if ( !exist ) 
+        {
+            const result = MeshBuilder.CreateMesh(options);
+            ObjectLookup.addMaterial(guid, result.material);
+            ObjectLookup.addGeometry(guid, result.geometry);
+            entity = ObjectLookup.addPrimitive(guid, result.mesh) as Mesh;
+
             parent.add(entity);
         }
 
-        MeshBuilder.ApplyMeshMaterial(options, entity);
+        //MeshBuilder.ApplyMeshMaterial(options, entity);
         MeshBuilder.ApplyMeshTransform(options, entity);
 
         this.establish3DChildren(options, entity);
@@ -120,6 +124,7 @@ export class FactoryClass {
 
         entity.text = options.text;
         entity.color = options.color;
+        entity.opacity = options.opacity;
         entity.fontSize = options.fontSize;
         entity.textAlign = options.textAlign; // "left", "center", "right", "justify"
         entity.anchorX = options.anchorX; // "left", "center", "right"

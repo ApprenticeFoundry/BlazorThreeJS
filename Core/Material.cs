@@ -8,17 +8,25 @@ using FoundryRulesAndUnits.Models;
 namespace BlazorThreeJS.Materials;
 
 [JsonDerivedType(typeof(MeshStandardMaterial))]
+[JsonDerivedType(typeof(MeshPhongMaterial))]
 public abstract class Material : ITreeNode
 {
     protected StatusBitArray StatusBits = new();
     public string? Uuid { get; set; }
 
-    protected Material(string type) => this.Type = type;
+    protected Material(string type) 
+    {
+        this.Type = type;
+    }
 
     public string Type { get; } = nameof(Material);
 
     public string Name { get; set; } = string.Empty;
 
+    public string Color { get; set; } = "orange";
+    public double Opacity { get; set; } = 1;
+
+    public bool Wireframe { get; set; } = false;
 
     public virtual string GetTreeNodeTitle()
     {

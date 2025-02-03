@@ -16,16 +16,17 @@ import {
     TorusGeometry,
     TorusKnotGeometry,
     LineCurve3,
-    Group,
+    //Group,
     BufferGeometry,
     Mesh,
     Line,
     LineBasicMaterial,
     MeshBasicMaterial,
+    CatmullRomCurve3,
 } from 'three';
 
 export class GeometryBuilder {
-    static buildGeometry(options: any, requestedMaterial: any): BufferGeometry | Group {
+    static buildGeometry(options: any): BufferGeometry {
         if (options.type == 'BoxGeometry') {
             const geometry = new BoxGeometry(
                 options.width,
@@ -38,6 +39,7 @@ export class GeometryBuilder {
             geometry.uuid = options.uuid;
             return geometry;
         }
+
         if (options.type == 'BoundaryGeometry') {
             const geometry = new BoxGeometry(
                 options.width,
@@ -102,37 +104,56 @@ export class GeometryBuilder {
             return geometry;
         }
 
-        if (options.type == 'LineGeometry') {
-            // https://threejs.org/docs/#api/en/materials/LineBasicMaterial.linewidth
-            // Due to limitations of the OpenGL Core Profile with the WebGL renderer on most platforms linewidth will always be 1 regardless of the set value.
-            const material = new LineBasicMaterial({ color: requestedMaterial.color || 'yellow', linewidth: 8 });
-            const geometry = new BufferGeometry().setFromPoints(options.path);
-            const line = new Line(geometry, material);
+        // if (options.type == 'LineGeometryxx') {
+        //     // https://threejs.org/docs/#api/en/materials/LineBasicMaterial.linewidth
+        //     // Due to limitations of the OpenGL Core Profile with the WebGL renderer on most platforms linewidth will always be 1 regardless of the set value.
+        //     const material = new LineBasicMaterial({ color: requestedMaterial.color || 'yellow', linewidth: 8 });
+        //     const geometry = new BufferGeometry().setFromPoints(options.path);
+        //     const line = new Line(geometry, material);
 
-            const group = new Group();
-            group.add(line);
-            return group;
+        //     const group = new Group();
+        //     group.add(line);
+        //     return group;
+        // }
+
+        if (options.type == 'LineGeometry') {
+            const geometry = new BufferGeometry().setFromPoints(options.path);
+            return geometry;
         }
+
+        // if (options.type == 'TubeGeometryxx') {
+        //     const group = new Group();
+
+        //     for (let i = 0; i < options.path.length - 1; i++) {
+        //         const tubePath = new LineCurve3(options.path[i], options.path[i + 1]);
+        //         const geometry = new TubeGeometry(
+        //             tubePath,
+        //             options.tubularSegments,
+        //             options.radius,
+        //             options.radialSegments,
+        //             options.closed
+        //         );
+        //         const material = new MeshBasicMaterial({ color: requestedMaterial.color || 'orange' });
+        //         geometry.uuid = options.uuid;
+        //         const mesh = new Mesh(geometry, material);
+        //         group.add(mesh);
+        //     }
+        //     return group;
+        // }
 
         if (options.type == 'TubeGeometry') {
-            const group = new Group();
-
-            for (let i = 0; i < options.path.length - 1; i++) {
-                const tubePath = new LineCurve3(options.path[i], options.path[i + 1]);
-                const geometry = new TubeGeometry(
-                    tubePath,
-                    options.tubularSegments,
-                    options.radius,
-                    options.radialSegments,
-                    options.closed
-                );
-                const material = new MeshBasicMaterial({ color: requestedMaterial.color || 'orange' });
-                geometry.uuid = options.uuid;
-                const mesh = new Mesh(geometry, material);
-                group.add(mesh);
-            }
-            return group;
+            const curve = new CatmullRomCurve3(options.path);
+            const geometry = new TubeGeometry(
+                curve,
+                options.tubularSegments,
+                options.radius,
+                options.radialSegments,
+                options.closed
+            );
+            geometry.uuid = options.uuid;
+            return geometry;
         }
+
         if (options.type == 'DodecahedronGeometry') {
             const geometry = new DodecahedronGeometry(options.radius, options.detail);
             geometry.uuid = options.uuid;
