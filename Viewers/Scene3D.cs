@@ -44,7 +44,7 @@ public class Scene3D : Object3D
         Title = title;
         Name = title.ToLower();
             
-        Camera.Transform.Position = new Vector3(10f, 10f, 10f);
+        Camera.GetTransform().Position = new Vector3(10f, 10f, 10f);
         _AllScenes.Add(this);
         // $"Scene {Title} created".WriteInfo();
     }
@@ -157,12 +157,16 @@ public class Scene3D : Object3D
 
         if (dirtyObjects.Count > 0)
         {
-            $"Need to refresh {dirtyObjects.Count} objects".WriteSuccess();
+            //$"Need to refresh {dirtyObjects.Count} objects".WriteSuccess();
             var refresh = new ImportSettings();
-            refresh.ResetChildren(dirtyObjects);
+            refresh.CopyAndReset(dirtyObjects);
             refreshTask = this.Request3DSceneRefresh(refresh, (_) =>
             {
-               $"TriggerAnimationFrame  {dirtyObjects.Count} dirty objects".WriteSuccess();
+               // foreach(var item in dirtyObjects)
+               // {
+               //     $"Refreshed {item.Name} {item.Type} IsDirty {item.IsDirty}".WriteInfo(1);
+               // }
+               //$"ComputeRefreshObjects  {dirtyObjects.Count} dirty objects updated".WriteSuccess(1);
             });
         }
 
@@ -171,10 +175,10 @@ public class Scene3D : Object3D
         {
            // $"Need to delete {deletedObjects.Count} objects".WriteSuccess();
             var delete = new ImportSettings();
-            delete.ResetChildren(deletedObjects);
+            delete.CopyAndReset(deletedObjects);
             deleteTask = this.Request3DSceneDelete(delete, (_) =>
             {
-               // $"TriggerAnimationFrame  {deletedObjects.Count} deleted objects".WriteSuccess();
+               // $"ComputeRefreshObjects  {deletedObjects.Count} deleted objects".WriteSuccess();
             });
         }
         return (true, refreshTask, deleteTask);

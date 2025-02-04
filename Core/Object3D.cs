@@ -32,7 +32,7 @@ namespace BlazorThreeJS.Core
     {
         protected StatusBitArray StatusBits = new();
         public string? Uuid { get; set; }
-        public static int Object3DCount { get; set; } = 0;
+        //public static int Object3DCount { get; set; } = 0;
 
         [JsonIgnore]
         public HitBoundary3D? HitBoundary { get; set; }
@@ -46,34 +46,41 @@ namespace BlazorThreeJS.Core
         public bool RunAnimation { get; set; } = true;
         protected Action<Object3D, int, double>? OnAnimationUpdate { get; set; } = null;
 
-        public Transform3 Transform { get; set; } = new Transform3();
+        public Transform3? Transform { get; set; }
 
         public string Type { get; } = nameof(Object3D);
 
         public string Name { get; set; } = string.Empty;
 
 
-        private List<Object3D> children = new();
+        protected List<Object3D> children = new();
 
         public IEnumerable<Object3D> Children => children;
 
         protected Object3D(string type) 
         {
-            Object3DCount++;
+            //Object3DCount++;
             Type = type;
-            Uuid = Object3DCount.ToString();
+            //Uuid = Object3DCount.ToString();
             StatusBits.IsDirty = true;
         }
         public void SetAnimationUpdate(Action<Object3D, int, double> update)
         {
             OnAnimationUpdate = update;
         }
+        public Transform3 GetTransform()
+        {
+            Transform ??= new Transform3();
+            return Transform;
+        }
+
         public virtual bool CollectDirtyObjects(List<Object3D> dirtyObjects, List<Object3D> deletedObjects)
         {
 
-            if (IsDirty())
+            if (IsDirty)
             {
                 dirtyObjects.Add(this);
+                IsDirty = false;
                 if (OnBeforeRefresh != null)
                     OnBeforeRefresh?.Invoke(this);
             }
@@ -128,15 +135,33 @@ namespace BlazorThreeJS.Core
             return $"{Name} [{Uuid}] => {Type}({GetType().Name})";
         }
 
-        public virtual bool IsDirty()
+        public bool IsDirty
         {
-            return StatusBits.IsDirty;
+            get { return this.StatusBits.IsDirty; }
+            set { 
+                this.StatusBits.IsDirty = value; 
+                //if ( value )
+                //    {
+                //        $"Object3D {GetType().Name} {Name} is dirty".WriteNote();
+                //    }
+                }
         }
         
-        public virtual void SetDirty(bool value)
+        public virtual void SetDirty(bool value, bool deep=false)
         {
-            StatusBits.IsDirty = value;
+            if ( IsDirty == value )
+                return;
+
+            IsDirty = value;
+            if ( deep)
+            {
+                foreach (var child in Children)
+                {
+                    child.SetDirty(value, deep);
+                }
+            }
         }
+
 
         public virtual bool ShouldDelete()
         {

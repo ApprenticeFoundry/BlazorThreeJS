@@ -23,34 +23,51 @@ namespace BlazorThreeJS.Settings
 
         public Model3D AddRequestedModel(Model3D model)
         {
+            model.IsDirty = false;
             Uuid = model.Uuid;  //use the same uuid as the model
             AddChild(model);
             return model;
         }
 
-        public (bool success, Model3D result) FindRequestedModel()
+        public override (bool success, Object3D result) AddChild(Object3D child)
         {
-            var (found, item) = FindChild(Uuid!);
-            if (!found)
-                return (false, null!);
+            if (child == null)
+            {
+                //$"AddChild missing  Uuid, {child.Name}".WriteError();  
+                return (false, child!);
+            }
 
-            if (item is Model3D model)
-                return (true, model);
-            
-            return (false, null!);
+            var uuid = child.Uuid;
+            if (string.IsNullOrEmpty(uuid))
+            {
+                //$"AddChild missing  Uuid, {child.Name}".WriteError();  
+                return (false, child);
+            }
+
+            //what if you have a child with the same uuid? but it is a different object?
+            var (found, item) = FindChild(uuid);
+            if (found)
+            {
+                //$"Object3D AddChild Exist: returning existing {child.Name} -> {item.Name} {item.Uuid}".WriteError();  
+                return (false, item!);
+            }
+
+            //$"Object3D AddChild {child.Name} -> {this.Name} {this.Uuid}".WriteInfo();
+
+            children.Add(child);
+
+            return (true, child);
         }
 
 
-        public void ResetChildren(List<Object3D> items)
+        public void CopyAndReset(List<Object3D> items)
         {
-            ClearChildren();
             foreach (var child in items)
             {
+                child.IsDirty = false;
                 AddChild(child);
-                child.SetDirty(false);
-                //$"ResetChildren {child.Name} is dirty".WriteInfo();
             }
-            //$"ResetChildren {Children.Count()} are dirty".WriteInfo();
+            //$"CopyAndReset {Children.Count()} are dirty".WriteInfo();
         }
 
 

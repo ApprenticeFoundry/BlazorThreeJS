@@ -1,5 +1,6 @@
 using System.Text.Json.Serialization;
 using BlazorThreeJS.Maths;
+using FoundryRulesAndUnits.Extensions;
 using FoundryRulesAndUnits.Models;
 
 
@@ -10,11 +11,10 @@ namespace BlazorThreeJS.Maths
     {
         private StatusBitArray StatusBits = new();
         [JsonIgnore]
-        public Action? OnChange { get; set; }
+        public Action<Boolean>? OnChange { get; set; }
 
         public Transform3()
         {
-            SetDirty(true);
         }
 
         protected Vector3 position = new Vector3();
@@ -50,24 +50,37 @@ namespace BlazorThreeJS.Maths
         public bool IsDirty
         {
             get { return this.StatusBits.IsDirty; }
-            set { this.StatusBits.IsDirty = value; }
+            set { 
+                this.StatusBits.IsDirty = value; 
+                //if ( value )
+                //    {
+                //        $"Transform is dirty".WriteNote();
+                //    }
+                }
         }
         
         public virtual void SetDirty(bool value)
         {
+            if ( IsDirty == value )
+                return;
+
             IsDirty = value;
-            OnChange?.Invoke();
+            if ( value )
+                OnChange?.Invoke(value);
+
         }
 
         protected Vector3 AssignVector(Vector3 newValue, Vector3 oldValue)
         {
             SetDirty(true);
+
             return newValue;
         }
 
         protected Euler AssignEuler(Euler newValue, Euler oldValue)
         {
             SetDirty(true);
+
             return newValue;
         }
     }
