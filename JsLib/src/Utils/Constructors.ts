@@ -63,6 +63,7 @@ export class FactoryClass {
             ObjectLookup.addPrimitive(guid, result.mesh);
 
             entity = result.mesh;
+            console.log('Mesh Created', entity);
             parent.add(entity);
         }
 
@@ -110,7 +111,7 @@ export class FactoryClass {
 
 
     private establish3DLabel(options: any, parent: Object3D): Text | null {
-        console.log('establish3DLabel modelOptions=', options);
+        console.log('establish3DLabel modelOptions=', options, parent);
 
         const guid = options.uuid;
 

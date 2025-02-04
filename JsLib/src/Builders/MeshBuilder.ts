@@ -29,7 +29,7 @@ export class MeshBuilder {
     public static CreateMesh(options: any): MeshCreationResult {
 
         //console.log('MeshBuilder.CreateMesh', options);
-        if ( Boolean(options.geometry) || Boolean(options.material) )
+        if ( !Boolean(options.geometry) || !Boolean(options.material) )
             return {
                 mesh: null,
                 geometry: null,
