@@ -17,6 +17,33 @@ namespace BlazorThreeJS.Maths
         {
         }
 
+        public Matrix3 ToMatrix3()
+        {
+            var matrix = Matrix3.NewMatrix();
+
+            // Apply translation to pivot
+            var pivotTranslation = Matrix3.NewMatrix();
+            pivotTranslation.Translate(pivot);
+            matrix.Multiply(pivotTranslation.GetMatrix());
+
+            // Apply rotation
+            var rotationMatrix = Matrix3.NewMatrix();
+            rotationMatrix.Rotate(rotation);
+            matrix.Multiply(rotationMatrix.GetMatrix());
+
+            // Apply scaling
+            var scaleMatrix = Matrix3.NewMatrix();
+            scaleMatrix.Scale(scale);
+            matrix.Multiply(scaleMatrix.GetMatrix());
+
+            // Apply translation to position
+            var positionTranslation = Matrix3.NewMatrix();
+            positionTranslation.Translate(position);
+            matrix.Multiply(positionTranslation.GetMatrix());
+
+            return matrix;
+        }        
+
         protected Vector3 position = new Vector3();
         public Vector3 Position
         {
@@ -61,19 +88,22 @@ namespace BlazorThreeJS.Maths
         
         public virtual void SetDirty(bool value)
         {
-            if ( IsDirty == value )
-                return;
+            // if ( IsDirty == value )
+            //     return;
 
             IsDirty = value;
             if ( value )
+            {
+                $"Transform is dirty  notify parent".WriteNote();
                 OnChange?.Invoke(value);
+            }
 
         }
 
         protected Vector3 AssignVector(Vector3 newValue, Vector3 oldValue)
         {
             SetDirty(true);
-
+            $"AssignVector: {newValue} to {oldValue}".WriteNote();
             return newValue;
         }
 

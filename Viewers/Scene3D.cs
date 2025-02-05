@@ -157,16 +157,16 @@ public class Scene3D : Object3D
 
         if (dirtyObjects.Count > 0)
         {
-            //$"Need to refresh {dirtyObjects.Count} objects".WriteSuccess();
+            $"Need to refresh {dirtyObjects.Count} objects".WriteSuccess();
             var refresh = new ImportSettings();
             refresh.CopyAndReset(dirtyObjects);
             refreshTask = this.Request3DSceneRefresh(refresh, (_) =>
             {
-               // foreach(var item in dirtyObjects)
-               // {
-               //     $"Refreshed {item.Name} {item.Type} IsDirty {item.IsDirty}".WriteInfo(1);
-               // }
-               //$"ComputeRefreshObjects  {dirtyObjects.Count} dirty objects updated".WriteSuccess(1);
+               $"ComputeRefreshObjects  {dirtyObjects.Count} dirty objects updated".WriteSuccess(1);
+               foreach(var item in dirtyObjects)
+               {
+                   $"Refreshed {item.Name} {item.Type} IsDirty {item.IsDirty}".WriteInfo(1);
+               }
             });
         }
 

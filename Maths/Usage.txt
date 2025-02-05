@@ -1,0 +1,10 @@
+var shape = new FoBody3D();
+shape.X = 100;
+shape.Y = 50;
+shape.Z = 25;
+shape.RotationX = 45;  // 45-degree rotation around X axis
+shape.RotationY = 30;  // 30-degree rotation around Y axis
+
+// Transform a point using the shape's matrix
+var point = new Vector3D(10, 10, 10);
+var transformed = shape.GetMatrix().TransformPoint(point);
