@@ -63,7 +63,7 @@ export class FactoryClass {
             ObjectLookup.addPrimitive(guid, result.mesh);
 
             entity = result.mesh;
-            console.log('Mesh Created', entity);
+            //console.log('Mesh Created', entity);
             parent.add(entity);
         }
 

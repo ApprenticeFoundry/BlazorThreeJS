@@ -237,7 +237,7 @@ public class Scene3D : Object3D
         {
             var functionName = ResolveFunction("request3DHitBoundary");
             var json = JsonSerializer.Serialize((object)source, JSONOptions);
-            WriteToFolder("Data", "Request3DHitBoundary.json", json); 
+            //WriteToFolder("Data", "Request3DHitBoundary.json", json); 
             var boundary = await JsRuntime!.InvokeAsync<HitBoundaryDTO>(functionName, (object)json);
 
             //var result = JsonSerializer.Serialize((object)boundary, JSONOptions);
@@ -287,7 +287,7 @@ public class Scene3D : Object3D
 
         try
         {
-            //$"Request3DSceneRefresh {uuids.Count}".WriteInfo();
+            $"Request3DSceneRefresh {uuids.Count}".WriteInfo();
             var functionName = ResolveFunction("request3DSceneRefresh");
             var json = JsonSerializer.Serialize((object)settings, JSONOptions);
             //WriteToFolder("Data", "Scene3D_Request3SceneRefresh.json", json); 
@@ -318,7 +318,7 @@ public class Scene3D : Object3D
             //$"Request3DSceneRefresh {uuids.Count}".WriteInfo();
             var functionName = ResolveFunction("request3DSceneDelete");
             var json = JsonSerializer.Serialize((object)settings, JSONOptions);
-            WriteToFolder("Data", "Scene3D_Request3SceneDelete.json", json); 
+            //WriteToFolder("Data", "Scene3D_Request3SceneDelete.json", json); 
 
             await JsRuntime!.InvokeVoidAsync(functionName, (object)json);
             if (onComplete != null)

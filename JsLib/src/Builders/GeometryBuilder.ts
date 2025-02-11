@@ -23,6 +23,7 @@ import {
     LineBasicMaterial,
     MeshBasicMaterial,
     CatmullRomCurve3,
+    Vector3,
 } from 'three';
 
 export class GeometryBuilder {
@@ -142,13 +143,21 @@ export class GeometryBuilder {
         // }
 
         if (options.type == 'TubeGeometry') {
-            const curve = new CatmullRomCurve3(options.path);
+            // Validate the path
+            if (!Array.isArray(options.path) || options.path.length < 2) {
+                throw new Error('Invalid path for TubeGeometry. Path must be an array of at least two Vector3 points.');
+            }
+                        
+            // Ensure all points are Vector3 instances
+            const path = options.path.map((point: any) => new Vector3(point.x, point.y, point.z));
+
+            const curve = new CatmullRomCurve3(path);
             const geometry = new TubeGeometry(
                 curve,
-                options.tubularSegments,
+                options.tubularSegments || 64,
                 options.radius,
-                options.radialSegments,
-                options.closed
+                options.radialSegments || 8,
+                options.closed || false
             );
             geometry.uuid = options.uuid;
             return geometry;

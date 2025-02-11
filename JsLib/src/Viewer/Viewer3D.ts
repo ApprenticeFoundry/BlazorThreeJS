@@ -136,6 +136,8 @@ export class Viewer3D {
         // console.log('in setScene this.options=', this.options);
         scene.background = new Color(options.scene.backGroundColor);
         scene.uuid = options.scene.uuid;
+        //scene.position.set(-10, 5, 0);
+
 
         //add the floor
         const grid = new GridHelper(30, 30, 0x848484, 0x848484);
@@ -303,7 +305,7 @@ export class Viewer3D {
     public request3DSceneRefresh(importSettings: string) {
         const options = JSON.parse(importSettings);
         
-        //console.log('request3DSceneRefresh importSettings=', options);
+        console.log('request3DSceneRefresh importSettings=', options);
         Constructors.establish3DChildren(options, this.scene);
     }
 
