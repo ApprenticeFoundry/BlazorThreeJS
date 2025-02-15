@@ -112,7 +112,14 @@ namespace BlazorThreeJS.Core
             //send this message to all the children
             foreach (var child in Children)
             {
-                child.UpdateForAnimation(tick, fps);
+                try
+                {
+                    child.UpdateForAnimation(tick, fps);
+                }
+                catch (System.Exception)
+                {
+                    $"Error in UpdateForAnimation {child.Name}".WriteError();
+                }
             }
 
             if ( RunAnimation && OnAnimationUpdate != null)

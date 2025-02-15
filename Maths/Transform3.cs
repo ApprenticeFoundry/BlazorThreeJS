@@ -94,7 +94,7 @@ namespace BlazorThreeJS.Maths
             IsDirty = value;
             if ( value )
             {
-                $"Transform is dirty  notify parent".WriteNote();
+               // $"Transform is dirty  notify parent".WriteNote();
                 OnChange?.Invoke(value);
             }
 
@@ -103,7 +103,7 @@ namespace BlazorThreeJS.Maths
         protected Vector3 AssignVector(Vector3 newValue, Vector3 oldValue)
         {
             SetDirty(true);
-            $"AssignVector: {newValue} to {oldValue}".WriteNote();
+            //$"AssignVector: {newValue} to {oldValue}".WriteNote();
             return newValue;
         }
 

@@ -165,7 +165,7 @@ public class Scene3D : Object3D
                $"ComputeRefreshObjects  {dirtyObjects.Count} dirty objects updated".WriteSuccess(1);
                foreach(var item in dirtyObjects)
                {
-                   $"Refreshed {item.Name} {item.Type} IsDirty {item.IsDirty}".WriteInfo(1);
+                   //$"Refreshed {item.Name} {item.Type} IsDirty {item.IsDirty}".WriteInfo(1);
                }
             });
         }
