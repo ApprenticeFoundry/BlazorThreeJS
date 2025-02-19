@@ -58,11 +58,11 @@ export class Loaders {
         loader.load(url, 
             (gltf: GLTF) => {
                 console.log('gltf is now loaded', gltf);
-
+  
                 ObjectLookup.casheGLTF(url, gltf);
 
-                const clone = gltf.scene;
-                const group = this.createGLTFGroups(clone, member);
+                const scene = gltf.scene || gltf.scenes[0];
+                const group = this.createGLTFGroups(scene, member);
 
                 onComplete(gltf, group);
         }, 
@@ -85,7 +85,9 @@ export class Loaders {
             if (Boolean(found)) {
                 console.log('gltf is found in cashe', found);
 
-                const clone = found.scene.clone();
+                //In the  GitHub - donmccurdy/three-gltf-viewer: Drag-and-drop preview for glTF 2.0 models in WebGL using three.js. 
+                const scene = found.scene || found.scenes[0];
+                const clone = scene.clone();
                 const group = this.createGLTFGroups(clone, member);
 
                 this.CaptureAnimations(found.animations,group)

@@ -25,6 +25,7 @@ import {
     CatmullRomCurve3,
     Vector3,
 } from 'three';
+import { RoundedLineCurve3 } from './CustomCurve';
 
 export class GeometryBuilder {
     static buildGeometry(options: any): BufferGeometry {
@@ -151,7 +152,8 @@ export class GeometryBuilder {
             // Ensure all points are Vector3 instances
             const path = options.path.map((point: any) => new Vector3(point.x, point.y, point.z));
 
-            const curve = new CatmullRomCurve3(path);
+            const curve = new RoundedLineCurve3(path, 0.05); 
+            //const curve = new CatmullRomCurve3(path);
             const geometry = new TubeGeometry(
                 curve,
                 options.tubularSegments || 64,
