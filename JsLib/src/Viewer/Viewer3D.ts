@@ -298,7 +298,7 @@ export class Viewer3D {
     public request3DHitBoundary(importSettings: string): any {
         const options = JSON.parse(importSettings);
         
-        console.log('request3DHitBoundary Object3D=', options);
+        //console.log('request3DHitBoundary Object3D=', options);
         return Constructors.establish3DHitBoundary(options.uuid);
     }
 
