@@ -138,7 +138,7 @@ namespace BlazorThreeJS.Viewers
         public string ResolveFunction(string functionName)
         {
             //return $"{jsNamespace}.{functionName}";
-            $"BlazorThreeJS.{functionName}".WriteInfo();
+            $"ResolveFunction BlazorThreeJS.{functionName}".WriteInfo();
             return $"BlazorThreeJS.{functionName}";
         }
 
@@ -147,6 +147,7 @@ namespace BlazorThreeJS.Viewers
 
             if (firstRender)
             {
+                $"ViewerThreeD [{SceneName}] OnAfterRenderAsync".WriteInfo();
                 HasRendered = true;
 
                 var scene = GetActiveScene();
@@ -168,7 +169,7 @@ namespace BlazorThreeJS.Viewers
                 try
                 {
                     string json = JsonSerializer.Serialize<SceneDTO>(dto, JSONOptions);
-                    //$"ViewerThreeD calling {functionName} with {json}".WriteInfo();
+                    $"ViewerThreeD calling {functionName} with {json}".WriteInfo();
                     //WriteToFolder("Data", "ViewerThreeD_OnAfterRenderAsync.json", json);  
                     await JsRuntime!.InvokeVoidAsync(functionName, (object)json);
                 }

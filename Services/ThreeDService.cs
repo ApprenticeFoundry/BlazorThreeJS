@@ -97,7 +97,7 @@ public class ThreeDService : IThreeDService
 
         var fps = 1.0 / (DateTime.Now - _lastRender).TotalSeconds;
         _lastRender = DateTime.Now; // update for the next time 
-        //$"TriggerAnimationFrame  {fps}".WriteSuccess();
+        $"TriggerAnimationFrame  {fps}".WriteSuccess();
 
 
         SetCurrentlyRendering(true, tick++);

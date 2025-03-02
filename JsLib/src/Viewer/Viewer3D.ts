@@ -41,17 +41,17 @@ import { LightBuilder } from '../Builders/LightBuilder';
 import { HelperBuilder } from '../Builders/HelperBuilder';
 
 export class Viewer3D {
-    private options: any;
+    private cameraOptions: any;
+    private viewerSettings: any;
     private container: any;
-    private settings: any;
     private webGLRenderer: WebGLRenderer;
     private scene: Scene;
     private camera: OrthographicCamera | PerspectiveCamera;
     private controls: OrbitControls;
-    private mouse: Vector2 = new Vector2();
-    private raycaster: Raycaster = new Raycaster();
-    private uiElementSelectState = false;
-    private lastSelectedGuid = null;
+    //private mouse: Vector2 = new Vector2();
+    //private raycaster: Raycaster = new Raycaster();
+    //private uiElementSelectState = false;
+    //private lastSelectedGuid = null;
 
     private clock: Clock;
     private blockTest: Mesh;
@@ -60,33 +60,36 @@ export class Viewer3D {
     private HasLoaded = false;
     public AnimationRequest: any = null;
 
-    // private LoadedObjectComplete(uuid: string) {
-    //     DotNet.invokeMethodAsync('BlazorThreeJS', 'LoadedObjectComplete', uuid);
+
+    // private onObjectSelected(uuid: string) {
+    //     DotNet.invokeMethodAsync('BlazorThreeJS', 'OnClickButton', uuid);
     // }
-    private onObjectSelected(uuid: string) {
-        DotNet.invokeMethodAsync('BlazorThreeJS', 'OnClickButton', uuid);
-    }
 
     public Initialize3DViewer(spec: string) {
-        if ( this.HasLoaded ) return;
+        if ( this.HasLoaded ) 
+        {
+            console.log('Viewer3D.ts already initialized');
+            this.StartAnimation();
+            return;
+        }
+        console.log('Viewer3D.ts In Initialize3DViewer');
         this.HasLoaded = true;
         this.clock = new Clock();
 
-        console.log('In Initialize3DViewer');
 
         const options = JSON.parse(spec);
 
-        this.setListeners();
-        this.settings = options.viewerSettings;
+        //this.setListeners(); for selection of objects
+        this.viewerSettings = options.viewerSettings;
 
-        let container = document.getElementById(this.settings.containerId) as HTMLDivElement;
+        let container = document.getElementById(this.viewerSettings.containerId) as HTMLDivElement;
 
         if (!container) {
             console.warn('Container not found');
             return;
         }
 
-        this.options = options;
+        this.cameraOptions = options;
         this.container = container;
 
         this.scene = new Scene();
@@ -94,12 +97,12 @@ export class Viewer3D {
         this.setCamera();
 
         this.webGLRenderer = new WebGLRenderer({
-            antialias: this.settings.webGLRendererSettings.antialias,
+            antialias: this.viewerSettings.webGLRendererSettings.antialias,
             preserveDrawingBuffer: true
         });
 
-        const requestedWidth = this.settings.width;
-        const requestedHeight = this.settings.height;
+        const requestedWidth = this.viewerSettings.width;
+        const requestedHeight = this.viewerSettings.height;
         if (Boolean(requestedWidth) && Boolean(requestedHeight)) {
             this.webGLRenderer.setSize(requestedWidth, requestedHeight, true);
         }
@@ -133,7 +136,7 @@ export class Viewer3D {
     }
 
     public InitializeScene(scene: Scene, options: any) {
-        // console.log('in setScene this.options=', this.options);
+        console.log('in setScene this.options=', this.cameraOptions);
         scene.background = new Color(options.scene.backGroundColor);
         scene.uuid = options.scene.uuid;
         //scene.position.set(-10, 5, 0);
@@ -158,6 +161,7 @@ export class Viewer3D {
     {
         console.log('In Finalize3DViewer');
         this.StopAnimation();
+        this.HasLoaded = false;
     }
 
     private RenderJS(self: any) 
@@ -174,16 +178,16 @@ export class Viewer3D {
         try {
             DotNet.invokeMethodAsync('BlazorThreeJS', 'TriggerAnimationFrame');  
             self.AnimationRequest = window.requestAnimationFrame(() => self.RenderJS(self));
-            self.render();
+            self.RefreshLabelsAndRender();
         } catch (error) {
             console.log('Error in RenderJS', error); 
         }
     }
 
-    private render() {
-        ThreeMeshUI.update();
-        this.updateUIElements();
-        this.selectObject();
+    private RefreshLabelsAndRender() {
+        //ThreeMeshUI.update();
+        //this.updateUIElements();
+        //this.selectObject();
 
         var pos = this.camera.position;
         for (const label of ObjectLookup.allLabels()) {
@@ -228,23 +232,35 @@ export class Viewer3D {
 
 
 
-    private setListeners() {
-        window.addEventListener('pointermove', (event: PointerEvent) => {
-            let canvas = this.webGLRenderer.domElement;
+    // private setListeners() {
+    //     window.addEventListener('pointermove', (event: PointerEvent) => {
+    //         // Prevent default and stop propagation
+    //         event.preventDefault();
+    //         event.stopPropagation();
 
-            this.mouse.x = (event.offsetX / canvas.clientWidth) * 2 - 1;
-            this.mouse.y = -(event.offsetY / canvas.clientHeight) * 2 + 1;
-        });
+    //         let canvas = this.webGLRenderer.domElement;
 
-        window.addEventListener('pointerdown', () => {
-            this.selectObject();
-            this.uiElementSelectState = true;
-        });
+    //         this.mouse.x = (event.offsetX / canvas.clientWidth) * 2 - 1;
+    //         this.mouse.y = -(event.offsetY / canvas.clientHeight) * 2 + 1;
+    //     });
 
-        window.addEventListener('pointerup', () => {
-            this.uiElementSelectState = false;
-        });
-    }
+    //     window.addEventListener('pointerdown', (event: PointerEvent) => {
+    //         // Prevent default and stop propagation
+    //         event.preventDefault();
+    //         event.stopPropagation();
+        
+    //         this.selectObject();
+    //         this.uiElementSelectState = true;
+    //     });
+
+    //     window.addEventListener('pointerup', (event: PointerEvent) => {
+    //         // Prevent default and stop propagation
+    //         event.preventDefault();
+    //         event.stopPropagation();
+
+    //         this.uiElementSelectState = false;
+    //     });
+    // }
 
     private onResize() {
         // OrthographicCamera does not have aspect property
@@ -252,9 +268,9 @@ export class Viewer3D {
             this.camera.aspect = this.container.offsetWidth / this.container.offsetHeight;
         }
 
-        if (this.camera.type === 'OrthographicCamera' && this.options && this.options.camera) {
-            this.camera.left = this.options.camera.left;
-            this.camera.right = this.options.camera.right;
+        if (this.camera.type === 'OrthographicCamera' && this.cameraOptions && this.cameraOptions.camera) {
+            this.camera.left = this.cameraOptions.camera.left;
+            this.camera.right = this.cameraOptions.camera.right;
             // OrthographicCamera does not have aspect property
             // this.camera.left = this.options.camera.left * this.camera.aspect;
             // this.camera.right = this.options.camera.right * this.camera.aspect;
@@ -319,14 +335,14 @@ export class Viewer3D {
     public setCamera() {
         const builder = new CameraBuilder();
         this.camera = builder.BuildCamera(
-            this.options.camera,
+            this.cameraOptions.camera,
             this.container.offsetWidth / this.container.offsetHeight
         );
     }
 
     public updateCamera(options: string) {
         const newCamera = JSON.parse(options) as OrthographicCamera | PerspectiveCamera;
-        this.options.camera = newCamera;
+        this.cameraOptions.camera = newCamera;
         this.setCamera();
         this.setOrbitControls();
     }
@@ -336,9 +352,9 @@ export class Viewer3D {
     private setOrbitControls() {
         this.controls = new OrbitControls(this.camera, this.webGLRenderer.domElement);
         this.controls.screenSpacePanning = true;
-        this.controls.minDistance = this.options.orbitControls.minDistance;
-        this.controls.maxDistance = this.options.orbitControls.maxDistance;
-        let { x, y, z } = this.options.camera.lookAt;
+        this.controls.minDistance = this.cameraOptions.orbitControls.minDistance;
+        this.controls.maxDistance = this.cameraOptions.orbitControls.maxDistance;
+        let { x, y, z } = this.cameraOptions.camera.lookAt;
         this.controls.target.set(x, y, z);
         this.controls.update();
     }
@@ -411,41 +427,41 @@ export class Viewer3D {
         return null;
     }
 
-    private selectObject() {
-        let intersect: any = null;
-        let allButtons = ObjectLookup.getAllButtons();
+    // private selectObject() {
+    //     let intersect: any = null;
+    //     let allButtons = ObjectLookup.getAllButtons();
 
-        if (this.mouse.x !== null && this.mouse.y !== null) {
-            this.raycaster.setFromCamera(this.mouse, this.camera);
-            intersect = this.raycast(Array.from(allButtons));
-        }
+    //     if (this.mouse.x !== null && this.mouse.y !== null) {
+    //         this.raycaster.setFromCamera(this.mouse, this.camera);
+    //         intersect = this.raycast(Array.from(allButtons));
+    //     }
 
-        const intersects = this.raycaster.intersectObjects(this.scene.children, true);
+    //     const intersects = this.raycaster.intersectObjects(this.scene.children, true);
 
-        // Ignore object selection if this is a UI element.  UI elements are handled in updateUIElements
-        if (intersect && intersect.object.isUI) {
-            return;
-        } else {
-            if (intersects.length === 0) {
-                this.INTERSECTED = null;
-                //DotNet.invokeMethodAsync('BlazorThreeJS','ReceiveSelectedObjectUUID', this.INTERSECTED.uuid, size);
-                return;
-            }
+    //     // Ignore object selection if this is a UI element.  UI elements are handled in updateUIElements
+    //     if (intersect && intersect.object.isUI) {
+    //         return;
+    //     } else {
+    //         if (intersects.length === 0) {
+    //             this.INTERSECTED = null;
+    //             //DotNet.invokeMethodAsync('BlazorThreeJS','ReceiveSelectedObjectUUID', this.INTERSECTED.uuid, size);
+    //             return;
+    //         }
 
-            this.INTERSECTED = null;
-            for (let value of intersects) {
-                this.INTERSECTED = this.findRootGuid(value.object);
-                if (this.INTERSECTED !== null) break;
-            }
-            if (Boolean(this.INTERSECTED) && Boolean(this.INTERSECTED.userData)) {
-                console.log('this.INTERSECTED=', this.INTERSECTED);
-                const size: Vector3 = this.INTERSECTED.userData.size;
+    //         this.INTERSECTED = null;
+    //         for (let value of intersects) {
+    //             this.INTERSECTED = this.findRootGuid(value.object);
+    //             if (this.INTERSECTED !== null) break;
+    //         }
+    //         if (Boolean(this.INTERSECTED) && Boolean(this.INTERSECTED.userData)) {
+    //             console.log('this.INTERSECTED=', this.INTERSECTED);
+    //             const size: Vector3 = this.INTERSECTED.userData.size;
 
-                // So a better job SRS  2021-09-29
-                //DotNet.invokeMethodAsync('BlazorThreeJS', 'ReceiveSelectedObjectUUID', this.INTERSECTED.uuid, size);
-            }
-        }
-    }
+    //             // So a better job SRS  2021-09-29
+    //             //DotNet.invokeMethodAsync('BlazorThreeJS', 'ReceiveSelectedObjectUUID', this.INTERSECTED.uuid, size);
+    //         }
+    //     }
+    // }
 
     public setCameraPosition(position: Vector3, lookAt: Vector3) {
         Transforms.setPosition(this.camera, position);
@@ -487,52 +503,54 @@ export class Viewer3D {
 
     private updateUIElements() {
         // Find closest intersecting object
-        let intersect: any = null;
-        let allButtons = ObjectLookup.getAllButtons();
+        // let intersect: any = null;
+        // let allButtons = ObjectLookup.getAllButtons();
 
-        if (this.mouse.x !== null && this.mouse.y !== null) {
-            this.raycaster.setFromCamera(this.mouse, this.camera);
+        // if (this.mouse.x !== null && this.mouse.y !== null) {
+        //     this.raycaster.setFromCamera(this.mouse, this.camera);
 
-            // intersect = this.raycastUIElements();
-            intersect = this.raycast(Array.from(allButtons));
-        }
+        //     // intersect = this.raycastUIElements();
+        //     intersect = this.raycast(Array.from(allButtons));
+        // }
 
         // Update non-targeted buttons state
-        allButtons.forEach((obj) => {
-            obj['setState']('idle');
-        });
+        // allButtons.forEach((obj) => {
+        //     obj['setState']('idle');
+        // });
+
+
         // Update targeted button state (if any)
-        if (intersect && intersect.object.isUI) {
-            const currentMouseState = this.uiElementSelectState ? 'selected' : 'hovered';
-            if (currentMouseState === 'selected') {
-                const uuid = intersect.object?.uuid;
-                if (uuid !== this.lastSelectedGuid) {
-                    this.lastSelectedGuid = uuid;
-                    this.onObjectSelected(uuid);
-                    setTimeout(() => {
-                        this.lastSelectedGuid = null;
-                    }, 1000);
-                }
-            }
-            intersect.object.setState(currentMouseState);
-        }
+        // if (intersect && intersect.object.isUI) {
+        //     const currentMouseState = this.uiElementSelectState ? 'selected' : 'hovered';
+        //     if (currentMouseState === 'selected') {
+        //         const uuid = intersect.object?.uuid;
+        //         if (uuid !== this.lastSelectedGuid) {
+        //             this.lastSelectedGuid = uuid;
+        //             this.onObjectSelected(uuid);
+        //             setTimeout(() => {
+        //                 this.lastSelectedGuid = null;
+        //             }, 1000);
+        //         }
+        //     }
+        //     intersect.object.setState(currentMouseState);
+        // }
     }
 
     //
 
-    private raycast(items: any[]) {
-        return items.reduce((closestIntersection, obj) => {
-            const intersection = this.raycaster.intersectObject(obj, true);
+    // private raycast(items: any[]) {
+    //     return items.reduce((closestIntersection, obj) => {
+    //         const intersection = this.raycaster.intersectObject(obj, true);
 
-            if (!intersection[0]) return closestIntersection;
+    //         if (!intersection[0]) return closestIntersection;
 
-            if (!closestIntersection || intersection[0].distance < closestIntersection.distance) {
-                intersection[0].object = obj;
+    //         if (!closestIntersection || intersection[0].distance < closestIntersection.distance) {
+    //             intersection[0].object = obj;
 
-                return intersection[0];
-            }
+    //             return intersection[0];
+    //         }
 
-            return closestIntersection;
-        }, null);
-    }
+    //         return closestIntersection;
+    //     }, null);
+    // }
 }
