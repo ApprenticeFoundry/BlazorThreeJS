@@ -138,7 +138,7 @@ namespace BlazorThreeJS.Viewers
         public string ResolveFunction(string functionName)
         {
             //return $"{jsNamespace}.{functionName}";
-            $"ResolveFunction BlazorThreeJS.{functionName}".WriteInfo();
+            //$"ResolveFunction BlazorThreeJS.{functionName}".WriteInfo();
             return $"BlazorThreeJS.{functionName}";
         }
 
@@ -147,7 +147,7 @@ namespace BlazorThreeJS.Viewers
 
             if (firstRender)
             {
-                $"ViewerThreeD [{SceneName}] OnAfterRenderAsync".WriteInfo();
+                //$"ViewerThreeD [{SceneName}] OnAfterRenderAsync".WriteInfo();
                 HasRendered = true;
 
                 var scene = GetActiveScene();

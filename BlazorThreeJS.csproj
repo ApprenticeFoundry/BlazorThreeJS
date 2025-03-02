@@ -23,8 +23,8 @@
     <PackageId>ApprenticeFoundryBlazorThreeJS</PackageId>
     <PlatformTarget>AnyCPU</PlatformTarget>
     <Copyright>Copyright © 2020</Copyright>
-    <Version>18.0.0</Version>
-    <AssemblyVersion>18.0.0</AssemblyVersion>
+    <Version>18.1.0</Version>
+    <AssemblyVersion>18.1.0</AssemblyVersion>
     <Authors>Stephen Strong</Authors>
     <Company>Stephen Strong</Company>
     <PackageProjectUrl>https://apprenticefoundry.github.io/</PackageProjectUrl>

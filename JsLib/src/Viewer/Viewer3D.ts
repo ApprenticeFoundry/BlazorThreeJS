@@ -132,7 +132,7 @@ export class Viewer3D {
         //this.blockTest = this.GeomExample();
         this.StartAnimation();
 
-        console.log('Exit Initialize3DViewer');
+        //console.log('Exit Initialize3DViewer');
     }
 
     public InitializeScene(scene: Scene, options: any) {
@@ -321,7 +321,7 @@ export class Viewer3D {
     public request3DSceneRefresh(importSettings: string) {
         const options = JSON.parse(importSettings);
         
-        console.log('request3DSceneRefresh importSettings=', options);
+        //console.log('request3DSceneRefresh importSettings=', options);
         Constructors.establish3DChildren(options, this.scene);
     }
 
