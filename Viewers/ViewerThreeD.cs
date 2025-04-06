@@ -169,7 +169,7 @@ namespace BlazorThreeJS.Viewers
                 try
                 {
                     string json = JsonSerializer.Serialize<SceneDTO>(dto, JSONOptions);
-                    $"ViewerThreeD calling {functionName} with {json}".WriteInfo();
+                    //$"ViewerThreeD calling {functionName} with {json}".WriteInfo();
                     //WriteToFolder("Data", "ViewerThreeD_OnAfterRenderAsync.json", json);  
                     await JsRuntime!.InvokeVoidAsync(functionName, (object)json);
                 }

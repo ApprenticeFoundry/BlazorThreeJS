@@ -72,7 +72,7 @@ export class Viewer3D {
             this.StartAnimation();
             return;
         }
-        console.log('Viewer3D.ts In Initialize3DViewer');
+        //console.log('Viewer3D.ts In Initialize3DViewer');
         this.HasLoaded = true;
         this.clock = new Clock();
 
