@@ -5,22 +5,17 @@
 // Assembly location: Blazor3D.dll
 
 using System.Text.Json;
-using System.Text.Json.Nodes;
 using System.Text.Json.Serialization;
-using BlazorThreeJS.Cameras;
-using BlazorThreeJS.ComponentHelpers;
+
 using BlazorThreeJS.Controls;
 using BlazorThreeJS.Core;
-using BlazorThreeJS.Events;
 
 using BlazorThreeJS.Lights;
 using BlazorThreeJS.Maths;
-using BlazorThreeJS.Menus;
-using BlazorThreeJS.Objects;
 
 using BlazorThreeJS.Settings;
+using BlazorThreeJS.Solutions;
 using FoundryRulesAndUnits.Extensions;
-using FoundryRulesAndUnits.Units;
 using Microsoft.AspNetCore.Components;
 using Microsoft.AspNetCore.Components.Rendering;
 using Microsoft.JSInterop;
@@ -28,10 +23,11 @@ using Microsoft.JSInterop;
 namespace BlazorThreeJS.Viewers
 {
 
-    public class ViewerThreeD : ComponentBase, IDisposable
+    public class ViewerThreeD : ComponentBase, IAsyncDisposable
     {
+        private bool HasRendered = false;
         [Inject] private IJSRuntime? JsRuntime { get; set; }
-
+        [Inject] private IThreeDService? RenderService { get; set; }
 
         [Parameter,EditorRequired] public string SceneName { get; set; } = "Viewer3D";
 
@@ -39,26 +35,16 @@ namespace BlazorThreeJS.Viewers
         {
             PropertyNamingPolicy = JsonNamingPolicy.CamelCase,
             DefaultIgnoreCondition = JsonIgnoreCondition.WhenWritingNull,
+            WriteIndented = true,
             IncludeFields = true,
             IgnoreReadOnlyFields = true
         };
 
-        private static Dictionary<string, Button> Buttons { get; set; } = new();
-        private static Dictionary<string, ImportSettings> ImportPromises { get; set; } = new();
-        private static Dictionary<string, ImportSettings> LoadedModels { get; set; } = new();
-
-        // private event LoadedObjectEventHandler? ObjectLoadedPrivate;
-        // public event LoadedObjectEventHandler? ObjectLoaded;
-        // public event LoadedModuleEventHandler? JsModuleLoaded;
-
-        //public event SelectedObjectEventHandler? ObjectSelected;
-        //private delegate void SelectedObjectStaticEventHandler(Object3DStaticArgs e);
-        //private delegate void LoadedObjectStaticEventHandler(Object3DStaticArgs e);
-        //private static event ViewerThreeDSelectedObjectStaticEventHandler ObjectSelectedStatic;
-        //private static event ViewerThreeDLoadedObjectStaticEventHandler ObjectLoadedStatic;
+        private static Dictionary<string, Button3D> Buttons { get; set; } = new();
+        
 
         private ViewerSettings _viewingSettings = null!;
-        private Scene _activeScene = null!;
+        private Scene3D _activeScene = null!;
 
         [Parameter]
         public ViewerSettings ViewerSettings
@@ -68,7 +54,7 @@ namespace BlazorThreeJS.Viewers
         }
 
         [Parameter]
-        public Scene ActiveScene 
+        public Scene3D ActiveScene 
         { 
             get => ComputeActiveScene();
             set => _activeScene = value;
@@ -80,7 +66,14 @@ namespace BlazorThreeJS.Viewers
 
         public OrbitControls OrbitControls { get; set; } = new OrbitControls();
 
-
+        protected override void BuildRenderTree(RenderTreeBuilder builder)
+        {
+            builder.OpenElement(0, "div");
+            builder.AddAttribute(1, "class", "viewer3dContainer");
+            builder.AddAttribute(2, "id", this.SceneName);
+           // __builder.AddAttribute(3, "b-h6holr0slw");
+            builder.CloseElement();
+        }
 
         private ViewerSettings ComputeViewingSettings()
         {
@@ -104,82 +97,125 @@ namespace BlazorThreeJS.Viewers
             return _viewingSettings;
         }
 
-        private Scene ComputeActiveScene()
+        public Scene3D GetActiveScene()
+        {
+            return ComputeActiveScene();
+        }
+
+        private Scene3D ComputeActiveScene()
         {
             if (_activeScene != null)
                 return _activeScene;
 
-            var (success, scene) = Scene.EstablishScene(SceneName, JsRuntime!);
-
-            _activeScene = scene;
-            if ( success )
+            _activeScene = Scene3D.EstablishScene(SceneName, JsRuntime!, (scene) =>
             {
                 var ambient = new AmbientLight()
-                { 
+                {
                     Name = "Ambient Light",
                     Uuid = Guid.NewGuid().ToString(),
                 };
-                _activeScene.AddChild(ambient);
+                scene.AddChild(ambient);
 
-                var point = new PointLight() 
-                { 
-                    Name = "Point Light" ,
+                var point = new PointLight()
+                {
+                    Name = "Point Light",
                     Uuid = Guid.NewGuid().ToString(),
-                    Position = new Vector3()
-                    {
-                        X = 1f,
-                        Y = 3f,
-                        Z = 0.0f
+                    Transform = new Transform3() {
+                        Position = new Vector3()
+                        {
+                            X = 1f,
+                            Y = 3f,
+                            Z = 0.0f
+                        }
                     }
                 };
-                _activeScene.AddChild(point);
-            }
+                scene.AddChild(point);
+            });
 
             return _activeScene;
         }
 
-        public string Resolve(string jsNamespace, string functionName)
+        public string ResolveFunction(string functionName)
         {
             //return $"{jsNamespace}.{functionName}";
+            //$"ResolveFunction BlazorThreeJS.{functionName}".WriteInfo();
             return $"BlazorThreeJS.{functionName}";
         }
 
         protected override async Task OnAfterRenderAsync(bool firstRender)
         {
 
-            if (!firstRender)
-                return;
-
-            //ViewerThreeD.ObjectSelectedStatic += new ViewerThreeD.SelectedObjectStaticEventHandler(ViewerThreeD.OnObjectSelectedStatic);
-            //ViewerThreeD.ObjectLoadedStatic += new ViewerThreeD.LoadedObjectStaticEventHandler(ViewerThreeD.OnObjectLoadedStatic);
-            //ObjectLoadedPrivate += new LoadedObjectEventHandler(OnObjectLoadedPrivate);
-
-            LoadedModels.Clear();
-
-            //await JsRuntime!.InvokeVoidAsync("import", DotNetObjectReference.Create(this));
-
-
-            ViewerSettings.containerId = ActiveScene.Title;
-            var dto = new SceneDTO()
+            if (firstRender)
             {
-                Scene = ActiveScene,
-                ViewerSettings = ViewerSettings,
-                Camera = ActiveScene.Camera,
-                OrbitControls = OrbitControls
-            };
+                //$"ViewerThreeD [{SceneName}] OnAfterRenderAsync".WriteInfo();
+                HasRendered = true;
 
-            var jsNameSpace = ActiveScene.Title;
-            //await JsRuntime!.InvokeVoidAsync("ViewManager.establishViewer3D", (object)jsNameSpace);
+                var scene = GetActiveScene();
+                RenderService?.SetActiveScene(scene);
 
-            var functionName = Resolve(jsNameSpace, "loadViewer");
-            $"calling {functionName}".WriteInfo();
 
-            string str = JsonSerializer.Serialize<SceneDTO>(dto, JSONOptions);
-            await JsRuntime!.InvokeVoidAsync(functionName, (object)str);
-                        
-            await ActiveScene.UpdateScene();
-            //SRS  I bet we never load a module  so do not do this!!
-            //await ViewerThreeD.OnModuleLoaded();
+                var dto = new SceneDTO()
+                {
+                    Scene = scene,
+                    ViewerSettings = ViewerSettings,
+                    Camera = scene.Camera,
+                    OrbitControls = OrbitControls
+                };
+
+                //this is all about having a seperate namespace in javascript to render
+                //more than one view
+                var functionName = ResolveFunction("Initialize3DViewer");
+
+                try
+                {
+                    string json = JsonSerializer.Serialize<SceneDTO>(dto, JSONOptions);
+                    //$"ViewerThreeD calling {functionName} with {json}".WriteInfo();
+                    //WriteToFolder("Data", "ViewerThreeD_OnAfterRenderAsync.json", json);  
+                    await JsRuntime!.InvokeVoidAsync(functionName, (object)json);
+                }
+                catch (System.Exception ex)
+                {
+                    $"ViewerThreeD Error {ex.Message} OnAfterRenderAsync".WriteError();
+                }
+                            
+            }
+            await base.OnAfterRenderAsync(firstRender);
+
+        }
+
+
+        public async ValueTask DisposeAsync()
+        {
+            try
+            {
+                //$"ViewerThreeD [{SceneName}] TRY DisposeAsync".WriteWarning();
+                if (!HasRendered)
+                    return;
+                    
+                $"ViewerThreeD [{SceneName}] DisposeAsync".WriteInfo();
+                RenderService?.SetActiveScene(null!);
+                
+                
+                var functionName = ResolveFunction("Finalize3DViewer");
+                await JsRuntime!.InvokeVoidAsync(functionName);
+            }
+            catch (Exception ex)
+            {
+                $"ViewerThreeD DisposeAsync Exception {ex.Message}".WriteError();
+            }
+        }
+
+        public string WriteToFolder(string folder, string filename, string result)
+        {
+            try
+            {
+                FileHelpers.WriteData(folder, filename, result);
+                return result;
+            }
+            catch (Exception ex)
+            {
+                return ex.Message;
+            }
         }
 
         private void PopulateButtonsDict()
@@ -189,7 +225,7 @@ namespace BlazorThreeJS.Viewers
 
             foreach (var menu in menus)
             {
-                foreach (var button in ((PanelMenu)menu).Buttons)
+                foreach (var button in ((PanelMenu3D)menu).Buttons)
                 {
                     var uuid = button.Uuid!;
                     $"From FoundryBlazor Button UUID={uuid}".WriteInfo();
@@ -202,48 +238,37 @@ namespace BlazorThreeJS.Viewers
         }
 
 
+        // [JSInvokable]
+        // public static void ReceiveSelectedObjectUUID(string uuid, Vector3 size)
+        // {
 
+        //     $"ReceiveSelectedObjectUUID size={size.X}, {size.Y}, {size.Z}".WriteInfo();
 
+        //     try
+        //     {
+        //         var item = LoadedModels[uuid];
+        //         $"LoadedModels {uuid} item={item}".WriteInfo();
+        //         if (item != null)
+        //         {
+        //             //item.ComputedSize = size;
+        //             //item.OnClick.Invoke(item);
+        //         }
+        //         else
+        //         {
+        //             $"uuid={uuid} not found in LoadedModels".WriteError();
+        //         }
+        //     }
+        //     catch (Exception ex)
+        //     {
+        //         $"uuid={uuid} problem (could be a problem in onClick callback). Message={ex.Message}".WriteError();
+        //     }
 
-        [JSInvokable]
-        public static void ReceiveSelectedObjectUUID(string uuid, Vector3 size)
-        {
-
-            Console.WriteLine($"ReceiveSelectedObjectUUID size={size.X}, {size.Y}, {size.Z}");
-
-            try
-            {
-                var item = LoadedModels[uuid];
-                Console.WriteLine($"item={item}");
-                if (item != null)
-                {
-                    item.ComputedSize = size;
-                    item.OnClick.Invoke(item);
-                }
-                else
-                {
-                    Console.WriteLine($"uuid={uuid} not found in LoadedModels");
-                }
-            }
-            catch (Exception ex)
-            {
-                Console.WriteLine($"uuid={uuid} problem (could be a problem in onClick callback). Message={ex.Message}");
-            }
-
-        }
-
-
-
-
-
-
+        // }
 
 
         [JSInvokable]
-        public static Task OnClickButton(string containerId, string uuid)
+        public static Task OnClickButton(string uuid)
         {
-
-            Console.WriteLine($"OnClickButton containerId, uuid={containerId}, {uuid}");
             Console.WriteLine($"After OnClickButton, ViewerThreeD.Buttons ContainsKey ={ViewerThreeD.Buttons.ContainsKey(uuid)}");
 
             if (ViewerThreeD.Buttons.ContainsKey(uuid))
@@ -255,10 +280,10 @@ namespace BlazorThreeJS.Viewers
             return Task.CompletedTask;
         }
 
-        public static Object3D? GetObjectByUuid(string uuid, List<Object3D> children) 
-        {
-            return ChildrenHelper.GetObjectByUuid(uuid, children);
-        }
+        // public static Object3D? GetObjectByUuid(string uuid, List<Object3D> children) 
+        // {
+        //     return ChildrenHelper.GetObjectByUuid(uuid, children);
+        // }
 
 
 
@@ -376,21 +401,9 @@ namespace BlazorThreeJS.Viewers
         //     });
         // }
 
-        public void Dispose()
-        {
-            //ViewerThreeDObjectSelectedStatic -= new ViewerThreeDSelectedObjectStaticEventHandler(this.OnObjectSelectedStatic);
-            //ViewerThreeDObjectLoadedStatic -= new ViewerThreeDLoadedObjectStaticEventHandler(this.OnObjectLoadedStatic);
-            //this.ObjectLoadedPrivate -= new LoadedObjectEventHandler(this.OnObjectLoadedPrivate);
-        }
 
-        protected override void BuildRenderTree(RenderTreeBuilder __builder)
-        {
-            __builder.OpenElement(0, "div");
-            __builder.AddAttribute(1, "class", "viewer3dContainer");
-            __builder.AddAttribute(2, "id", this.SceneName);
-           // __builder.AddAttribute(3, "b-h6holr0slw");
-            __builder.CloseElement();
-        }
+
+
 
 
 

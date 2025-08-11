@@ -1,13 +1,11 @@
-import { Color, Scene } from 'three';
+import { Color } from 'three';
 import ThreeMeshUI, { BlockOptions } from 'three-mesh-ui';
+import { ObjectLookup } from '../Utils/ObjectLookup';
 
 const FontFamily = '/assets/Roboto-msdf.json';
 const FontImage = '/assets/Roboto-msdf.png';
 
 class MenuBuilderClass {
-    private Menus: any[] = [];
-    public elementPanels: Map<string, ThreeMeshUI.Block> = new Map<string, ThreeMeshUI.Block>();
-    public elementButtons: Map<string, ThreeMeshUI.Block> = new Map<string, ThreeMeshUI.Block>();
 
     private buttonOptions() {
         const buttonOptions = {
@@ -63,38 +61,6 @@ class MenuBuilderClass {
         return selectedAttributes;
     }
 
-    private MakePanel(scene: Scene, menuOptions: any) {
-        const { width, height } = menuOptions;
-        const blockOptions: BlockOptions = {
-            width,
-            height,
-            // justifyContent: 'center',
-            // contentDirection: 'row',
-            fontFamily: FontFamily,
-            fontTexture: FontImage,
-            fontSize: 0.07,
-            padding: 0.02,
-            borderRadius: 0.05,
-        };
-
-        const container = new ThreeMeshUI.Block(blockOptions);
-
-        const { x: posX, y: posY, z: posZ } = menuOptions.position;
-        container.position.set(posX, posY, posZ);
-
-        const { x: rotX, y: rotY, z: rotZ } = menuOptions.rotation;
-        container.rotation.set(rotX, rotY, rotZ);
-
-        scene.add(container);
-
-        menuOptions.buttons.forEach((button: any) => {
-            const panelButton = this.EstablishButton(button);
-            container.add(panelButton);
-        });
-
-        this.elementPanels.set(menuOptions.uuid, container);
-    }
-
     private EstablishButton(buttonOption: any): ThreeMeshUI.Block {
         const uiButton = new ThreeMeshUI.Block(this.buttonOptions());
         uiButton.uuid = buttonOption.uuid;
@@ -110,36 +76,45 @@ class MenuBuilderClass {
         uiButton['setupState'](this.buttonHoveredState());
         uiButton['setupState'](this.buttonIdleState());
 
-        this.elementButtons.set(uiButton.uuid, uiButton);
-
         return uiButton;
     }
 
-    private RemoveMenus(scene: Scene, options: any) {
-        this.elementPanels.forEach((item) => {
-            scene.remove(item);
+    public CreateMenuPanel(options: any): ThreeMeshUI.Block {
+        const { width, height } = options;
+
+        const blockOptions: BlockOptions = {
+            width,
+            height,
+            // justifyContent: 'center',
+            // contentDirection: 'row',
+            fontFamily: FontFamily,
+            fontTexture: FontImage,
+            fontSize: 0.07,
+            padding: 0.02,
+            borderRadius: 0.05,
+        };
+
+        const container = new ThreeMeshUI.Block(blockOptions);
+
+        options.buttons.forEach((button: any) => {
+            const panelButton = this.EstablishButton(button);
+            ObjectLookup.addButton(button.uuid, panelButton);
+            container.add(panelButton);
         });
-        this.elementButtons.forEach((item) => {
-            scene.remove(item);
-        });
+        return container;
     }
 
-    private GetMenuOptionss(options: any) {
-        const filterOptions = Boolean(options.scene) ? options.scene : options;
-        if (Boolean(filterOptions.children)) {
-            this.Menus = filterOptions.children.filter((item: any) => {
-                return item.type === 'Menu';
-            });
-        }
+    public RefreshMenuPanel(options: any, container: ThreeMeshUI.Block): ThreeMeshUI.Block {
+        var transform = options.transform;
+
+        const { x: posX, y: posY, z: posZ } = transform.position;
+        container.position.set(posX, posY, posZ);
+
+        const { x: rotX, y: rotY, z: rotZ } = transform.rotation;
+        container.rotation.set(rotX, rotY, rotZ);
+        return container;
     }
 
-    public BuildMenus(scene: Scene, options: any) {
-        this.RemoveMenus(scene, options);
-        this.GetMenuOptionss(options);
-        this.Menus.forEach((menuOptions) => {
-            this.MakePanel(scene, menuOptions);
-        });
-    }
 }
 
 export const MenuBuilder = new MenuBuilderClass();

@@ -42,8 +42,8 @@ namespace JSInterop
 
     export function Load(): void {
         console.log('In Load JSInterop');
-        var manager = new ViewManager();
-        window['ViewManager'] = manager;
+        //var manager = new ViewManager();
+       // window['ViewManager'] = manager;
 
         //window['Canvas3DComponent'] = new Viewer3D();
         //window['ViewerThreeD'] = new Viewer3D();
@@ -56,7 +56,7 @@ namespace JSInterop
         
 
         console.log('Complete Load JSInterop');
-        //window['BlazorThreeJS'] = new Viewer3D();
+
     }
 
     JSInterop.Load();

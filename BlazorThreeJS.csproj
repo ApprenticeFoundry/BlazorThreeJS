@@ -1,42 +1,59 @@
 <Project Sdk="Microsoft.NET.Sdk.Web">
 
   <PropertyGroup>
-    <TargetFrameworks>net6.0;net8.0</TargetFrameworks>
+    <TargetFrameworks>net9.0</TargetFrameworks>
     <Nullable>enable</Nullable>
     <ImplicitUsings>enable</ImplicitUsings>
-    <UserSecretsId>aa47adb6-d26c-4dde-b866-1ce704d22b3e</UserSecretsId>
-    <DockerDefaultTargetOS>Linux</DockerDefaultTargetOS>
-    <DockerfileContext>.</DockerfileContext>
-    <IsPackable>true</IsPackable>     
-    <Version>16.0.0</Version>
-    <AssemblyVersion>16.0.0</AssemblyVersion>
-    <EnableDefaultContentItems>false</EnableDefaultContentItems>
-    <JsLibRoot>JsLib\</JsLibRoot>
-
-    <Authors>Stephen Strong</Authors>
-    <Company>Stephen Strong</Company>
+    <AddRazorSupportForMvc>true</AddRazorSupportForMvc>
+    <IsPackable>true</IsPackable>
+    <LangVersion>12.0</LangVersion>
     <Copyright>Copyright © 2020</Copyright>
-    <Title>Blazor ThreeJS</Title>
+    <PackageLicenseExpression>MIT</PackageLicenseExpression>
+    <EmitCompilerGeneratedFiles>true</EmitCompilerGeneratedFiles>
+    <ErrorOnDuplicatePublishOutputFiles>false</ErrorOnDuplicatePublishOutputFiles>
+    <JsLibRoot>JsLib\</JsLibRoot>
+    <DefaultItemExcludes>$(DefaultItemExcludes);$(JsLibRoot)node_modules\**</DefaultItemExcludes>
+    <RestoreSources>$(RestoreSources);https://api.nuget.org/v3/index.json</RestoreSources>
+ 
+    <Title>ApprenticeFoundry Blazor ThreeJS</Title>
+    <description>3D graphics for blazor applications</description>
+    <packageTags>Foundry, 2D, 3D, Visio, Blazor</packageTags>
     <RepositoryUrl>https://github.com/ApprenticeFoundry/BlazorThreeJS</RepositoryUrl>
     <PackageLicenseExpression>MIT</PackageLicenseExpression>
     <PackageId>ApprenticeFoundryBlazorThreeJS</PackageId>
     <PlatformTarget>AnyCPU</PlatformTarget>
+    <Copyright>Copyright © 2020</Copyright>
+    <Version>20.2.0</Version>
+    <AssemblyVersion>20.2.0</AssemblyVersion>
+    <Authors>Stephen Strong</Authors>
+    <Company>Stephen Strong</Company>
     <PackageProjectUrl>https://apprenticefoundry.github.io/</PackageProjectUrl>
-</PropertyGroup>
+    <GeneratePackageOnBuild>true</GeneratePackageOnBuild>
+  </PropertyGroup>
 
-  <!-- <ItemGroup>
-      <Content Include="wwwroot/**/*.js" CopyToOutputDirectory="PreserveNewest" />
-  </ItemGroup> -->
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|AnyCPU'">
+    <Optimize>True</Optimize>
+  </PropertyGroup>
 
   <ItemGroup>
     <SupportedPlatform Include="browser" />
   </ItemGroup>
 
+  <PropertyGroup>
+      <PackageReadmeFile>README.md</PackageReadmeFile>
+  </PropertyGroup>
+
+  <ItemGroup>
+      <None Include="README.md" Pack="true" PackagePath="\" />
+  </ItemGroup>
+
   <ItemGroup>
     <!-- <ProjectReference Include="..\FoundryRulesAndUnits\FoundryRulesAndUnits.csproj" /> -->
-    <PackageReference Include="ApprenticeFoundryRulesAndUnits" Version="4.3.0" />
-    <PackageReference Include="System.Text.Json" Version="8.0.5" />
-
+    <PackageReference Include="ApprenticeFoundryRulesAndUnits" Version="7.2.0" />
+    <PackageReference Include="Blazor.Extensions.Canvas" Version="1.1.1" />
+    <PackageReference Include="BlazorComponentBus" Version="2.2.0" />
+    <PackageReference Include="System.Text.Json" Version="9.0.0" />
+    <PackageReference Include="Microsoft.AspNetCore.Components.Web" Version="9.0.7" />
   </ItemGroup>
 
 </Project>

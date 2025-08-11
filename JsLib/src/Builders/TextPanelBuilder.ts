@@ -23,11 +23,12 @@ class TextPanelBuilderClass {
         };
 
         const container = new ThreeMeshUI.Block(blockOptions);
+        var transform = textPanelOptions.transform;
 
-        const { x: posX, y: posY, z: posZ } = textPanelOptions.position;
+        const { x: posX, y: posY, z: posZ } = transform.position;
         container.position.set(posX, posY, posZ);
 
-        const { x: rotX, y: rotY, z: rotZ } = textPanelOptions.rotation;
+        const { x: rotX, y: rotY, z: rotZ } = transform.rotation;
         container.rotation.set(rotX, rotY, rotZ);
 
         scene.add(container);

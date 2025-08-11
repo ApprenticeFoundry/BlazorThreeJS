@@ -29,11 +29,12 @@ class PanelGroupBuilderClass {
         group.uuid = panelGroupOptions.uuid;
 
         const container = new ThreeMeshUI.Block(blockOptions);
+        var transform = panelGroupOptions.transform;
 
-        const { x: posX, y: posY, z: posZ } = panelGroupOptions.position;
+        const { x: posX, y: posY, z: posZ } = transform.position;
         group.position.set(posX, posY, posZ);
 
-        const { x: rotX, y: rotY, z: rotZ } = panelGroupOptions.rotation;
+        const { x: rotX, y: rotY, z: rotZ } = transform.rotation;
         group.rotation.set(rotX, rotY, rotZ);
 
         console.log('MakePanel ready to add group');
@@ -83,8 +84,9 @@ class PanelGroupBuilderClass {
         };
 
         const panel = new ThreeMeshUI.Block(blockOptions);
+        var transform = textPanelOptions.transform;
 
-        const { x: posX, y: posY, z: posZ } = textPanelOptions.position;
+        const { x: posX, y: posY, z: posZ } = transform.position;
         panel.position.set(posX, posY, posZ);
 
         textPanelOptions.textLines.forEach((textLine: any) => {
@@ -95,18 +97,28 @@ class PanelGroupBuilderClass {
         return panel;
     }
 
-    private EstablishMesh(options: any) {
-        const geometry = GeometryBuilder.buildGeometry(options.geometry, options.material);
+    private EstablishMesh(options: any) : Mesh {
+        const geometry = GeometryBuilder.buildGeometry(options.geometry);
         const material = MaterialBuilder.buildMaterial(options.material);
 
-        if (geometry.type === 'Group') {
-            return geometry as Group;
-        } else {
-            const item = geometry as BufferGeometry;
-            const entity = new Mesh(item, material);
-            return entity;
-        }
+        const item = geometry as BufferGeometry;
+        const entity = new Mesh(item, material);
+        return entity;
+        
     }
+
+    // private EstablishMesh(options: any) : Group | Mesh {
+    //     const geometry = GeometryBuilder.buildGeometry(options.geometry, options.material);
+    //     const material = MaterialBuilder.buildMaterial(options.material);
+
+    //     if (geometry.type === 'Group') {
+    //         return geometry as Group;
+    //     } else {
+    //         const item = geometry as BufferGeometry;
+    //         const entity = new Mesh(item, material);
+    //         return entity;
+    //     }
+    // }
 
     private RemovePanels(scene: Scene, options: any) {
         this.elementPanels.forEach((item) => {

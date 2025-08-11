@@ -9,7 +9,7 @@ namespace BlazorThreeJS.Cameras
 {
     public abstract class Camera : Object3D
     {
-        protected Camera(string type = "Camera")
+        protected Camera(string type)
           : base(type)
         {
         }

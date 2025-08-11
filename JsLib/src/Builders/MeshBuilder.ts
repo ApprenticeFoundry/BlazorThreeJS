@@ -1,39 +1,86 @@
-import { BufferGeometry, Group, Mesh, Scene } from 'three';
+import { BufferGeometry, Material, Mesh, Object3D } from 'three';
 import { Transforms } from '../Utils/Transforms';
 import { GeometryBuilder } from './GeometryBuilder';
 import { MaterialBuilder } from './MaterialBuilder';
-import { SceneState } from '../Utils/SceneState';
+
+export interface MeshCreationResult {
+    mesh: Mesh | null;
+    geometry: BufferGeometry | null;
+    material: Material | null;
+}
 
 export class MeshBuilder {
-    static BuildMesh(options: any, scene: Scene) {
-        const geometry = GeometryBuilder.buildGeometry(options.geometry, options.material);
-        const material = MaterialBuilder.buildMaterial(options.material);
-
-        let entity = null;
-        if (geometry['isGroup']) {
-            entity = geometry;
-        } else {
-            const item = geometry as BufferGeometry;
-            entity = new Mesh(item, material);
-            Transforms.setScale(entity, options.scale);
+    public static ConstructGeometry(options: any): BufferGeometry | null {
+        try {
+            const geometry = GeometryBuilder.buildGeometry(options.geometry);
+            geometry.name = options.name;
+            geometry.uuid = options.uuid;
+            return geometry;          
+        } catch (error) {
+            console.error('MeshBuilder.ConstructGeometry', error);
+            return null;
         }
 
-        if (!Boolean(options.pivot)) {
-            entity.uuid = options.uuid;
-            Transforms.setPosition(entity, options.position);
-            Transforms.setRotation(entity, options.rotation);
-            SceneState.addPrimitive(entity.uuid, entity);
+    }
+
+    public static ConstructMaterial(options: any): Material | null {
+        try {
+            const material = MaterialBuilder.buildMaterial(options.material);
+            material.name = options.name;
+            material.uuid = options.uuid;
+            
+            return material;
+        } catch (error) {
+            console.error('MeshBuilder.ConstructMaterial', error);
+            return null;
+        }
+    }
+
+    public static CreateMesh(options: any): MeshCreationResult {
+
+        //console.log('MeshBuilder.CreateMesh', options);
+        if ( !Boolean(options.geometry) || !Boolean(options.material) )
+            return {
+                mesh: null,
+                geometry: null,
+                material: null
+            };
+
+        
+        try {
+            const geometry = this.ConstructGeometry(options);
+            const material = this.ConstructMaterial(options);
+            const mesh = new Mesh(geometry, material);
+    
+            mesh.name = options.name;
+            mesh.uuid = options.uuid;
+    
+            return {
+                mesh,
+                geometry,
+                material
+            };
+        } catch (error) {
+            console.error('MeshBuilder.CreateMesh', error);
+            return {
+                mesh: null,
+                geometry: null,
+                material: null
+            };
+        }
+    }
+
+
+    public static ApplyMeshTransform(options: any, entity: Object3D): Object3D {
+
+        //console.log('MeshBuilder.ApplyMeshTransform', options);
+        try {
+            Transforms.setTransform(entity, options.transform);
+            return entity;       
+        } catch (error) {
+            console.error('MeshBuilder.ApplyMeshTransform', error);
             return entity;
-        } else {
-            Transforms.setPosition(entity, options.pivot);
-            const group = new Group();
-            group.uuid = options.uuid;
-            group.add(entity);
-            Transforms.setPosition(group, options.position);
-            Transforms.setRotation(group, options.rotation);
-            Transforms.setScale(group, options.scale);
-            SceneState.addPrimitive(group.uuid, entity);
-            return group;
+            
         }
     }
 }

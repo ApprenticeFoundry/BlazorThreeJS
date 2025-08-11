@@ -10,11 +10,10 @@ using FoundryRulesAndUnits.Models;
 using System;
 
 
-namespace BlazorThreeJS.Textures
+namespace BlazorThreeJS.Core
 {
     public class Texture
     {
-        protected StatusBitArray StatusBits = new();
         public string? Uuid { get; set; }
 
         public Texture() {}

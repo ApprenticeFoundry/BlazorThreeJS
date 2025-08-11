@@ -1,10 +1,4 @@
-﻿// Decompiled with JetBrains decompiler
-// Type: Blazor3D.Settings.ImportSettings
-// Assembly: Blazor3D, Version=0.1.24.0, Culture=neutral, PublicKeyToken=null
-// MVID: 8589B0D0-D62F-4099-9D8A-332F65D16B15
-// Assembly location: Blazor3D.dll
-
-using BlazorThreeJS.Enums;
+﻿using BlazorThreeJS.Enums;
 using BlazorThreeJS.Materials;
 
 using BlazorThreeJS.Maths;
@@ -12,41 +6,70 @@ using BlazorThreeJS.Core;
 using BlazorThreeJS.Objects;
 
 using System.Text.Json.Serialization;
-using BlazorThreeJS.Viewers;
+using FoundryRulesAndUnits.Extensions;
+
 
 
 namespace BlazorThreeJS.Settings
 {
-    public class ImportSettings
+    public class ImportSettings : Object3D
     {
-        [JsonConverter(typeof(JsonStringEnumConverter))]
-        public Import3DFormats Format { get; set; }
-        public string? FileURL { get; set; }
-        //public string? TextureURL { get; set; }
-        public string? Uuid { get; set; }
-        public Vector3 Position { get; set; } = new Vector3();
-        public Vector3 Pivot { get; set; } = new Vector3();
-        public Vector3 Scale { get; set; } = new Vector3(1.0, 1.0, 1.0);
-        public Euler Rotation { get; set; } = new Euler();
 
-        public Vector3? ComputedSize { get; set; }
 
-        [JsonIgnore]
-        public MeshStandardMaterial? Material { get; set; }
-        [JsonIgnore]
-        public Action? OnComplete { get; set; }
-        [JsonIgnore]
-        public Action<ImportSettings> OnClick { get; set; } = (ImportSettings model3D) => { };
-        [JsonIgnore]
-        public int ClickCount { get; set; } = 0;
-        public bool IsShow()
+        public ImportSettings() : base(nameof(ImportSettings))
         {
-            return ClickCount % 2 == 1;
+            Transform = null!;
         }
-        public int Increment()
+
+        public Model3D AddRequestedModel(Model3D model)
         {
-            return ++ClickCount;
+            model.IsDirty = false;
+            Uuid = model.Uuid;  //use the same uuid as the model
+            AddChild(model);
+            return model;
         }
+
+        public override (bool success, Object3D result) AddChild(Object3D child)
+        {
+            if (child == null)
+            {
+                //$"AddChild missing  Uuid, {child.Name}".WriteError();  
+                return (false, child!);
+            }
+
+            var uuid = child.Uuid;
+            if (string.IsNullOrEmpty(uuid))
+            {
+                //$"AddChild missing  Uuid, {child.Name}".WriteError();  
+                return (false, child);
+            }
+
+            //what if you have a child with the same uuid? but it is a different object?
+            var (found, item) = FindChild(uuid);
+            if (found)
+            {
+                //$"Object3D AddChild Exist: returning existing {child.Name} -> {item.Name} {item.Uuid}".WriteError();  
+                return (false, item!);
+            }
+
+            //$"Object3D AddChild {child.Name} -> {this.Name} {this.Uuid}".WriteInfo();
+
+            children.Add(child);
+
+            return (true, child);
+        }
+
+
+        public void CopyAndReset(List<Object3D> items)
+        {
+            foreach (var child in items)
+            {
+                child.IsDirty = false;
+                AddChild(child);
+            }
+            //$"CopyAndReset {Children.Count()} are dirty".WriteInfo();
+        }
+
 
     }
 }

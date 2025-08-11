@@ -13,7 +13,7 @@ namespace BlazorThreeJS.Viewers
 {
     public class SceneDTO
     {
-        public Scene? Scene { get; set; }
+        public Scene3D? Scene { get; set; }
         public ViewerSettings? ViewerSettings { get; set; }
         public Camera? Camera { get; set; }
         public OrbitControls? OrbitControls { get; set; }

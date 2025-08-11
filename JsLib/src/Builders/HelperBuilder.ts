@@ -3,18 +3,18 @@ import {
     AxesHelper,
     BoxHelper,
     GridHelper,
+    Object3D,
     Plane,
     PlaneHelper,
     PointLight,
     PointLightHelper,
     PolarGridHelper,
-    Scene,
     Vector3,
 } from 'three';
 import { Transforms } from '../Utils/Transforms';
 
 export class HelperBuilder {
-    static BuildHelper(options: any, scene: Scene) {
+    static BuildHelper(options: any, source: Object3D): Object3D {
         if (options.type == 'ArrowHelper') {
             const dir = new Vector3(options.dir.x, options.dir.y, options.dir.z);
             dir.normalize();
@@ -36,29 +36,21 @@ export class HelperBuilder {
         if (options.type == 'AxesHelper') {
             const axes = new AxesHelper(options.size);
             axes.uuid = options.uuid;
-            Transforms.setPosition(axes, options.position);
-            Transforms.setRotation(axes, options.rotation);
-            Transforms.setScale(axes, options.scale);
+            Transforms.setTransform(axes, options.transform);
             return axes;
         }
 
         if (options.type == 'BoxHelper') {
-            const obj = scene.getObjectByProperty('uuid', options.object3D.uuid);
-            if (!obj) {
-                throw `BoxHelper's object with uuid ${options.object3D.uuid} not found`;
-            }
-            const box = new BoxHelper(obj, options.color);
+            const box = new BoxHelper(source, options.color);
             box.uuid = options.uuid;
-            // transitions do not work here
+            Transforms.setTransform(box, options.transform);
             return box;
         }
 
         if (options.type == 'GridHelper') {
             const grid = new GridHelper(options.size, options.divisions, options.colorCenterLine, options.colorGrid);
             grid.uuid = options.uuid;
-            Transforms.setPosition(grid, options.position);
-            Transforms.setRotation(grid, options.rotation);
-            Transforms.setScale(grid, options.scale);
+            Transforms.setTransform(grid, options.transform);
             return grid;
         }
 
@@ -72,9 +64,7 @@ export class HelperBuilder {
                 options.color2
             );
             grid.uuid = options.uuid;
-            Transforms.setPosition(grid, options.position);
-            Transforms.setRotation(grid, options.rotation);
-            Transforms.setScale(grid, options.scale);
+            Transforms.setTransform(grid, options.transform);
             return grid;
         }
 
@@ -84,23 +74,18 @@ export class HelperBuilder {
             let plane = new Plane(normal, options.plane.constant);
 
             const planeHelper = new PlaneHelper(plane, options.size, options.color);
-            planeHelper.uuid = options.uuid;
-            Transforms.setPosition(planeHelper, options.position);
-            Transforms.setRotation(planeHelper, options.rotation);
-            Transforms.setScale(planeHelper, options.scale);
+            planeHelper.uuid = options.uuid;;
+            Transforms.setTransform(planeHelper, options.transform);
             return planeHelper;
         }
 
         if (options.type == 'PointLightHelper') {
-            const obj = scene.getObjectByProperty('uuid', options.light.uuid) as PointLight;
-            if (!obj) {
-                throw `BoxHelper's object with uuid ${options.light.uuid} not found`;
-            }
-            var color = options.color || obj.color;
+            var light = source as PointLight;
+            var color = options.color || light.color;
 
-            const plight = new PointLightHelper(obj, options.sphereSize, color);
+            const plight = new PointLightHelper(light, options.sphereSize, color);
             plight.uuid = options.uuid;
-            // transitions do not work here
+            Transforms.setTransform(plight, options.transform);
             return plight;
         }
     }

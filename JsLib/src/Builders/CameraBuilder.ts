@@ -21,9 +21,8 @@ export class CameraBuilder {
         }
 
         camera.uuid = options.uuid;
-        Transforms.setPosition(camera, options.position);
-        Transforms.setRotation(camera, options.rotation);
-        Transforms.setScale(camera, options.scale);
+        var transform = options.transform;
+        Transforms.setTransform(camera, transform);
         let { x, y, z } = options.lookAt;
         camera.lookAt(x, y, z);
         return camera;

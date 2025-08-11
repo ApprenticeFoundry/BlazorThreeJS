@@ -4,14 +4,14 @@ using BlazorThreeJS.Core;
 
 namespace BlazorThreeJS.Geometires
 {
-    public sealed class BoxGeometry : BufferGeometry
+    public sealed class BoundaryGeometry : BufferGeometry
     {
-        public BoxGeometry()
-          : base(nameof(BoxGeometry))
+        public BoundaryGeometry()
+          : base(nameof(BoundaryGeometry))
         {
         }
 
-        public BoxGeometry(
+        public BoundaryGeometry(
           double width = 1f,
           double height = 1f,
           double depth = 1f,
