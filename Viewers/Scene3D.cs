@@ -157,16 +157,17 @@ public class Scene3D : Object3D
 
         if (dirtyObjects.Count > 0)
         {
-            $"Need to refresh {dirtyObjects.Count} objects".WriteSuccess();
+            //$"Need to refresh {dirtyObjects.Count} objects".WriteSuccess();
             var refresh = new ImportSettings();
             refresh.CopyAndReset(dirtyObjects);
             refreshTask = this.Request3DSceneRefresh(refresh, (_) =>
             {
-               $"ComputeRefreshObjects  {dirtyObjects.Count} dirty objects updated".WriteSuccess(1);
-               foreach(var item in dirtyObjects)
-               {
-                   //$"Refreshed {item.Name} {item.Type} IsDirty {item.IsDirty}".WriteInfo(1);
-               }
+                //$"ComputeRefreshObjects  {dirtyObjects.Count} dirty objects updated".WriteSuccess(1);
+                foreach (var item in dirtyObjects)
+                {
+                    ".".WriteInLine(ConsoleColor.DarkGreen);
+                  // $"Refreshed {item.Name} {item.Type} IsDirty {item.IsDirty}".WriteInfo(1);
+                }
             });
         }
 
@@ -178,7 +179,7 @@ public class Scene3D : Object3D
             delete.CopyAndReset(deletedObjects);
             deleteTask = this.Request3DSceneDelete(delete, (_) =>
             {
-               // $"ComputeRefreshObjects  {deletedObjects.Count} deleted objects".WriteSuccess();
+              // $"ComputeRefreshObjects  {deletedObjects.Count} deleted objects".WriteSuccess();
             });
         }
         return (true, refreshTask, deleteTask);
@@ -287,7 +288,7 @@ public class Scene3D : Object3D
 
         try
         {
-            $"Request3DSceneRefresh {uuids.Count}".WriteInfo();
+            //$"Request3DSceneRefresh {uuids.Count}".WriteInfo();
             var functionName = ResolveFunction("request3DSceneRefresh");
             var json = JsonSerializer.Serialize((object)settings, JSONOptions);
             //WriteToFolder("Data", "Scene3D_Request3SceneRefresh.json", json); 

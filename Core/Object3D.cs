@@ -76,7 +76,6 @@ namespace BlazorThreeJS.Core
 
         public virtual bool CollectDirtyObjects(List<Object3D> dirtyObjects, List<Object3D> deletedObjects)
         {
-
             if (IsDirty)
             {
                 dirtyObjects.Add(this);
@@ -98,6 +97,7 @@ namespace BlazorThreeJS.Core
             {
                 children.Remove(child);
                 deletedObjects.Add(child);
+               // $"Object3D CollectDirtyObjects Deleted Child {child.Name} from {Name}".WriteWarning();
             }
 
             if (ShouldDelete())

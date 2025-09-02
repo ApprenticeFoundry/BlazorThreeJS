@@ -191,8 +191,8 @@ namespace BlazorThreeJS.Viewers
                 //$"ViewerThreeD [{SceneName}] TRY DisposeAsync".WriteWarning();
                 if (!HasRendered)
                     return;
-                    
-                $"ViewerThreeD [{SceneName}] DisposeAsync".WriteInfo();
+
+                // $"ViewerThreeD [{SceneName}] DisposeAsync".WriteInfo();
                 RenderService?.SetActiveScene(null!);
                 
                 
