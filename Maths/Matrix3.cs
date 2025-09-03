@@ -542,4 +542,88 @@ public class Matrix3
         Copy(a);
         return Multiply(b);
     }
+
+    // Additional compatibility methods for FoundryBlazor Matrix3D replacement
+    public Matrix3 SetTranslation(double x, double y, double z)
+    {
+        matrix[12] = x;
+        matrix[13] = y;
+        matrix[14] = z;
+        return this;
+    }
+
+    public Matrix3 SetTranslation(Vector3 translation)
+    {
+        return SetTranslation(translation.X, translation.Y, translation.Z);
+    }
+
+    public Vector3 TransformDirection(Vector3 direction)
+    {
+        // Transform direction without translation (w=0)
+        double x = direction.X * matrix[0] + direction.Y * matrix[4] + direction.Z * matrix[8];
+        double y = direction.X * matrix[1] + direction.Y * matrix[5] + direction.Z * matrix[9];
+        double z = direction.X * matrix[2] + direction.Y * matrix[6] + direction.Z * matrix[10];
+        return new Vector3(x, y, z);
+    }
+
+    public bool ApproximatelyEquals(Matrix3 other, double tolerance = 0.001)
+    {
+        for (int i = 0; i < 16; i++)
+        {
+            if (Math.Abs(matrix[i] - other.matrix[i]) > tolerance)
+                return false;
+        }
+        return true;
+    }
+
+    public Matrix3 Reset()
+    {
+        return Identity();
+    }
+
+    public string ToStringFormatted()
+    {
+        return $"Matrix3[{matrix[12]:F2},{matrix[13]:F2},{matrix[14]:F2}]";
+    }
+
+    // Static factory methods for common matrices
+    public static Matrix3 CreateTranslation(Vector3 translation)
+    {
+        var matrix = NewMatrix();
+        matrix.SetTranslation(translation);
+        return matrix;
+    }
+
+    public static Matrix3 CreateRotationX(double degrees)
+    {
+        var matrix = NewMatrix();
+        return matrix.RotateX(degrees);
+    }
+
+    public static Matrix3 CreateRotationY(double degrees)
+    {
+        var matrix = NewMatrix();
+        return matrix.RotateY(degrees);
+    }
+
+    public static Matrix3 CreateRotationZ(double degrees)
+    {
+        var matrix = NewMatrix();
+        return matrix.RotateZ(degrees);
+    }
+
+    public static Matrix3 CreateScale(Vector3 scale)
+    {
+        var matrix = NewMatrix();
+        return matrix.Scale(scale.X, scale.Y, scale.Z);
+    }
+
+    public static Matrix3 CreateFromPositionRotationScale(Vector3 position, Vector3 rotation, Vector3 scale)
+    {
+        var matrix = NewMatrix();
+        matrix.Scale(scale.X, scale.Y, scale.Z);
+        matrix.RotateEuler(rotation.X, rotation.Y, rotation.Z);
+        matrix.SetTranslation(position);
+        return matrix;
+    }
 }
