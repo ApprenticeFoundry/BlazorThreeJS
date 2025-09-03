@@ -42,6 +42,43 @@ namespace BlazorThreeJS.Maths
             matrix.Multiply(positionTranslation.GetMatrix());
 
             return matrix;
+        }
+
+        // Compatibility methods for FoundryBlazor migration
+        public Vector3 TransformPoint(Vector3 point)
+        {
+            return ToMatrix3().TransformPoint(point);
+        }
+
+        public Transform3 Identity()
+        {
+            position = new Vector3();
+            pivot = new Vector3();
+            rotation = new Euler();
+            scale = new Vector3(1, 1, 1);
+            SetDirty(true);
+            return this;
+        }
+
+        public Transform3 Translate(double x, double y, double z)
+        {
+            position = new Vector3(position.X + (float)x, position.Y + (float)y, position.Z + (float)z);
+            SetDirty(true);
+            return this;
+        }
+
+        public Transform3 SetScale(double x, double y, double z)
+        {
+            scale = new Vector3((float)x, (float)y, (float)z);
+            SetDirty(true);
+            return this;
+        }
+
+        public Transform3 RotateEuler(double x, double y, double z)
+        {
+            rotation = new Euler((float)x, (float)y, (float)z);
+            SetDirty(true);
+            return this;
         }        
 
         protected Vector3 position = new Vector3();

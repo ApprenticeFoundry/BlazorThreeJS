@@ -174,6 +174,42 @@ public class Vector3
         if (v == null) return 0.0;
         return Math.Sqrt(v.X * v.X + v.Y * v.Y + v.Z * v.Z);
     }
+
+    // Operator overloads for compatibility with FoVector3D
+    public static Vector3 operator +(Vector3 a, Vector3 b)
+        => new(a.X + b.X, a.Y + b.Y, a.Z + b.Z);
+
+    public static Vector3 operator -(Vector3 a, Vector3 b)
+        => new(a.X - b.X, a.Y - b.Y, a.Z - b.Z);
+
+    public static Vector3 operator *(Vector3 v, double scalar)
+        => new(v.X * scalar, v.Y * scalar, v.Z * scalar);
+
+    public static Vector3 operator *(double scalar, Vector3 v)
+        => new(v.X * scalar, v.Y * scalar, v.Z * scalar);
+
+    // Static methods for compatibility with FoVector3D extensions
+    public static Vector3 Cross(Vector3 a, Vector3 b)
+        => new(a.Y * b.Z - a.Z * b.Y, a.Z * b.X - a.X * b.Z, a.X * b.Y - a.Y * b.X);
+
+    public static double Dot(Vector3 a, Vector3 b)
+        => a.X * b.X + a.Y * b.Y + a.Z * b.Z;
+
+    public static double Distance(Vector3 a, Vector3 b)
+        => (a - b).Length();
+
+    public Vector3 Clamp(double min, double max)
+        => new(Math.Clamp(X, min, max), Math.Clamp(Y, min, max), Math.Clamp(Z, min, max));
+
+    // Common vector constants
+    public static Vector3 Zero => new(0, 0, 0);
+    public static Vector3 One => new(1, 1, 1);
+    public static Vector3 Up => new(0, 1, 0);
+    public static Vector3 Down => new(0, -1, 0);
+    public static Vector3 Left => new(-1, 0, 0);
+    public static Vector3 Right => new(1, 0, 0);
+    public static Vector3 Forward => new(0, 0, 1);
+    public static Vector3 Back => new(0, 0, -1);
 }
 
 

@@ -464,4 +464,82 @@ public class Matrix3
         clone.matrix = (double[])this.matrix.Clone();
         return clone;
     }
+
+    // Additional methods for Matrix3D compatibility
+    public double[] Elements => matrix;
+
+    public Vector3 GetTranslation()
+        => new(matrix[12], matrix[13], matrix[14]);
+
+    public Vector3 GetScale()
+    {
+        var sx = new Vector3(matrix[0], matrix[1], matrix[2]).Length();
+        var sy = new Vector3(matrix[4], matrix[5], matrix[6]).Length();
+        var sz = new Vector3(matrix[8], matrix[9], matrix[10]).Length();
+        return new Vector3(sx, sy, sz);
+    }
+
+    public Vector3 GetRotation()
+    {
+        var scale = GetScale();
+        var m11 = matrix[0] / scale.X;
+        var m12 = matrix[1] / scale.X;
+        var m13 = matrix[2] / scale.X;
+        var m21 = matrix[4] / scale.Y;
+        var m22 = matrix[5] / scale.Y;
+        var m23 = matrix[6] / scale.Y;
+        var m31 = matrix[8] / scale.Z;
+        var m32 = matrix[9] / scale.Z;
+        var m33 = matrix[10] / scale.Z;
+
+        var sy = Math.Sqrt(m11 * m11 + m21 * m21);
+        var singular = sy < 1e-6;
+
+        double x, y, z;
+        if (!singular)
+        {
+            x = Math.Atan2(m32, m33);
+            y = Math.Atan2(-m31, sy);
+            z = Math.Atan2(m21, m11);
+        }
+        else
+        {
+            x = Math.Atan2(-m23, m22);
+            y = Math.Atan2(-m31, sy);
+            z = 0;
+        }
+
+        return new Vector3(x, y, z);
+    }
+
+    public void SetPosition(Vector3 position)
+    {
+        matrix[12] = position.X;
+        matrix[13] = position.Y;
+        matrix[14] = position.Z;
+    }
+
+    public Matrix3 Copy(Matrix3 source)
+    {
+        Array.Copy(source.matrix, matrix, 16);
+        return this;
+    }
+
+    public void SetRotationFromBasis(Vector3 right, Vector3 up, Vector3 forward)
+    {
+        matrix[0] = right.X; matrix[1] = right.Y; matrix[2] = right.Z;
+        matrix[4] = up.X; matrix[5] = up.Y; matrix[6] = up.Z;
+        matrix[8] = forward.X; matrix[9] = forward.Y; matrix[10] = forward.Z;
+    }
+
+    public Matrix3 GetInverse()
+    {
+        return Clone().Invert();
+    }
+
+    public Matrix3 MultiplyMatrices(Matrix3 a, Matrix3 b)
+    {
+        Copy(a);
+        return Multiply(b);
+    }
 }
