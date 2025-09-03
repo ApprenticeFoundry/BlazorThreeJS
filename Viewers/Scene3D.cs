@@ -162,10 +162,10 @@ public class Scene3D : Object3D
             refresh.CopyAndReset(dirtyObjects);
             refreshTask = this.Request3DSceneRefresh(refresh, (_) =>
             {
-                //$"ComputeRefreshObjects  {dirtyObjects.Count} dirty objects updated".WriteSuccess(1);
+                $"ComputeRefreshObjects  {dirtyObjects.Count} dirty objects updated".WriteSuccess(1);
                 foreach (var item in dirtyObjects)
                 {
-                    ".".WriteInLine(ConsoleColor.DarkGreen);
+                    //".".WriteInLine(ConsoleColor.DarkGreen);
                   // $"Refreshed {item.Name} {item.Type} IsDirty {item.IsDirty}".WriteInfo(1);
                 }
             });
@@ -174,7 +174,7 @@ public class Scene3D : Object3D
 
         if (deletedObjects.Count > 0)
         {
-           // $"Need to delete {deletedObjects.Count} objects".WriteSuccess();
+            $"Need to delete {deletedObjects.Count} objects".WriteSuccess();
             var delete = new ImportSettings();
             delete.CopyAndReset(deletedObjects);
             deleteTask = this.Request3DSceneDelete(delete, (_) =>
