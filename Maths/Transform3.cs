@@ -26,9 +26,16 @@ namespace BlazorThreeJS.Maths
             pivotTranslation.Translate(pivot);
             matrix.Multiply(pivotTranslation.GetMatrix());
 
-            // Apply rotation
+            // Apply rotation - use quaternion if it's not identity, otherwise fallback to Euler
             var rotationMatrix = Matrix3.NewMatrix();
-            rotationMatrix.Rotate(rotation);
+            if (quaternionRotation != Quaternion.Identity)
+            {
+                rotationMatrix.RotateQuaternion(quaternionRotation);
+            }
+            else
+            {
+                rotationMatrix.Rotate(rotation);
+            }
             matrix.Multiply(rotationMatrix.GetMatrix());
 
             // Apply scaling
@@ -77,7 +84,37 @@ namespace BlazorThreeJS.Maths
         public Transform3 RotateEuler(double x, double y, double z)
         {
             rotation = new Euler((float)x, (float)y, (float)z);
+            // Sync quaternion with new Euler rotation
+            quaternionRotation = Quaternion.FromEuler(rotation);
             SetDirty(true);
+            return this;
+        }
+
+        /// <summary>
+        /// Set rotation using quaternion - ideal for constraints and smooth rotations
+        /// </summary>
+        public Transform3 RotateQuaternion(Quaternion quat)
+        {
+            QuaternionRotation = quat;
+            return this;
+        }
+
+        /// <summary>
+        /// Rotate from one direction to another using quaternions
+        /// Perfect for face-to-face alignment in snapping constraints
+        /// </summary>
+        public Transform3 RotateFromTo(Vector3 fromDirection, Vector3 toDirection)
+        {
+            QuaternionRotation = Quaternion.FromToRotation(fromDirection, toDirection);
+            return this;
+        }
+
+        /// <summary>
+        /// Apply additional rotation using quaternion multiplication
+        /// </summary>
+        public Transform3 ApplyRotation(Quaternion additionalRotation)
+        {
+            QuaternionRotation = quaternionRotation * additionalRotation;
             return this;
         }        
 
@@ -96,10 +133,28 @@ namespace BlazorThreeJS.Maths
         }
 
         protected Euler rotation = new Euler();
+        protected Quaternion quaternionRotation = Quaternion.Identity;
+        
         public Euler Rotation
         {
             get => rotation;
-            set => rotation = AssignEuler(value, rotation); //maybe change to Quaternion
+            set => rotation = AssignEuler(value, rotation);
+        }
+
+        /// <summary>
+        /// Quaternion rotation - provides gimbal-lock-free rotation
+        /// When set, automatically syncs with Euler rotation for compatibility
+        /// </summary>
+        public Quaternion QuaternionRotation
+        {
+            get => quaternionRotation;
+            set 
+            {
+                quaternionRotation = AssignQuaternion(value, quaternionRotation);
+                // Auto-sync to Euler for compatibility
+                rotation = quaternionRotation.ToEuler();
+                SetDirty(true);
+            }
         }
 
         protected Vector3 scale = new Vector3(1, 1, 1);
@@ -147,7 +202,12 @@ namespace BlazorThreeJS.Maths
         protected Euler AssignEuler(Euler newValue, Euler oldValue)
         {
             SetDirty(true);
+            return newValue;
+        }
 
+        protected Quaternion AssignQuaternion(Quaternion newValue, Quaternion oldValue)
+        {
+            SetDirty(true);
             return newValue;
         }
     }

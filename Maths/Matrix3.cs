@@ -183,6 +183,53 @@ public class Matrix3
         Multiply(rotZ);
     }
 
+    /// <summary>
+    /// Apply quaternion rotation to matrix
+    /// Converts quaternion to rotation matrix for precise rotations
+    /// </summary>
+    public Matrix3 RotateQuaternion(Quaternion q)
+    {
+        // Normalize quaternion
+        var length = Math.Sqrt(q.X * q.X + q.Y * q.Y + q.Z * q.Z + q.W * q.W);
+        if (length < 0.000001)
+            return this; // No rotation
+            
+        var x = q.X / length;
+        var y = q.Y / length;
+        var z = q.Z / length;
+        var w = q.W / length;
+
+        // Convert quaternion to 4x4 rotation matrix
+        var xx = x * x;
+        var yy = y * y;
+        var zz = z * z;
+        var xy = x * y;
+        var xz = x * z;
+        var yz = y * z;
+        var wx = w * x;
+        var wy = w * y;
+        var wz = w * z;
+
+        double[] quatMatrix = {
+            1 - 2 * (yy + zz), 2 * (xy - wz), 2 * (xz + wy), 0,
+            2 * (xy + wz), 1 - 2 * (xx + zz), 2 * (yz - wx), 0,
+            2 * (xz - wy), 2 * (yz + wx), 1 - 2 * (xx + yy), 0,
+            0, 0, 0, 1
+        };
+
+        Multiply(quatMatrix);
+        return this;
+    }
+
+    /// <summary>
+    /// Set matrix to quaternion rotation (replaces existing rotation)
+    /// </summary>
+    public void SetQuaternionRotation(Quaternion q)
+    {
+        Identity();
+        RotateQuaternion(q);
+    }
+
     // Transform a point using the matrix
     public Vector3 TransformPoint(Vector3 point)
     {
