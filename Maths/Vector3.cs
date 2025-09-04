@@ -36,6 +36,12 @@ public class Vector3
         };
     }
 
+    // Static version for convenience (matching extension method API)
+    public static Vector3 Lerp(Vector3 from, Vector3 to, double t)
+    {
+        return from.Lerp(to, t);
+    }
+
     // Convert to euler angles
     public Vector3 ToEuler()
     {
@@ -130,15 +136,15 @@ public class Vector3
         return new Vector3(X / len, Y / len, Z / len);
     }
 
-    public double distanceXZ()
-    {
-        return Math.Sqrt(this.X * this.X + this.Z * this.Z);
-    }
+    // public double distanceXZ()
+    // {
+    //     return Math.Sqrt(this.X * this.X + this.Z * this.Z);
+    // }
 
-    public double bearingXZ()
-    {
-        return Math.Atan2(this.X, this.Z);
-    }
+    // public double bearingXZ()
+    // {
+    //     return Math.Atan2(this.X, this.Z);
+    // }
 
     public Vector3 copyFrom(Vector3 pos)
     {
@@ -200,6 +206,128 @@ public class Vector3
 
     public Vector3 Clamp(double min, double max)
         => new(Math.Clamp(X, min, max), Math.Clamp(Y, min, max), Math.Clamp(Z, min, max));
+
+    // === ADVANCED VECTOR OPERATIONS ===
+    // (Moved from Vector3Extensions for better design)
+    
+    /// <summary>Project this vector onto another vector</summary>
+    public Vector3 Project(Vector3 onto)
+    {
+        var ontoNormalized = onto.Normalize();
+        var projectionLength = Dot(ontoNormalized);
+        return ontoNormalized * projectionLength;
+    }
+    
+    /// <summary>Reflect this vector across a normal</summary>
+    public Vector3 Reflect(Vector3 normal)
+    {
+        var normalizedNormal = normal.Normalize();
+        return this - normalizedNormal * (2 * Dot(normalizedNormal));
+    }
+    
+    /// <summary>Check if vectors are approximately equal</summary>
+    public bool ApproximatelyEqual(Vector3 other, double tolerance = 0.001)
+    {
+        return Math.Abs(X - other.X) < tolerance && 
+               Math.Abs(Y - other.Y) < tolerance && 
+               Math.Abs(Z - other.Z) < tolerance;
+    }
+    
+    /// <summary>Get the angle between this vector and another in radians</summary>
+    public double AngleTo(Vector3 other)
+    {
+        var denominator = Math.Sqrt(Length() * other.Length());
+        if (denominator < 1e-8) return Math.PI / 2;
+        
+        var dot = Dot(other) / denominator;
+        return Math.Acos(Math.Clamp(dot, -1.0, 1.0));
+    }
+    
+    /// <summary>Get the signed angle between this vector and another around an axis</summary>
+    public double SignedAngleTo(Vector3 other, Vector3 axis)
+    {
+        var angle = AngleTo(other);
+        var cross = Cross(other);
+        var sign = Dot(cross, axis);
+        return sign < 0 ? -angle : angle;
+    }
+    
+    /// <summary>Convert to string with formatted precision</summary>
+    public string ToStringFormatted(int precision = 2)
+    {
+        var format = $"F{precision}";
+        return $"({X.ToString(format)}, {Y.ToString(format)}, {Z.ToString(format)})";
+    }
+    
+    /// <summary>Create a vector with absolute values</summary>
+    public Vector3 Abs()
+    {
+        return new Vector3(Math.Abs(X), Math.Abs(Y), Math.Abs(Z));
+    }
+    
+    /// <summary>Get the component-wise minimum of this vector and another</summary>
+    public Vector3 Min(Vector3 other)
+    {
+        return new Vector3(Math.Min(X, other.X), Math.Min(Y, other.Y), Math.Min(Z, other.Z));
+    }
+    
+    /// <summary>Get the component-wise maximum of this vector and another</summary>
+    public Vector3 Max(Vector3 other)
+    {
+        return new Vector3(Math.Max(X, other.X), Math.Max(Y, other.Y), Math.Max(Z, other.Z));
+    }
+    
+    /// <summary>Floor all components</summary>
+    public Vector3 Floor()
+    {
+        return new Vector3(Math.Floor(X), Math.Floor(Y), Math.Floor(Z));
+    }
+    
+    /// <summary>Ceiling all components</summary>
+    public Vector3 Ceiling()
+    {
+        return new Vector3(Math.Ceiling(X), Math.Ceiling(Y), Math.Ceiling(Z));
+    }
+    
+    /// <summary>Round all components</summary>
+    public Vector3 Round()
+    {
+        return new Vector3(Math.Round(X), Math.Round(Y), Math.Round(Z));
+    }
+    
+    /// <summary>Negate the vector</summary>
+    public Vector3 Negate()
+    {
+        return new Vector3(-X, -Y, -Z);
+    }
+    
+    /// <summary>Get squared distance to another vector (faster than Distance)</summary>
+    public double DistanceSquared(Vector3 other)
+    {
+        var diff = this - other;
+        return diff.X * diff.X + diff.Y * diff.Y + diff.Z * diff.Z;
+    }
+    
+    /// <summary>Get squared length (faster than Length)</summary>
+    public double LengthSquared()
+    {
+        return X * X + Y * Y + Z * Z;
+    }
+    
+    /// <summary>Set the length of the vector while maintaining direction</summary>
+    public Vector3 SetLength(double length)
+    {
+        return Normalize() * length;
+    }
+    
+    /// <summary>Limit the length of the vector to a maximum value</summary>
+    public Vector3 ClampLength(double minLength, double maxLength)
+    {
+        var length = Length();
+        if (length < minLength) return SetLength(minLength);
+        if (length > maxLength) return SetLength(maxLength);
+        return this;
+    }
 
     // Common vector constants
     public static Vector3 Zero => new(0, 0, 0);

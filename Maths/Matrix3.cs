@@ -673,4 +673,252 @@ public class Matrix3
         matrix.SetTranslation(position);
         return matrix;
     }
+
+    // === ADVANCED MATRIX OPERATIONS ===
+    // (Moved from Matrix3Extensions for better design)
+
+    // Movement operations
+    public Matrix3 MoveBy(Vector3 delta)
+    {
+        Translate(delta.X, delta.Y, delta.Z);
+        return this;
+    }
+
+    public Matrix3 MoveTo(Vector3 position)
+    {
+        var current = GetTranslation();
+        var delta = position - current;
+        return MoveBy(delta);
+    }
+
+    // Scaling operations
+    public Matrix3 ScaleUniform(double factor)
+    {
+        Scale(factor, factor, factor);
+        return this;
+    }
+
+    public Matrix3 ScaleBy(Vector3 scale)
+    {
+        Scale(scale.X, scale.Y, scale.Z);
+        return this;
+    }
+
+    // Rotation operations with degrees
+    public Matrix3 RotateXDegrees(double degrees)
+    {
+        return RotateX(degrees);
+    }
+
+    public Matrix3 RotateYDegrees(double degrees)
+    {
+        return RotateY(degrees);
+    }
+
+    public Matrix3 RotateZDegrees(double degrees)
+    {
+        return RotateZ(degrees);
+    }
+
+    public Matrix3 RotateEuler(Vector3 eulerAngles, bool inRadians = false)
+    {
+        if (inRadians)
+        {
+            var radToDeg = 180.0 / Math.PI;
+            return RotateEuler(eulerAngles.X * radToDeg, eulerAngles.Y * radToDeg, eulerAngles.Z * radToDeg);
+        }
+        return RotateEuler(eulerAngles.X, eulerAngles.Y, eulerAngles.Z);
+    }
+
+    // Orientation operations
+    public Matrix3 LookAt(Vector3 target, Vector3? up = null)
+    {
+        var position = GetTranslation();
+        var direction = (target - position).Normalize();
+        var upVector = up ?? Vector3.Up;
+        
+        // Create look-at rotation matrix
+        var right = Vector3.Cross(direction, upVector).Normalize();
+        var actualUp = Vector3.Cross(right, direction).Normalize();
+        
+        // Apply rotation
+        SetRotationFromBasis(right, actualUp, direction.Negate());
+        return this;
+    }
+
+    public Matrix3 AlignWith(Vector3 direction, Vector3? up = null)
+    {
+        var position = GetTranslation();
+        var target = position + direction;
+        return LookAt(target, up);
+    }
+
+    // Grid and assembly operations
+    public List<Matrix3> CreateGridAssembly(int countX, int countY, int countZ, Vector3 spacing)
+    {
+        var assembly = new List<Matrix3>();
+        
+        for (int x = 0; x < countX; x++)
+        {
+            for (int y = 0; y < countY; y++)
+            {
+                for (int z = 0; z < countZ; z++)
+                {
+                    var instance = Clone();
+                    var offset = new Vector3(x * spacing.X, y * spacing.Y, z * spacing.Z);
+                    instance.MoveBy(offset);
+                    assembly.Add(instance);
+                }
+            }
+        }
+        
+        return assembly;
+    }
+
+    public List<Matrix3> CreateLinkage(List<Vector3> positions, Vector3? direction = null)
+    {
+        var linkage = new List<Matrix3>();
+        var dir = direction ?? Vector3.Forward;
+        
+        foreach (var position in positions)
+        {
+            var instance = Clone();
+            instance.MoveTo(position);
+            if (direction != null)
+            {
+                instance.AlignWith(direction);
+            }
+            linkage.Add(instance);
+        }
+        
+        return linkage;
+    }
+
+    // Advanced operations
+    public bool HitTest(Vector3 point, double tolerance = 0.001)
+    {
+        var localPoint = GetInverse().TransformPoint(point);
+        return Math.Abs(localPoint.X) <= tolerance && 
+               Math.Abs(localPoint.Y) <= tolerance && 
+               Math.Abs(localPoint.Z) <= tolerance;
+    }
+
+    public Matrix3 Lerp(Matrix3 target, double t)
+    {
+        var result = NewMatrix();
+        
+        // Interpolate position
+        var pos1 = GetTranslation();
+        var pos2 = target.GetTranslation();
+        var lerpedPos = pos1.Lerp(pos2, t);
+        
+        // Interpolate scale
+        var scale1 = GetScale();
+        var scale2 = target.GetScale();
+        var lerpedScale = scale1.Lerp(scale2, t);
+        
+        // For rotation, this is a simplified version
+        // Proper quaternion interpolation would be better
+        var rot1 = GetRotation();
+        var rot2 = target.GetRotation();
+        var lerpedRot = rot1.Lerp(rot2, t);
+        
+        result.SetPosition(lerpedPos);
+        result.ScaleBy(lerpedScale);
+        result.RotateEuler(lerpedRot.X, lerpedRot.Y, lerpedRot.Z);
+        
+        return result;
+    }
+
+    public (Vector3 position, Vector3 rotation, Vector3 scale) Decompose()
+    {
+        return (
+            GetTranslation(),
+            GetRotation(),
+            GetScale()
+        );
+    }
+
+    // Constraint-based operations
+    public Matrix3 ConstrainToPlane(Vector3 planeNormal, Vector3 pointOnPlane)
+    {
+        var position = GetTranslation();
+        var toPoint = position - pointOnPlane;
+        var distance = Vector3.Dot(toPoint, planeNormal.Normalize());
+        var constrainedPosition = position - planeNormal.Normalize() * distance;
+        SetPosition(constrainedPosition);
+        return this;
+    }
+
+    public Matrix3 ConstrainToLine(Vector3 lineStart, Vector3 lineDirection)
+    {
+        var position = GetTranslation();
+        var toPoint = position - lineStart;
+        var projectionLength = Vector3.Dot(toPoint, lineDirection.Normalize());
+        var constrainedPosition = lineStart + lineDirection.Normalize() * projectionLength;
+        SetPosition(constrainedPosition);
+        return this;
+    }
+
+    public Matrix3 ConstrainDistance(Vector3 anchor, double distance)
+    {
+        var position = GetTranslation();
+        var direction = (position - anchor).Normalize();
+        var constrainedPosition = anchor + direction * distance;
+        SetPosition(constrainedPosition);
+        return this;
+    }
+
+    // Mechanical operations
+    public Matrix3 CreateHinge(Vector3 hingeAxis, Vector3 hingePoint, double angle)
+    {
+        var result = Clone();
+        result.MoveTo(hingePoint);
+        
+        // Rotate around hinge axis
+        // This is a simplified version - proper axis-angle rotation would be better
+        if (hingeAxis.ApproximatelyEqual(Vector3.Up))
+            result.RotateY(angle);
+        else if (hingeAxis.ApproximatelyEqual(Vector3.Right))
+            result.RotateX(angle);
+        else if (hingeAxis.ApproximatelyEqual(Vector3.Forward))
+            result.RotateZ(angle);
+        
+        return result;
+    }
+
+    public Matrix3 CreateSlider(Vector3 slideDirection, double distance)
+    {
+        var result = Clone();
+        result.MoveBy(slideDirection.Normalize() * distance);
+        return result;
+    }
+
+    // Utility operations
+    public Matrix3 ApplyPivot(Vector3 pivot)
+    {
+        // Move to pivot, apply transformation, move back
+        var result = NewMatrix();
+        result.Translate(-pivot.X, -pivot.Y, -pivot.Z);
+        result.Multiply(this);
+        result.Translate(pivot.X, pivot.Y, pivot.Z);
+        return result;
+    }
+
+    // Static factory methods
+    public static Matrix3 FromPositionRotationScale(Vector3 position, Vector3 rotation, Vector3 scale)
+    {
+        var matrix = NewMatrix();
+        matrix.ScaleBy(scale);
+        matrix.RotateEuler(rotation.X, rotation.Y, rotation.Z);
+        matrix.SetPosition(position);
+        return matrix;
+    }
+
+    public static Matrix3 FromLookAt(Vector3 position, Vector3 target, Vector3? up = null)
+    {
+        var matrix = NewMatrix();
+        matrix.SetPosition(position);
+        return matrix.LookAt(target, up);
+    }
 }
