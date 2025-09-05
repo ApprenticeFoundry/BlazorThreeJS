@@ -83,6 +83,11 @@ namespace BlazorThreeJS.Maths
             return ToMatrix3().TransformPoint(point);
         }
 
+        public Vector3 TransformDirection(Vector3 direction)
+        {
+            return ToMatrix3().TransformDirection(direction);
+        }
+
         public Transform3 Identity()
         {
             position = new Vector3();
