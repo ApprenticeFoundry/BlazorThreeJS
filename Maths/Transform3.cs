@@ -77,6 +77,27 @@ namespace BlazorThreeJS.Maths
         public Action<Boolean>? OnChange { get; set; }
 
         /// <summary>
+        /// Event triggered when matrix computation completes and results are cached
+        /// 
+        /// 🎯 COMPLETION NOTIFICATION: Fires after expensive ToMatrix3() calculation finishes
+        /// - Called when matrix is calculated and cached
+        /// - Provides the computed matrix for immediate use
+        /// - Indicates transform is now "stable" and ready for dependent operations
+        /// 
+        /// ✅ USAGE EXAMPLE:
+        /// transform.OnComputed += (matrix) => { 
+        ///     // Matrix is ready - safe to update dependent geometry
+        ///     UpdateDependentObjects(matrix); 
+        /// };
+        /// 
+        /// 🔄 REACTIVE PATTERN: Pairs with OnChange for complete lifecycle
+        /// 1. OnChange(true) → "Transform dirty, start updates"
+        /// 2. OnComputed(matrix) → "Computation complete, matrix ready"
+        /// </summary>
+        [JsonIgnore]
+        public Action<Matrix3>? OnComputed { get; set; }
+
+        /// <summary>
         /// 📍 World position of the transform (X, Y, Z coordinates)
         /// 
         /// 🔒 SAFE ACCESS PATTERN: Property-only access with automatic dirty flag management
@@ -343,6 +364,9 @@ namespace BlazorThreeJS.Maths
             // 💾 CACHE: Store the calculated matrix and mark as clean
             cachedMatrix = matrix;
             SetDirty(false);  // ✅ FIXED: Use SetDirty() method instead of direct assignment
+
+            // 🔔 NOTIFY: Fire OnComputed event with the completed matrix
+            OnComputed?.Invoke(matrix);
 
             //lets add some code to print the matrix that was just created using WriteSuccess
             //matrix.ToString().WriteSuccess();
