@@ -97,6 +97,14 @@ namespace BlazorThreeJS.Maths
         [JsonIgnore]
         public Action<Matrix3>? OnComputed { get; set; }
 
+
+      /// <summary>
+        /// Optional custom matrix computation logic. If set, this function will be used to compute the transform matrix when dirty.
+        /// Not serialized.
+        /// </summary>
+        [JsonIgnore]
+        public Func<Transform3, Matrix3>? UpdateMatrix3Formula { get; set; }
+
         /// <summary>
         /// 📍 World position of the transform (X, Y, Z coordinates)
         /// 
@@ -278,6 +286,12 @@ namespace BlazorThreeJS.Maths
         {
         }
 
+        public Transform3(Action<Boolean> onChange)
+        {
+            OnChange = onChange;
+        }
+
+
         #endregion
 
         #region Public Methods
@@ -306,72 +320,27 @@ namespace BlazorThreeJS.Maths
             }
 
             // 🔄 RECALCULATE: Matrix is dirty or not cached yet
-            var matrix = Matrix3.NewMatrix();
-
-            // CORRECT PIVOT TRANSFORMATION ORDER:
-            // 1. Translate to origin (move pivot to origin)
-            // 2. Apply scale (around origin/pivot)
-            // 3. Apply rotation (around origin/pivot) 
-            // 4. Translate back from origin (restore pivot offset)
-            // 5. Apply final position (move to world space)
-            
-            // Step 1: Move pivot point to origin
-            if (Pivot.X != 0 || Pivot.Y != 0 || Pivot.Z != 0)
+            if (UpdateMatrix3Formula is not null)
             {
-                var toPivotMatrix = Matrix3.NewMatrix();
-                toPivotMatrix.Translate(-Pivot.X, -Pivot.Y, -Pivot.Z);
-                matrix.Multiply(toPivotMatrix.GetMatrix());
+                $"Using custom UpdateMatrix3Formula function".WriteWarning();
+                cachedMatrix = UpdateMatrix3Formula(this);
             }
-
-            // Step 2: Apply scaling around origin/pivot
-            if (Scale.X != 1 || Scale.Y != 1 || Scale.Z != 1)
+            else
             {
-                var scaleMatrix = Matrix3.NewMatrix();
-                scaleMatrix.Scale(Scale);
-                matrix.Multiply(scaleMatrix.GetMatrix());
-            }
-
-            // Step 3: Apply rotation around origin/pivot
-            if (QuaternionRotation != Quaternion.Identity)
-            {
-                var rotationMatrix = Matrix3.NewMatrix();
-                rotationMatrix.RotateQuaternion(QuaternionRotation);
-                matrix.Multiply(rotationMatrix.GetMatrix());
-            }
-            else if (Rotation.X != 0 || Rotation.Y != 0 || Rotation.Z != 0)
-            {
-                var rotationMatrix = Matrix3.NewMatrix();
-                rotationMatrix.Rotate(Rotation);
-                matrix.Multiply(rotationMatrix.GetMatrix());
-            }
-
-            // Step 4: Move back from origin (restore pivot offset)
-            if (Pivot.X != 0 || Pivot.Y != 0 || Pivot.Z != 0)
-            {
-                var fromPivotMatrix = Matrix3.NewMatrix();
-                fromPivotMatrix.Translate(Pivot.X, Pivot.Y, Pivot.Z);
-                matrix.Multiply(fromPivotMatrix.GetMatrix());
-            }
-
-            // Step 5: Apply final position translation
-            if (Position.X != 0 || Position.Y != 0 || Position.Z != 0)
-            {
-                var positionMatrix = Matrix3.NewMatrix();
-                positionMatrix.Translate(Position);
-                matrix.Multiply(positionMatrix.GetMatrix());
+                $"Using default ComputeUsingProperties".WriteWarning();
+                cachedMatrix = ComputeUsingProperties();
             }
 
             // 💾 CACHE: Store the calculated matrix and mark as clean
-            cachedMatrix = matrix;
             SetDirty(false);  // ✅ FIXED: Use SetDirty() method instead of direct assignment
 
             // 🔔 NOTIFY: Fire OnComputed event with the completed matrix
-            OnComputed?.Invoke(matrix);
+            OnComputed?.Invoke(cachedMatrix);
 
             //lets add some code to print the matrix that was just created using WriteSuccess
             //matrix.ToString().WriteSuccess();
 
-            var m = matrix.GetMatrix();
+            var m = cachedMatrix.GetMatrix();
 
             $"-------------------------------".WriteSuccess();
             $"Cached Matrix:".WriteSuccess();
@@ -380,7 +349,72 @@ namespace BlazorThreeJS.Maths
             $"{m[8]:F2}, {m[9]:F2}, {m[10]:F2}, {m[11]:F2}".WriteSuccess();
             $"{m[12]:F2}, {m[13]:F2}, {m[14]:F2}, {m[15]:F2}".WriteSuccess();
 
+            return cachedMatrix;
+        }
 
+        private Matrix3 ComputeUsingProperties()
+        {
+            // CORRECT PIVOT TRANSFORMATION ORDER:
+            // 1. Translate to origin (move pivot to origin)
+            // 2. Apply scale (around origin/pivot)
+            // 3. Apply rotation (around origin/pivot) 
+            // 4. Translate back from origin (restore pivot offset)
+            // 5. Apply final position (move to world space)
+
+            var matrix = Matrix3.NewMatrix();
+
+            // Step 1: Move pivot point to origin
+            if (Pivot.X != 0 || Pivot.Y != 0 || Pivot.Z != 0)
+            {
+                $"Step 1: Moving pivot point to origin".WriteInfo(1);
+                var toPivotMatrix = Matrix3.NewMatrix();
+                toPivotMatrix.Translate(-Pivot.X, -Pivot.Y, -Pivot.Z);
+                matrix.Multiply(toPivotMatrix);
+            }
+
+            // Step 2: Apply scaling around origin/pivot
+            if (Scale.X != 1 || Scale.Y != 1 || Scale.Z != 1)
+            {
+                $"Step 2: Applying scaling: {Scale.X}, {Scale.Y}, {Scale.Z}".WriteInfo(1);
+                var scaleMatrix = Matrix3.NewMatrix();
+                scaleMatrix.Scale(Scale);
+                matrix.Multiply(scaleMatrix);
+            }
+
+            // Step 3: Apply rotation around origin/pivot
+            // if (QuaternionRotation != Quaternion.Identity)
+            // {
+            //     $"Applying quaternion rotation: ({QuaternionRotation.X}, {QuaternionRotation.Y}, {QuaternionRotation.Z}, {QuaternionRotation.W})".WriteInfo(1);
+            //     var rotationMatrix = Matrix3.NewMatrix();
+            //     rotationMatrix.RotateQuaternion(QuaternionRotation);
+            //     matrix.Multiply(rotationMatrix.GetMatrix());
+            // }
+            
+            if (Rotation.X != 0 || Rotation.Y != 0 || Rotation.Z != 0)
+            {
+                $"Step 3: Applying Euler rotation: {Rotation.X}, {Rotation.Y}, {Rotation.Z}".WriteInfo(1);
+                var rotationMatrix = Matrix3.NewMatrix();
+                rotationMatrix.Rotate(Rotation);
+                matrix.Multiply(rotationMatrix);
+            }
+
+            // Step 4: Move back from origin (restore pivot offset)
+            if (Pivot.X != 0 || Pivot.Y != 0 || Pivot.Z != 0)
+            {
+                $"Step 4: Restoring pivot offset".WriteInfo(1);
+                var fromPivotMatrix = Matrix3.NewMatrix();
+                fromPivotMatrix.Translate(Pivot.X, Pivot.Y, Pivot.Z);
+                matrix.Multiply(fromPivotMatrix);
+            }
+
+            // Step 5: Apply final position translation
+            if (Position.X != 0 || Position.Y != 0 || Position.Z != 0)
+            {
+                $"Step 5: Applying final position translation: {Position.X}, {Position.Y}, {Position.Z}".WriteInfo(1);
+                var positionMatrix = Matrix3.NewMatrix();
+                positionMatrix.Translate(Position);
+                matrix.Multiply(positionMatrix);
+            }
             return matrix;
         }
 
@@ -389,7 +423,12 @@ namespace BlazorThreeJS.Maths
         /// </summary>
         public Vector3 TransformPoint(Vector3 point)
         {
-            return ToMatrix3().TransformPoint(point);
+            var matrix = ToMatrix3();
+            if (IsDirty)
+            {
+                $"🔍 TransformPoint: Matrix In still dirty".WriteError();
+            }
+            return matrix.TransformPoint(point);
         }
 
         /// <summary>
@@ -397,7 +436,12 @@ namespace BlazorThreeJS.Maths
         /// </summary>
         public Vector3 TransformDirection(Vector3 direction)
         {
-            return ToMatrix3().TransformDirection(direction);
+            var matrix = ToMatrix3();
+            if (IsDirty)
+            {
+                $"🔍 TransformDirection: Matrix In still dirty".WriteError();
+            }
+            return matrix.TransformDirection(direction);
         }
 
         /// <summary>
@@ -477,5 +521,6 @@ namespace BlazorThreeJS.Maths
         }
 
         #endregion
-    }
+
+      }
 }

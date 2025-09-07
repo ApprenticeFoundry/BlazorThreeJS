@@ -1,3 +1,5 @@
+using FoundryRulesAndUnits.Extensions;
+
 namespace BlazorThreeJS.Maths;
 
 public class Matrix3
@@ -47,6 +49,7 @@ public class Matrix3
     // Apply translation
     public Matrix3 Translate(double x, double y, double z)
     {
+        $"Applying Translate by ({x}, {y}, {z})".WriteInfo(1);
         matrix[12] += x;
         matrix[13] += y;
         matrix[14] += z;
@@ -56,6 +59,7 @@ public class Matrix3
     // Apply scale
     public Matrix3 Scale(double x, double y, double z)
     {
+        $"Applying Scale by ({x}, {y}, {z})".WriteInfo(1);
         matrix[0] *= x;
         matrix[5] *= y;
         matrix[10] *= z;
@@ -65,6 +69,8 @@ public class Matrix3
     // Apply rotation around X axis
     public Matrix3 RotateX(double angle)
     {
+        $"Applying RotateX by {angle} degrees".WriteInfo(1);
+
         double rad = angle * DEG_TO_RAD;
         double cos = Math.Cos(rad);
         double sin = Math.Sin(rad);
@@ -85,6 +91,8 @@ public class Matrix3
     // Apply rotation around Y axis
     public Matrix3 RotateY(double angle)
     {
+        $"Rotating around Y by {angle} degrees".WriteInfo(1);
+
         double rad = angle * DEG_TO_RAD;
         double cos = Math.Cos(rad);
         double sin = Math.Sin(rad);
@@ -105,6 +113,8 @@ public class Matrix3
     // Apply rotation around Z axis
     public Matrix3 RotateZ(double angle)
     {
+        $"Applying RotateZ by {angle} degrees".WriteInfo(1);
+
         double rad = angle * DEG_TO_RAD;
         double cos = Math.Cos(rad);
         double sin = Math.Sin(rad);
@@ -146,41 +156,39 @@ public class Matrix3
 
     public void Rotate(Euler rotation)
     {
+        $"Applying Euler rotation: {rotation.X}, {rotation.Y}, {rotation.Z} (Order: {rotation.Order})".WriteInfo(1);
         Identity();
-        // Assuming rotation order is XYZ
-        double cosX = Math.Cos(rotation.X * DEG_TO_RAD);
-        double sinX = Math.Sin(rotation.X * DEG_TO_RAD);
-        double cosY = Math.Cos(rotation.Y * DEG_TO_RAD);
-        double sinY = Math.Sin(rotation.Y * DEG_TO_RAD);
-        double cosZ = Math.Cos(rotation.Z * DEG_TO_RAD);
-        double sinZ = Math.Sin(rotation.Z * DEG_TO_RAD);
+        // Directly set combined XYZ rotation matrix
+        double x = rotation.X * DEG_TO_RAD;
+        double y = rotation.Y * DEG_TO_RAD;
+        double z = rotation.Z * DEG_TO_RAD;
 
-        // Rotation matrices
-        double[] rotX = {
-            1, 0, 0, 0,
-            0, cosX, -sinX, 0,
-            0, sinX, cosX, 0,
-            0, 0, 0, 1
-        };
+        double cx = Math.Cos(x), sx = Math.Sin(x);
+        double cy = Math.Cos(y), sy = Math.Sin(y);
+        double cz = Math.Cos(z), sz = Math.Sin(z);
 
-        double[] rotY = {
-            cosY, 0, sinY, 0,
-            0, 1, 0, 0,
-            -sinY, 0, cosY, 0,
-            0, 0, 0, 1
-        };
+        //make sure you check the rotation order and implement other orders as needed
+        if (rotation.Order != "XYZ")
+            $"Warning: Rotation order {rotation.Order} not implemented, defaulting to XYZ".WriteWarning();
 
-        double[] rotZ = {
-            cosZ, -sinZ, 0, 0,
-            sinZ, cosZ, 0, 0,
-            0, 0, 1, 0,
-            0, 0, 0, 1
-        };
+        // Combined rotation matrix for XYZ order
+        matrix[0] = cy * cz;
+        matrix[1] = -cy * sz;
+        matrix[2] = sy;
+        matrix[3] = 0;
 
-        // Combine rotations
-        Multiply(rotX);
-        Multiply(rotY);
-        Multiply(rotZ);
+        matrix[4] = sx * sy * cz + cx * sz;
+        matrix[5] = -sx * sy * sz + cx * cz;
+        matrix[6] = -sx * cy;
+        matrix[7] = 0;
+
+        matrix[8] = -cx * sy * cz + sx * sz;
+        matrix[9] = cx * sy * sz + sx * cz;
+        matrix[10] = cx * cy;
+        matrix[11] = 0;
+
+        matrix[12] = matrix[13] = matrix[14] = 0;
+        matrix[15] = 1;
     }
 
     /// <summary>
@@ -189,11 +197,12 @@ public class Matrix3
     /// </summary>
     public Matrix3 RotateQuaternion(Quaternion q)
     {
+        $"Applying Quaternion rotation: ({q.X}, {q.Y}, {q.Z}, {q.W})".WriteInfo(1);
         // Normalize quaternion
         var length = Math.Sqrt(q.X * q.X + q.Y * q.Y + q.Z * q.Z + q.W * q.W);
         if (length < 0.000001)
             return this; // No rotation
-            
+
         var x = q.X / length;
         var y = q.Y / length;
         var z = q.Z / length;
@@ -736,11 +745,11 @@ public class Matrix3
         var position = GetTranslation();
         var direction = (target - position).Normalize();
         var upVector = up ?? Vector3.Up;
-        
+
         // Create look-at rotation matrix
         var right = Vector3.Cross(direction, upVector).Normalize();
         var actualUp = Vector3.Cross(right, direction).Normalize();
-        
+
         // Apply rotation
         SetRotationFromBasis(right, actualUp, direction.Negate());
         return this;
@@ -757,7 +766,7 @@ public class Matrix3
     public List<Matrix3> CreateGridAssembly(int countX, int countY, int countZ, Vector3 spacing)
     {
         var assembly = new List<Matrix3>();
-        
+
         for (int x = 0; x < countX; x++)
         {
             for (int y = 0; y < countY; y++)
@@ -771,7 +780,7 @@ public class Matrix3
                 }
             }
         }
-        
+
         return assembly;
     }
 
@@ -779,7 +788,7 @@ public class Matrix3
     {
         var linkage = new List<Matrix3>();
         var dir = direction ?? Vector3.Forward;
-        
+
         foreach (var position in positions)
         {
             var instance = Clone();
@@ -790,7 +799,7 @@ public class Matrix3
             }
             linkage.Add(instance);
         }
-        
+
         return linkage;
     }
 
@@ -798,35 +807,35 @@ public class Matrix3
     public bool HitTest(Vector3 point, double tolerance = 0.001)
     {
         var localPoint = GetInverse().TransformPoint(point);
-        return Math.Abs(localPoint.X) <= tolerance && 
-               Math.Abs(localPoint.Y) <= tolerance && 
+        return Math.Abs(localPoint.X) <= tolerance &&
+               Math.Abs(localPoint.Y) <= tolerance &&
                Math.Abs(localPoint.Z) <= tolerance;
     }
 
     public Matrix3 Lerp(Matrix3 target, double t)
     {
         var result = NewMatrix();
-        
+
         // Interpolate position
         var pos1 = GetTranslation();
         var pos2 = target.GetTranslation();
         var lerpedPos = pos1.Lerp(pos2, t);
-        
+
         // Interpolate scale
         var scale1 = GetScale();
         var scale2 = target.GetScale();
         var lerpedScale = scale1.Lerp(scale2, t);
-        
+
         // For rotation, this is a simplified version
         // Proper quaternion interpolation would be better
         var rot1 = GetRotation();
         var rot2 = target.GetRotation();
         var lerpedRot = rot1.Lerp(rot2, t);
-        
+
         result.SetPosition(lerpedPos);
         result.ScaleBy(lerpedScale);
         result.RotateEuler(lerpedRot.X, lerpedRot.Y, lerpedRot.Z);
-        
+
         return result;
     }
 
@@ -874,7 +883,7 @@ public class Matrix3
     {
         var result = Clone();
         result.MoveTo(hingePoint);
-        
+
         // Rotate around hinge axis
         // This is a simplified version - proper axis-angle rotation would be better
         if (hingeAxis.ApproximatelyEqual(Vector3.Up))
@@ -883,7 +892,7 @@ public class Matrix3
             result.RotateX(angle);
         else if (hingeAxis.ApproximatelyEqual(Vector3.Forward))
             result.RotateZ(angle);
-        
+
         return result;
     }
 
