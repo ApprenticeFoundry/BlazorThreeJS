@@ -36,8 +36,9 @@ namespace BlazorThreeJS.Maths
     /// </summary>
     public class Transform3 
     {
+        public string OwnerName { get; set; } = "";
         #region Fields and Properties
-        
+
         // === PRIVATE FIELDS ===
         // 🔒 CRITICAL: All backing fields are PRIVATE to prevent direct access
         // This forces all changes to go through property setters, ensuring dirty flag management
@@ -49,10 +50,24 @@ namespace BlazorThreeJS.Maths
         // Direct access bypasses dirty flag system and breaks caching
         private Vector3 position = new Vector3();
         private Vector3 pivot = new Vector3();
-        private Euler rotation = new Euler();
+        private Euler rotation = new Euler();  // this is stored as degrees use the AsRadians() method to convert
         private Quaternion quaternionRotation = Quaternion.Identity;
         private Vector3 scale = new Vector3(1, 1, 1);
 
+
+       #region Constructor
+
+        public Transform3(string ownerName="NOT_SET")
+        {
+            OwnerName = ownerName;
+            // Initial state is clean with no cached matrix
+            StatusBits.IsDirty = true;
+            cachedMatrix = null;
+        }
+
+
+
+        #endregion
         // === PUBLIC PROPERTIES ===
         // 🎯 DESIGN PATTERN: Property-Only Access with Automatic Dirty Flag Management
         //
@@ -64,7 +79,7 @@ namespace BlazorThreeJS.Maths
         //
         // ❌ DANGEROUS PATTERN PREVENTED: Direct field assignment blocked by compiler:
         // position = value;                          // ❌ COMPILER ERROR: Field is private
-        
+
         /// <summary>
         /// Event triggered when transform properties change and dirty flag is set
         /// 
@@ -280,19 +295,7 @@ namespace BlazorThreeJS.Maths
 
         #endregion
 
-        #region Constructor
-
-        public Transform3()
-        {
-        }
-
-        public Transform3(Action<Boolean> onChange)
-        {
-            OnChange = onChange;
-        }
-
-
-        #endregion
+ 
 
         #region Public Methods
 
@@ -316,105 +319,57 @@ namespace BlazorThreeJS.Maths
             // 🚀 PERFORMANCE: Return cached matrix if not dirty
             if (!IsDirty && cachedMatrix != null)
             {
+                DisplayMatrix(cachedMatrix.GetMatrix(), "Cached Matrix", OwnerName);
                 return cachedMatrix;
             }
 
+            Matrix3 matrix;
             // 🔄 RECALCULATE: Matrix is dirty or not cached yet
             if (UpdateMatrix3Formula is not null)
             {
                 $"Using custom UpdateMatrix3Formula function".WriteWarning();
-                cachedMatrix = UpdateMatrix3Formula(this);
+                matrix = UpdateMatrix3Formula(this);
             }
             else
             {
-                $"Using default ComputeUsingProperties".WriteWarning();
-                cachedMatrix = ComputeUsingProperties();
+                $"Using default ComputeUsingProperties to build matrix".WriteWarning();
+                matrix = ComputeUsingProperties();
             }
 
             // 💾 CACHE: Store the calculated matrix and mark as clean
             SetDirty(false);  // ✅ FIXED: Use SetDirty() method instead of direct assignment
 
             // 🔔 NOTIFY: Fire OnComputed event with the completed matrix
-            OnComputed?.Invoke(cachedMatrix);
+            OnComputed?.Invoke(matrix);
 
             //lets add some code to print the matrix that was just created using WriteSuccess
-            //matrix.ToString().WriteSuccess();
 
-            var m = cachedMatrix.GetMatrix();
+            DisplayMatrix(matrix.GetMatrix(), "Recalculated Matrix", OwnerName);
 
+            cachedMatrix = matrix;
+            return matrix;
+        }
+
+        private static void DisplayMatrix(double[] m, string title, string owner)
+        {
             $"-------------------------------".WriteSuccess();
-            $"Cached Matrix:".WriteSuccess();
+            $"{title}: {owner}".WriteSuccess();
             $"{m[0]:F2}, {m[1]:F2}, {m[2]:F2}, {m[3]:F2}".WriteSuccess();
             $"{m[4]:F2}, {m[5]:F2}, {m[6]:F2}, {m[7]:F2}".WriteSuccess();
             $"{m[8]:F2}, {m[9]:F2}, {m[10]:F2}, {m[11]:F2}".WriteSuccess();
             $"{m[12]:F2}, {m[13]:F2}, {m[14]:F2}, {m[15]:F2}".WriteSuccess();
-
-            return cachedMatrix;
         }
 
         private Matrix3 ComputeUsingProperties()
         {
-            // CORRECT PIVOT TRANSFORMATION ORDER:
-            // 1. Translate to origin (move pivot to origin)
-            // 2. Apply scale (around origin/pivot)
-            // 3. Apply rotation (around origin/pivot) 
-            // 4. Translate back from origin (restore pivot offset)
-            // 5. Apply final position (move to world space)
-
+            // Use AppendTransform for full transformation in one step
             var matrix = Matrix3.NewMatrix();
-
-            // Step 1: Move pivot point to origin
-            if (Pivot.X != 0 || Pivot.Y != 0 || Pivot.Z != 0)
-            {
-                $"Step 1: Moving pivot point to origin".WriteInfo(1);
-                var toPivotMatrix = Matrix3.NewMatrix();
-                toPivotMatrix.Translate(-Pivot.X, -Pivot.Y, -Pivot.Z);
-                matrix.Multiply(toPivotMatrix);
-            }
-
-            // Step 2: Apply scaling around origin/pivot
-            if (Scale.X != 1 || Scale.Y != 1 || Scale.Z != 1)
-            {
-                $"Step 2: Applying scaling: {Scale.X}, {Scale.Y}, {Scale.Z}".WriteInfo(1);
-                var scaleMatrix = Matrix3.NewMatrix();
-                scaleMatrix.Scale(Scale);
-                matrix.Multiply(scaleMatrix);
-            }
-
-            // Step 3: Apply rotation around origin/pivot
-            // if (QuaternionRotation != Quaternion.Identity)
-            // {
-            //     $"Applying quaternion rotation: ({QuaternionRotation.X}, {QuaternionRotation.Y}, {QuaternionRotation.Z}, {QuaternionRotation.W})".WriteInfo(1);
-            //     var rotationMatrix = Matrix3.NewMatrix();
-            //     rotationMatrix.RotateQuaternion(QuaternionRotation);
-            //     matrix.Multiply(rotationMatrix.GetMatrix());
-            // }
-            
-            if (Rotation.X != 0 || Rotation.Y != 0 || Rotation.Z != 0)
-            {
-                $"Step 3: Applying Euler rotation: {Rotation.X}, {Rotation.Y}, {Rotation.Z}".WriteInfo(1);
-                var rotationMatrix = Matrix3.NewMatrix();
-                rotationMatrix.Rotate(Rotation);
-                matrix.Multiply(rotationMatrix);
-            }
-
-            // Step 4: Move back from origin (restore pivot offset)
-            if (Pivot.X != 0 || Pivot.Y != 0 || Pivot.Z != 0)
-            {
-                $"Step 4: Restoring pivot offset".WriteInfo(1);
-                var fromPivotMatrix = Matrix3.NewMatrix();
-                fromPivotMatrix.Translate(Pivot.X, Pivot.Y, Pivot.Z);
-                matrix.Multiply(fromPivotMatrix);
-            }
-
-            // Step 5: Apply final position translation
-            if (Position.X != 0 || Position.Y != 0 || Position.Z != 0)
-            {
-                $"Step 5: Applying final position translation: {Position.X}, {Position.Y}, {Position.Z}".WriteInfo(1);
-                var positionMatrix = Matrix3.NewMatrix();
-                positionMatrix.Translate(Position);
-                matrix.Multiply(positionMatrix);
-            }
+            matrix.AppendTransform(
+                Position.X, Position.Y, Position.Z,
+                Scale.X, Scale.Y, Scale.Z,
+                Rotation.X, Rotation.Y, Rotation.Z,
+                Pivot.X, Pivot.Y, Pivot.Z
+            );
             return matrix;
         }
 
@@ -463,13 +418,19 @@ namespace BlazorThreeJS.Maths
         /// </summary>
         protected virtual void SetDirty(bool value)
         {
+            if ( value == this.StatusBits.IsDirty )
+            {
+                // No state change - nothing to do
+                return;
+            }
             StatusBits.IsDirty = value;  // Direct field access (safe within this method)
             
             if (value)
             {
                 // 🗑️ INVALIDATE CACHE: Clear cached matrix when dirty
-                cachedMatrix = null;
-                
+                cachedMatrix = Matrix3.SmashMatrix(cachedMatrix);
+                $"SetDirty: Marked dirty, cache invalidated for: {OwnerName}".WriteWarning();
+
                 // 📢 NOTIFY: Trigger OnChange event for dirty state
                 OnChange?.Invoke(value);
             }

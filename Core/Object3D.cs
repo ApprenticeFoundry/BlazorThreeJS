@@ -70,7 +70,10 @@ namespace BlazorThreeJS.Core
         }
         public Transform3 GetTransform()
         {
-            Transform ??= new Transform3();
+            if ( Transform != null )
+                return Transform;
+                
+            Transform = new Transform3(Name);
             return Transform;
         }
 

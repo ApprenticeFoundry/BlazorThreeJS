@@ -103,9 +103,9 @@ namespace BlazorThreeJS.Maths
 
         public static Quaternion FromEuler(double x, double y, double z)
         {
-            var xRad = x * Math.PI / 180.0 * 0.5;
-            var yRad = y * Math.PI / 180.0 * 0.5;
-            var zRad = z * Math.PI / 180.0 * 0.5;
+            var xRad = x * Matrix3.DEG_TO_RAD * 0.5;
+            var yRad = y * Matrix3.DEG_TO_RAD * 0.5;
+            var zRad = z * Matrix3.DEG_TO_RAD * 0.5;
 
             var cx = Math.Cos(xRad);
             var sx = Math.Sin(xRad);
@@ -144,9 +144,9 @@ namespace BlazorThreeJS.Maths
             var yaw = Math.Atan2(siny_cosp, cosy_cosp);
 
             return new Euler(
-                (float)(roll * 180.0 / Math.PI),
-                (float)(pitch * 180.0 / Math.PI),
-                (float)(yaw * 180.0 / Math.PI)
+                (roll / Matrix3.DEG_TO_RAD),
+                (pitch / Matrix3.DEG_TO_RAD),
+                (yaw / Matrix3.DEG_TO_RAD)
             );
         }
 

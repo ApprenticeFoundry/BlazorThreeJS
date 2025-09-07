@@ -36,6 +36,7 @@ public class Matrix3
         if (source == null) return null;
         source.Identity();
         cache.Enqueue(source);
+        $"SmashMatrix called".WriteWarning();
         return null;
     }
 
@@ -67,13 +68,12 @@ public class Matrix3
     }
 
     // Apply rotation around X axis
-    public Matrix3 RotateX(double angle)
+    public Matrix3 RotateX_radians(double angle)
     {
-        $"Applying RotateX by {angle} degrees".WriteInfo(1);
+        $"Applying RotateX by {angle} radians".WriteInfo(1);
 
-        double rad = angle * DEG_TO_RAD;
-        double cos = Math.Cos(rad);
-        double sin = Math.Sin(rad);
+        double cos = Math.Cos(angle);
+        double sin = Math.Sin(angle);
 
         double m21 = matrix[4], m22 = matrix[5], m23 = matrix[6];
         double m31 = matrix[8], m32 = matrix[9], m33 = matrix[10];
@@ -89,13 +89,12 @@ public class Matrix3
     }
 
     // Apply rotation around Y axis
-    public Matrix3 RotateY(double angle)
+    public Matrix3 RotateY_radians(double angle)
     {
-        $"Rotating around Y by {angle} degrees".WriteInfo(1);
+        $"Rotating around Y by {angle} radians".WriteInfo(1);
 
-        double rad = angle * DEG_TO_RAD;
-        double cos = Math.Cos(rad);
-        double sin = Math.Sin(rad);
+        double cos = Math.Cos(angle);
+        double sin = Math.Sin(angle);
 
         double m11 = matrix[0], m12 = matrix[1], m13 = matrix[2];
         double m31 = matrix[8], m32 = matrix[9], m33 = matrix[10];
@@ -111,13 +110,12 @@ public class Matrix3
     }
 
     // Apply rotation around Z axis
-    public Matrix3 RotateZ(double angle)
+    public Matrix3 RotateZ_radians(double angle)
     {
-        $"Applying RotateZ by {angle} degrees".WriteInfo(1);
+        $"Applying RotateZ by {angle} radians".WriteInfo(1);
 
-        double rad = angle * DEG_TO_RAD;
-        double cos = Math.Cos(rad);
-        double sin = Math.Sin(rad);
+        double cos = Math.Cos(angle);
+        double sin = Math.Sin(angle);
 
         double m11 = matrix[0], m12 = matrix[1], m13 = matrix[2];
         double m21 = matrix[4], m22 = matrix[5], m23 = matrix[6];
@@ -149,9 +147,9 @@ public class Matrix3
     }
 
     // Apply Euler rotation (ZYX order)
-    public Matrix3 RotateEuler(double x, double y, double z)
+    public Matrix3 RotateEulerZYX_radians(double x, double y, double z)
     {
-        return RotateZ(z).RotateY(y).RotateX(x);
+        return RotateZ_radians(z).RotateY_radians(y).RotateX_radians(x);
     }
 
     public void Rotate(Euler rotation)
@@ -159,13 +157,10 @@ public class Matrix3
         $"Applying Euler rotation: {rotation.X}, {rotation.Y}, {rotation.Z} (Order: {rotation.Order})".WriteInfo(1);
         Identity();
         // Directly set combined XYZ rotation matrix
-        double x = rotation.X * DEG_TO_RAD;
-        double y = rotation.Y * DEG_TO_RAD;
-        double z = rotation.Z * DEG_TO_RAD;
 
-        double cx = Math.Cos(x), sx = Math.Sin(x);
-        double cy = Math.Cos(y), sy = Math.Sin(y);
-        double cz = Math.Cos(z), sz = Math.Sin(z);
+        double cx = Math.Cos(rotation.X), sx = Math.Sin(rotation.X);
+        double cy = Math.Cos(rotation.Y), sy = Math.Sin(rotation.Y);
+        double cz = Math.Cos(rotation.Z), sz = Math.Sin(rotation.Z);
 
         //make sure you check the rotation order and implement other orders as needed
         if (rotation.Order != "XYZ")
@@ -305,7 +300,7 @@ public class Matrix3
         var transform = NewMatrix()
             .Translate(-regX, -regY, -regZ)  // Move to origin
             .Scale(scaleX, scaleY, scaleZ)   // Apply scale
-            .RotateEuler(rotX, rotY, rotZ)   // Apply rotation
+            .RotateEulerZYX_radians(rotX, rotY, rotZ)   // Apply rotation
             .Translate(x, y, z)              // Move to final position
             .Translate(regX, regY, regZ);    // Move back by registration point
 
@@ -321,7 +316,7 @@ public class Matrix3
         var transform = NewMatrix()
             .Translate(-regX, -regY, -regZ)  // Move to origin
             .Scale(scaleX, scaleY, scaleZ)   // Apply scale
-            .RotateEuler(rotX, rotY, rotZ)   // Apply rotation
+            .RotateEulerZYX_radians(rotX, rotY, rotZ)   // Apply rotation
             .Translate(x, y, z)              // Move to final position
             .Translate(regX, regY, regZ);    // Move back by registration point
 
@@ -650,23 +645,7 @@ public class Matrix3
         return matrix;
     }
 
-    public static Matrix3 CreateRotationX(double degrees)
-    {
-        var matrix = NewMatrix();
-        return matrix.RotateX(degrees);
-    }
 
-    public static Matrix3 CreateRotationY(double degrees)
-    {
-        var matrix = NewMatrix();
-        return matrix.RotateY(degrees);
-    }
-
-    public static Matrix3 CreateRotationZ(double degrees)
-    {
-        var matrix = NewMatrix();
-        return matrix.RotateZ(degrees);
-    }
 
     public static Matrix3 CreateScale(Vector3 scale)
     {
@@ -674,14 +653,7 @@ public class Matrix3
         return matrix.Scale(scale.X, scale.Y, scale.Z);
     }
 
-    public static Matrix3 CreateFromPositionRotationScale(Vector3 position, Vector3 rotation, Vector3 scale)
-    {
-        var matrix = NewMatrix();
-        matrix.Scale(scale.X, scale.Y, scale.Z);
-        matrix.RotateEuler(rotation.X, rotation.Y, rotation.Z);
-        matrix.SetTranslation(position);
-        return matrix;
-    }
+
 
     // === ADVANCED MATRIX OPERATIONS ===
     // (Moved from Matrix3Extensions for better design)
@@ -713,31 +685,7 @@ public class Matrix3
         return this;
     }
 
-    // Rotation operations with degrees
-    public Matrix3 RotateXDegrees(double degrees)
-    {
-        return RotateX(degrees);
-    }
 
-    public Matrix3 RotateYDegrees(double degrees)
-    {
-        return RotateY(degrees);
-    }
-
-    public Matrix3 RotateZDegrees(double degrees)
-    {
-        return RotateZ(degrees);
-    }
-
-    public Matrix3 RotateEuler(Vector3 eulerAngles, bool inRadians = false)
-    {
-        if (inRadians)
-        {
-            var radToDeg = 180.0 / Math.PI;
-            return RotateEuler(eulerAngles.X * radToDeg, eulerAngles.Y * radToDeg, eulerAngles.Z * radToDeg);
-        }
-        return RotateEuler(eulerAngles.X, eulerAngles.Y, eulerAngles.Z);
-    }
 
     // Orientation operations
     public Matrix3 LookAt(Vector3 target, Vector3? up = null)
@@ -834,7 +782,7 @@ public class Matrix3
 
         result.SetPosition(lerpedPos);
         result.ScaleBy(lerpedScale);
-        result.RotateEuler(lerpedRot.X, lerpedRot.Y, lerpedRot.Z);
+        result.RotateEulerZYX_radians(lerpedRot.X, lerpedRot.Y, lerpedRot.Z);
 
         return result;
     }
@@ -878,23 +826,7 @@ public class Matrix3
         return this;
     }
 
-    // Mechanical operations
-    public Matrix3 CreateHinge(Vector3 hingeAxis, Vector3 hingePoint, double angle)
-    {
-        var result = Clone();
-        result.MoveTo(hingePoint);
-
-        // Rotate around hinge axis
-        // This is a simplified version - proper axis-angle rotation would be better
-        if (hingeAxis.ApproximatelyEqual(Vector3.Up))
-            result.RotateY(angle);
-        else if (hingeAxis.ApproximatelyEqual(Vector3.Right))
-            result.RotateX(angle);
-        else if (hingeAxis.ApproximatelyEqual(Vector3.Forward))
-            result.RotateZ(angle);
-
-        return result;
-    }
+  
 
     public Matrix3 CreateSlider(Vector3 slideDirection, double distance)
     {
@@ -915,14 +847,14 @@ public class Matrix3
     }
 
     // Static factory methods
-    public static Matrix3 FromPositionRotationScale(Vector3 position, Vector3 rotation, Vector3 scale)
-    {
-        var matrix = NewMatrix();
-        matrix.ScaleBy(scale);
-        matrix.RotateEuler(rotation.X, rotation.Y, rotation.Z);
-        matrix.SetPosition(position);
-        return matrix;
-    }
+    // public static Matrix3 FromPositionRotationScale(Vector3 position, Vector3 rotation, Vector3 scale)
+    // {
+    //     var matrix = NewMatrix();
+    //     matrix.ScaleBy(scale);
+    //     matrix.RotateEuler(rotation.X, rotation.Y, rotation.Z);
+    //     matrix.SetPosition(position);
+    //     return matrix;
+    // }
 
     public static Matrix3 FromLookAt(Vector3 position, Vector3 target, Vector3? up = null)
     {

@@ -116,16 +116,17 @@ namespace BlazorThreeJS.Viewers
                 };
                 scene.AddChild(ambient);
 
+                var name = "Point Light";
                 var point = new PointLight()
                 {
-                    Name = "Point Light",
+                    Name = name,
                     Uuid = Guid.NewGuid().ToString(),
-                    Transform = new Transform3() {
+                    Transform = new Transform3(name) {
                         Position = new Vector3()
                         {
-                            X = 1f,
-                            Y = 3f,
-                            Z = 0.0f
+                            X = 1.0,
+                            Y = 3.0,
+                            Z = 0.0
                         }
                     }
                 };
