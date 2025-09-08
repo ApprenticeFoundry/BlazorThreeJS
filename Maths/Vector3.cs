@@ -13,6 +13,10 @@ public class Vector3
     {
         Set(x, y, z);
     }
+    public Vector3 Copy()
+    {
+        return new Vector3(X, Y, Z);
+    }
 
     // Add two vectors to create a third
     public Vector3 Add(Vector3 b)

@@ -78,6 +78,11 @@ namespace BlazorThreeJS.Maths
         {
             SetAsRadians(x, y, z);
         }
+
+        public Euler Copy()
+        {
+            return new Euler(X, Y, Z, Order);
+        }
         public Euler(double x, double y, double z, AngleUnit units)
         {
             if (units == AngleUnit.Degrees)

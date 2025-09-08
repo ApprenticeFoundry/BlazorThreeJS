@@ -34,7 +34,7 @@ namespace BlazorThreeJS.Maths
     /// 
     /// THREAD SAFETY: This class is NOT thread-safe. Use from single thread only.
     /// </summary>
-    public class Transform3 
+    public class Transform3
     {
         public string OwnerName { get; set; } = "";
         #region Fields and Properties
@@ -44,7 +44,7 @@ namespace BlazorThreeJS.Maths
         // This forces all changes to go through property setters, ensuring dirty flag management
         private StatusBitArray StatusBits = new();
         private Matrix3? cachedMatrix = null;  // 🔥 CACHE: Store calculated matrix for performance
-        
+
         // === PRIVATE BACKING FIELDS ===
         // 🚫 WARNING: NEVER access these directly - always use properties!
         // Direct access bypasses dirty flag system and breaks caching
@@ -55,9 +55,9 @@ namespace BlazorThreeJS.Maths
         private Vector3 scale = new Vector3(1, 1, 1);
 
 
-       #region Constructor
+        #region Constructor
 
-        public Transform3(string ownerName="NOT_SET")
+        public Transform3(string ownerName = "NOT_SET")
         {
             OwnerName = ownerName;
             // Initial state is clean with no cached matrix
@@ -91,6 +91,7 @@ namespace BlazorThreeJS.Maths
         [JsonIgnore]
         public Action<Boolean>? OnChange { get; set; }
 
+
         /// <summary>
         /// Event triggered when matrix computation completes and results are cached
         /// 
@@ -113,7 +114,7 @@ namespace BlazorThreeJS.Maths
         public Action<Matrix3>? OnComputed { get; set; }
 
 
-      /// <summary>
+        /// <summary>
         /// Optional custom matrix computation logic. If set, this function will be used to compute the transform matrix when dirty.
         /// Not serialized.
         /// </summary>
@@ -211,12 +212,12 @@ namespace BlazorThreeJS.Maths
         public Quaternion QuaternionRotation
         {
             get => quaternionRotation;
-            set 
+            set
             {
                 // Store the new value first
                 var newQuaternion = value;
                 quaternionRotation = AssignQuaternion(newQuaternion, quaternionRotation);
-                
+
                 // Auto-sync to Euler for compatibility using the NEW quaternion value
                 // Temporarily disable dirty flag to avoid double-triggering
                 var oldOnChange = OnChange;
@@ -295,7 +296,26 @@ namespace BlazorThreeJS.Maths
 
         #endregion
 
- 
+        /// <summary>
+        /// Moves the transform by the specified amounts along each axis.
+        /// </summary>
+        public Vector3 MoveBy(double dx, double dy, double dz)
+        {
+            Position = new Vector3(Position.X + dx, Position.Y + dy, Position.Z + dz);
+            return Position;
+        }
+
+        /// <summary>
+        /// Rotates the transform by the specified amounts along each axis, using the given angle unit.
+        /// </summary>
+        public Euler RotateBy(double x, double y, double z, AngleUnit unit)
+        {
+            var delta = unit == AngleUnit.Degrees
+                ? Euler.FromDegrees(x, y, z, Rotation.Order)
+                : Euler.FromRadians(x, y, z, Rotation.Order);
+            Rotation = new Euler(Rotation.X + delta.X, Rotation.Y + delta.Y, Rotation.Z + delta.Z, Rotation.Order);
+            return Rotation;
+        }
 
         #region Public Methods
 
@@ -418,13 +438,13 @@ namespace BlazorThreeJS.Maths
         /// </summary>
         protected virtual void SetDirty(bool value)
         {
-            if ( value == this.StatusBits.IsDirty )
+            if (value == this.StatusBits.IsDirty)
             {
                 // No state change - nothing to do
                 return;
             }
             StatusBits.IsDirty = value;  // Direct field access (safe within this method)
-            
+
             if (value)
             {
                 // 🗑️ INVALIDATE CACHE: Clear cached matrix when dirty
@@ -483,5 +503,5 @@ namespace BlazorThreeJS.Maths
 
         #endregion
 
-      }
+    }
 }
