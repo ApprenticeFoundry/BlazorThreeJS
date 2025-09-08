@@ -82,7 +82,7 @@ namespace BlazorThreeJS.Core
             if (IsDirty)
             {
                 dirtyObjects.Add(this);
-                IsDirty = false;
+                SetDirty(false);
                 if (OnBeforeRefresh != null)
                     OnBeforeRefresh?.Invoke(this);
             }
@@ -148,13 +148,6 @@ namespace BlazorThreeJS.Core
         public bool IsDirty
         {
             get { return this.StatusBits.IsDirty; }
-            set { 
-                this.StatusBits.IsDirty = value; 
-                //if ( value )
-                //    {
-                //        $"Object3D {GetType().Name} {Name} is dirty".WriteNote();
-                //    }
-                }
         }
         
         public virtual void SetDirty(bool value, bool deep=false)
@@ -162,7 +155,7 @@ namespace BlazorThreeJS.Core
             if ( IsDirty == value )
                 return;
 
-            IsDirty = value;
+            this.StatusBits.IsDirty = value;
             if ( deep)
             {
                 foreach (var child in Children)

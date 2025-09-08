@@ -23,7 +23,7 @@ namespace BlazorThreeJS.Settings
 
         public Model3D AddRequestedModel(Model3D model)
         {
-            model.IsDirty = false;
+            model.SetDirty(false);
             Uuid = model.Uuid;  //use the same uuid as the model
             AddChild(model);
             return model;
@@ -64,7 +64,7 @@ namespace BlazorThreeJS.Settings
         {
             foreach (var child in items)
             {
-                child.IsDirty = false;
+                child.SetDirty(false);
                 AddChild(child);
             }
             //$"CopyAndReset {Children.Count()} are dirty".WriteInfo();

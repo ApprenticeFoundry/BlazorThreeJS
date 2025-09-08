@@ -19,9 +19,9 @@ namespace BlazorThreeJS.Maths
         Degrees
     }
     public class Euler
-        /// <summary>
-        /// Create an Euler from degrees (converts to radians internally)
-        /// </summary>
+    /// <summary>
+    /// Create an Euler from degrees (converts to radians internally)
+    /// </summary>
 
     {
         //these values are stored in Radians internally 
@@ -38,7 +38,7 @@ namespace BlazorThreeJS.Maths
             set
             {
                 if (Math.Abs(value) > 2 * Math.PI)
-                    $"SETTING EULER ANGLES STORED IN RADIANS! ARE YOU USING DEGREES? {value}".WriteWarning(2);
+                    BreakOnError($"SETTING EULER X ANGLES STORED IN RADIANS! ARE YOU USING DEGREES? {value}");
                 x = value;
             }
         }
@@ -50,7 +50,7 @@ namespace BlazorThreeJS.Maths
             set
             {
                 if (Math.Abs(value) > 2 * Math.PI)
-                    $"SETTING EULER ANGLES STORED IN RADIANS! ARE YOU USING DEGREES? {value}".WriteWarning(2);
+                    BreakOnError($"SETTING EULER Y ANGLES STORED IN RADIANS! ARE YOU USING DEGREES? {value}");
                 y = value;
             }
         }
@@ -62,7 +62,7 @@ namespace BlazorThreeJS.Maths
             set
             {
                 if (Math.Abs(value) > 2 * Math.PI)
-                    $"SETTING EULER ANGLES STORED IN RADIANS! ARE YOU USING DEGREES? {value}".WriteWarning(2);
+                    BreakOnError($"SETTING EULER Z ANGLES STORED IN RADIANS! ARE YOU USING DEGREES? {value}");
                 z = value;
             }
         }
@@ -97,7 +97,7 @@ namespace BlazorThreeJS.Maths
 
         public static Euler FromDegrees(double x, double y, double z, string order = "XYZ")
         {
-            var e = new Euler(x,y,z, AngleUnit.Degrees);
+            var e = new Euler(x, y, z, AngleUnit.Degrees);
             e.SetAsDegrees(x, y, z);
             e.Order = order;
             return e;
@@ -105,7 +105,7 @@ namespace BlazorThreeJS.Maths
 
         public static Euler FromRadians(double x, double y, double z, string order = "XYZ")
         {
-            var e = new Euler(x,y,z, AngleUnit.Radians);
+            var e = new Euler(x, y, z, AngleUnit.Radians);
             e.SetAsRadians(x, y, z);
             e.Order = order;
             return e;
@@ -129,6 +129,20 @@ namespace BlazorThreeJS.Maths
             return this;
         }
 
+        public void BreakOnError(string errorMessage)
+        {
+            errorMessage.WriteWarning(2);
+            //this is a way to break into the debugger if needed
+            //just put a conditional breakpoint on the throw line
+            //and it will break when called
+            //or just call this method from anywhere you want to break
+            //and it will print the stack trace and throw an exception
+            //which you can catch in the debugger
+
+
+            System.Diagnostics.StackTrace trace = new System.Diagnostics.StackTrace(true);
+            Console.WriteLine(trace.ToString());
+        }
         //public override string ToString() => $"Euler({X:0.00}, {Y:0.00}, {Z:0.00}, '{Order}')";
     }
 }

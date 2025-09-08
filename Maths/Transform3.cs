@@ -2,6 +2,7 @@ using System.Text.Json.Serialization;
 using BlazorThreeJS.Maths;
 using FoundryRulesAndUnits.Extensions;
 using FoundryRulesAndUnits.Models;
+using FoundryRulesAndUnits.Units;
 
 
 
@@ -57,11 +58,11 @@ namespace BlazorThreeJS.Maths
 
         #region Constructor
 
-        public Transform3(string ownerName = "NOT_SET")
+        public Transform3(string ownerName)
         {
             OwnerName = ownerName;
             // Initial state is clean with no cached matrix
-            StatusBits.IsDirty = true;
+            StatusBits.IsDirty = false;
             cachedMatrix = null;
         }
 
@@ -90,7 +91,8 @@ namespace BlazorThreeJS.Maths
         /// </summary>
         [JsonIgnore]
         public Action<Boolean>? OnChange { get; set; }
-
+        [JsonIgnore]
+        public Action<Boolean>? NotifyOwnerOfChange { get; set; }
 
         /// <summary>
         /// Event triggered when matrix computation completes and results are cached
@@ -214,22 +216,7 @@ namespace BlazorThreeJS.Maths
             get => quaternionRotation;
             set
             {
-                // Store the new value first
-                var newQuaternion = value;
-                quaternionRotation = AssignQuaternion(newQuaternion, quaternionRotation);
-
-                // Auto-sync to Euler for compatibility using the NEW quaternion value
-                // Temporarily disable dirty flag to avoid double-triggering
-                var oldOnChange = OnChange;
-                OnChange = null;
-                try
-                {
-                    rotation = AssignEuler(newQuaternion.ToEuler(), rotation);
-                }
-                finally
-                {
-                    OnChange = oldOnChange;
-                }
+                quaternionRotation = AssignQuaternion(value, quaternionRotation);
             }
         }
 
@@ -302,6 +289,7 @@ namespace BlazorThreeJS.Maths
         public Vector3 MoveBy(double dx, double dy, double dz)
         {
             Position = new Vector3(Position.X + dx, Position.Y + dy, Position.Z + dz);
+            SetDirty(true);
             return Position;
         }
 
@@ -310,10 +298,19 @@ namespace BlazorThreeJS.Maths
         /// </summary>
         public Euler RotateBy(double x, double y, double z, AngleUnit unit)
         {
-            var delta = unit == AngleUnit.Degrees
-                ? Euler.FromDegrees(x, y, z, Rotation.Order)
-                : Euler.FromRadians(x, y, z, Rotation.Order);
-            Rotation = new Euler(Rotation.X + delta.X, Rotation.Y + delta.Y, Rotation.Z + delta.Z, Rotation.Order);
+            if (unit == AngleUnit.Degrees)
+            {
+                var xr = x * Matrix3.DEG_TO_RAD;
+                var yr = y * Matrix3.DEG_TO_RAD;
+                var zr = z * Matrix3.DEG_TO_RAD;
+                Rotation = new Euler(Rotation.X + xr, Rotation.Y + yr, Rotation.Z + zr, Rotation.Order);
+            }
+            else if (unit != AngleUnit.Radians)
+            {
+                Rotation = new Euler(Rotation.X + x, Rotation.Y + y, Rotation.Z + z, Rotation.Order);
+
+            }
+            SetDirty(true);
             return Rotation;
         }
 
@@ -438,20 +435,17 @@ namespace BlazorThreeJS.Maths
         /// </summary>
         protected virtual void SetDirty(bool value)
         {
-            if (value == this.StatusBits.IsDirty)
-            {
-                // No state change - nothing to do
-                return;
-            }
             StatusBits.IsDirty = value;  // Direct field access (safe within this method)
 
             if (value)
             {
+                $"Transform SetDirty: Marked dirty for: {OwnerName}".WriteWarning();
                 // 🗑️ INVALIDATE CACHE: Clear cached matrix when dirty
                 cachedMatrix = Matrix3.SmashMatrix(cachedMatrix);
                 $"SetDirty: Marked dirty, cache invalidated for: {OwnerName}".WriteWarning();
 
                 // 📢 NOTIFY: Trigger OnChange event for dirty state
+                NotifyOwnerOfChange?.Invoke(value);
                 OnChange?.Invoke(value);
             }
             // 📝 NOTE: When setting to false (clean), we don't invalidate cache or trigger events
