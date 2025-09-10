@@ -52,7 +52,7 @@ namespace BlazorThreeJS.Maths
         // Direct access bypasses dirty flag system and breaks caching
         private Vector3 position = new Vector3();
         private Vector3 pivot = new Vector3();
-        private Euler rotation = new Euler();  // this is stored as degrees use the AsRadians() method to convert
+        private Euler rotation = new Euler();  // this is stored as radians use the AsDegrees() method to convert
         private Quaternion quaternionRotation = Quaternion.Identity;
         private Vector3 scale = new Vector3(1, 1, 1);
 
@@ -394,6 +394,7 @@ namespace BlazorThreeJS.Maths
             $"{m[4]:F2}, {m[5]:F2}, {m[6]:F2}, {m[7]:F2}".WriteSuccess();
             $"{m[8]:F2}, {m[9]:F2}, {m[10]:F2}, {m[11]:F2}".WriteSuccess();
             $"{m[12]:F2}, {m[13]:F2}, {m[14]:F2}, {m[15]:F2}".WriteSuccess();
+            $"-------------------------------".WriteSuccess();
         }
 
         private Matrix3 ComputeUsingProperties()
