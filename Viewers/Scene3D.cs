@@ -44,7 +44,11 @@ public class Scene3D : Object3D
         Title = title;
         Name = title.ToLower();
             
-        Camera.GetTransform().Position = new Vector3(10f, 10f, 10f);
+        Camera.Transform = new Transform3(title)
+        {
+            Position = new Vector3(10, 10, 10),
+        };
+
         _AllScenes.Add(this);
         // $"Scene {Title} created".WriteInfo();
     }
@@ -162,7 +166,7 @@ public class Scene3D : Object3D
             refresh.CopyAndReset(dirtyObjects);
             refreshTask = this.Request3DSceneRefresh(refresh, (_) =>
             {
-                $"ComputeRefreshObjects  {dirtyObjects.Count} dirty objects updated".WriteSuccess(1);
+                //$"ComputeRefreshObjects  {dirtyObjects.Count} dirty objects updated".WriteSuccess(1);
                 foreach (var item in dirtyObjects)
                 {
                     //".".WriteInLine(ConsoleColor.DarkGreen);

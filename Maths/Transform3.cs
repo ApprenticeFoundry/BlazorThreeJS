@@ -1,3 +1,4 @@
+using System.Security.Cryptography.Xml;
 using System.Text.Json.Serialization;
 using BlazorThreeJS.Maths;
 using FoundryRulesAndUnits.Extensions;
@@ -92,7 +93,7 @@ namespace BlazorThreeJS.Maths
         [JsonIgnore]
         public Action<Boolean>? OnChange { get; set; }
         [JsonIgnore]
-        public Action<Boolean>? NotifyOwnerOfChange { get; set; }
+        private Action<Boolean>? NotifyOwnerOfChange { get; set; }
 
         /// <summary>
         /// Event triggered when matrix computation completes and results are cached
@@ -289,10 +290,13 @@ namespace BlazorThreeJS.Maths
         public Vector3 MoveBy(double dx, double dy, double dz)
         {
             Position = new Vector3(Position.X + dx, Position.Y + dy, Position.Z + dz);
-            SetDirty(true);
             return Position;
         }
-
+        public Vector3 MoveTo(double x, double y, double z)
+        {
+            Position = new Vector3(x, y, z);
+            return Position;
+        }
         /// <summary>
         /// Rotates the transform by the specified amounts along each axis, using the given angle unit.
         /// </summary>
@@ -305,15 +309,30 @@ namespace BlazorThreeJS.Maths
                 var zr = z * Matrix3.DEG_TO_RAD;
                 Rotation = new Euler(Rotation.X + xr, Rotation.Y + yr, Rotation.Z + zr, Rotation.Order);
             }
-            else if (unit != AngleUnit.Radians)
+            else if (unit == AngleUnit.Radians)
             {
                 Rotation = new Euler(Rotation.X + x, Rotation.Y + y, Rotation.Z + z, Rotation.Order);
 
             }
-            SetDirty(true);
             return Rotation;
         }
 
+        public Euler RotateTo(double x, double y, double z, AngleUnit unit)
+        {
+            if (unit == AngleUnit.Degrees)
+            {
+                var xr = x * Matrix3.DEG_TO_RAD;
+                var yr = y * Matrix3.DEG_TO_RAD;
+                var zr = z * Matrix3.DEG_TO_RAD;
+                Rotation = new Euler(xr, yr, zr, Rotation.Order);
+            }
+            else if (unit == AngleUnit.Radians)
+            {
+                Rotation = new Euler(x, y, z, Rotation.Order);
+
+            }
+            return Rotation;
+        }
         #region Public Methods
 
         /// <summary>
@@ -439,17 +458,39 @@ namespace BlazorThreeJS.Maths
 
             if (value)
             {
-                $"Transform SetDirty: Marked dirty for: {OwnerName}".WriteWarning();
+                //$"Transform SetDirty: Marked dirty for: {OwnerName}".WriteWarning();
                 // 🗑️ INVALIDATE CACHE: Clear cached matrix when dirty
                 cachedMatrix = Matrix3.SmashMatrix(cachedMatrix);
-                $"SetDirty: Marked dirty, cache invalidated for: {OwnerName}".WriteWarning();
+                //$"SetDirty: Marked dirty, cache invalidated for: {OwnerName}".WriteWarning();
+
+                if (NotifyOwnerOfChange == null)
+                {
+                    //$"Transform3 {OwnerName} has no NotifyOwnerOfChange subscribers".WriteNote();
+                }
+                else
+                {
+                    //$"Transform3 {OwnerName} is notifying owner of change".WriteSuccess();
+                    NotifyOwnerOfChange.Invoke(value);
+                }
 
                 // 📢 NOTIFY: Trigger OnChange event for dirty state
-                NotifyOwnerOfChange?.Invoke(value);
                 OnChange?.Invoke(value);
             }
             // 📝 NOTE: When setting to false (clean), we don't invalidate cache or trigger events
             // This happens in ToMatrix3() after the matrix has been calculated and cached
+        }
+
+        public Transform3 ClearOwnerNotification()
+        {
+            NotifyOwnerOfChange = null;
+            return this;
+        }
+
+        public Transform3 SetOwnerNotification(Action<bool> action)
+        {
+            //$"Transform3 {OwnerName} is setting NotifyOwnerOfChange".WriteSuccess();
+            NotifyOwnerOfChange = action;
+            return this;
         }
 
         #endregion

@@ -68,19 +68,13 @@ namespace BlazorThreeJS.Core
         {
             OnAnimationUpdate = update;
         }
-        public Transform3 GetTransform()
-        {
-            if ( Transform != null )
-                return Transform;
-                
-            Transform = new Transform3(Name);
-            return Transform;
-        }
+
 
         public virtual bool CollectDirtyObjects(List<Object3D> dirtyObjects, List<Object3D> deletedObjects)
         {
             if (IsDirty)
             {
+                //$"Collecting this dirty object {Name}".WriteInfo();
                 dirtyObjects.Add(this);
                 SetDirty(false);
                 if (OnBeforeRefresh != null)

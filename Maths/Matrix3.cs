@@ -146,13 +146,13 @@ public class Matrix3
         matrix[10] = scale.Z;
     }
 
-    // Apply Euler rotation (ZYX order)
-    public Matrix3 RotateEulerZYX_radians(double x, double y, double z)
-    {
-        return RotateZ_radians(z).RotateY_radians(y).RotateX_radians(x);
-    }
+    // // Apply Euler rotation (ZYX order)
+    // public Matrix3 RotateEulerZYX_radians(double x, double y, double z)
+    // {
+    //     return RotateZ_radians(z).RotateY_radians(y).RotateX_radians(x);
+    // }
 
-    public void Rotate(Euler rotation)
+    public Matrix3 Rotate(Euler rotation)
     {
         $"Applying Euler rotation: {rotation.X}, {rotation.Y}, {rotation.Z} (Order: {rotation.Order})".WriteInfo(1);
         Identity();
@@ -184,6 +184,7 @@ public class Matrix3
 
         matrix[12] = matrix[13] = matrix[14] = 0;
         matrix[15] = 1;
+        return this;
     }
 
     /// <summary>
@@ -300,7 +301,7 @@ public class Matrix3
         var transform = NewMatrix()
             .Translate(-regX, -regY, -regZ)  // Move to origin
             .Scale(scaleX, scaleY, scaleZ)   // Apply scale
-            .RotateEulerZYX_radians(rotX, rotY, rotZ)   // Apply rotation
+            .Rotate(new Euler(rotX, rotY, rotZ))   // Apply rotation
             .Translate(x, y, z)              // Move to final position
             .Translate(regX, regY, regZ);    // Move back by registration point
 
@@ -316,7 +317,7 @@ public class Matrix3
         var transform = NewMatrix()
             .Translate(-regX, -regY, -regZ)  // Move to origin
             .Scale(scaleX, scaleY, scaleZ)   // Apply scale
-            .RotateEulerZYX_radians(rotX, rotY, rotZ)   // Apply rotation
+            .Rotate(new Euler(rotX, rotY, rotZ))   // Apply rotation
             .Translate(x, y, z)              // Move to final position
             .Translate(regX, regY, regZ);    // Move back by registration point
 
@@ -782,7 +783,7 @@ public class Matrix3
 
         result.SetPosition(lerpedPos);
         result.ScaleBy(lerpedScale);
-        result.RotateEulerZYX_radians(lerpedRot.X, lerpedRot.Y, lerpedRot.Z);
+        result.Rotate(new Euler(lerpedRot.X, lerpedRot.Y, lerpedRot.Z));
 
         return result;
     }
