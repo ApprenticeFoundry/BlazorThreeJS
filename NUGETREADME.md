@@ -1,3 +1,7 @@
+
+make sure you have fresh javascript
+run BuildJavascript.sh
+
 dotnet build --configuration Release
 
 dotnet pack --configuration Release  

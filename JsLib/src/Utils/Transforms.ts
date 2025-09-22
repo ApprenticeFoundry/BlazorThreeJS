@@ -1,11 +1,64 @@
-import { Euler, Object3D, Vector3 } from 'three';
+import { Euler, Object3D, Vector3, Group, Mesh } from 'three';
 
 export class Transforms {
-    // static setPivot(object3d: Object3D, pivot: Vector3) {
-    //     let { x, y, z } = pivot;
-    //     if (Boolean(object3d)) //this will not work the math is wrong
-    //         object3d.position.set(x, y, z);
-    // }
+    // PIVOT UTILITY FUNCTIONS
+    
+    /**
+     * Check if a transform has a non-zero pivot
+     * @param transform Transform object with pivot property
+     * @returns true if pivot is non-zero, false otherwise
+     */
+    static hasPivot(transform: any): boolean {
+        if (!transform?.pivot) return false;
+        const { x, y, z } = transform.pivot;
+        return x !== 0 || y !== 0 || z !== 0;
+    }
+
+    /**
+     * Create a pivot group containing the mesh with proper offset
+     * @param mesh The mesh to wrap in a pivot group
+     * @param pivot The pivot offset vector
+     * @returns Group containing the offset mesh
+     */
+    static createPivotGroup(mesh: Mesh, pivot: Vector3): Group {
+        const pivotGroup = new Group();
+        pivotGroup.name = `${mesh.name}_PivotGroup`;
+        
+        // Position the mesh at the negative pivot offset
+        // This makes the group's origin the pivot point
+        mesh.position.set(-pivot.x, -pivot.y, -pivot.z);
+        
+        // Add mesh as child of the pivot group
+        pivotGroup.add(mesh);
+        
+        // Mark the group so we can identify it later
+        (pivotGroup as any).isPivotGroup = true;
+        (pivotGroup as any).originalMesh = mesh;
+        
+        return pivotGroup;
+    }
+
+    /**
+     * Extract the original mesh from a pivot group
+     * @param entity Either a direct mesh or a pivot group
+     * @returns The mesh object
+     */
+    static getMeshFromEntity(entity: Object3D): Mesh | null {
+        if ((entity as any).isPivotGroup) {
+            return (entity as any).originalMesh as Mesh;
+        }
+        return entity as Mesh;
+    }
+
+    /**
+     * Check if an entity is a pivot group
+     * @param entity Object to check
+     * @returns true if entity is a pivot group
+     */
+    static isPivotGroup(entity: Object3D): boolean {
+        return Boolean((entity as any).isPivotGroup);
+    }
+
     static setPosition(object3d: Object3D, position: Vector3) {
         let { x, y, z } = position;
         if (Boolean(object3d))

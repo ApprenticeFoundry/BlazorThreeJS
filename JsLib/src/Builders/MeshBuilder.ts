@@ -1,4 +1,4 @@
-import { BufferGeometry, Material, Mesh, Object3D } from 'three';
+import { BufferGeometry, Material, Mesh, Object3D, Group } from 'three';
 import { Transforms } from '../Utils/Transforms';
 import { GeometryBuilder } from './GeometryBuilder';
 import { MaterialBuilder } from './MaterialBuilder';
@@ -7,6 +7,8 @@ export interface MeshCreationResult {
     mesh: Mesh | null;
     geometry: BufferGeometry | null;
     material: Material | null;
+    pivotGroup?: Group | null;  // Optional pivot group when pivot is non-zero
+    entity: Object3D | null;    // The entity to add to scene (Group or Mesh)
 }
 
 export class MeshBuilder {
@@ -43,7 +45,8 @@ export class MeshBuilder {
             return {
                 mesh: null,
                 geometry: null,
-                material: null
+                material: null,
+                entity: null
             };
 
         
@@ -54,18 +57,38 @@ export class MeshBuilder {
     
             mesh.name = options.name;
             mesh.uuid = options.uuid;
-    
-            return {
-                mesh,
-                geometry,
-                material
-            };
+
+            // Check if we need to create a pivot group
+            const hasPivot = Transforms.hasPivot(options.transform);
+            
+            if (hasPivot) {
+                // Create pivot group and add mesh as child with offset
+                const pivotGroup = Transforms.createPivotGroup(mesh, options.transform.pivot);
+                pivotGroup.uuid = options.uuid; // Use same UUID as the original object
+                
+                return {
+                    mesh,
+                    geometry,
+                    material,
+                    pivotGroup,
+                    entity: pivotGroup  // Return group as the entity to add to scene
+                };
+            } else {
+                // No pivot - return mesh directly (unchanged behavior)
+                return {
+                    mesh,
+                    geometry,
+                    material,
+                    entity: mesh  // Return mesh as the entity to add to scene
+                };
+            }
         } catch (error) {
             console.error('MeshBuilder.CreateMesh', error);
             return {
                 mesh: null,
                 geometry: null,
-                material: null
+                material: null,
+                entity: null
             };
         }
     }
@@ -75,7 +98,14 @@ export class MeshBuilder {
 
         //console.log('MeshBuilder.ApplyMeshTransform', options);
         try {
-            Transforms.setTransform(entity, options.transform);
+            if (Transforms.isPivotGroup(entity)) {
+                // For pivot groups, apply transforms to the group (not the mesh)
+                // The mesh offset is already handled in createPivotGroup
+                Transforms.setTransform(entity, options.transform);
+            } else {
+                // For direct meshes, apply transforms normally (unchanged behavior)
+                Transforms.setTransform(entity, options.transform);
+            }
             return entity;       
         } catch (error) {
             console.error('MeshBuilder.ApplyMeshTransform', error);

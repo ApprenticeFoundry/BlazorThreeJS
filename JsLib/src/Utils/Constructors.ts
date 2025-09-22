@@ -53,17 +53,25 @@ export class FactoryClass {
 
         const guid = options.uuid;
 
-        var entity = ObjectLookup.findPrimitive(guid) as Mesh;
+        var entity = ObjectLookup.findPrimitive(guid) as Object3D;
         var exist = Boolean(entity)
         if ( !exist ) 
         {
             const result = MeshBuilder.CreateMesh(options);
+            if (!result.entity) {
+                console.error('Failed to create mesh entity for', guid);
+                return null;
+            }
+            
             ObjectLookup.addMaterial(guid, result.material);
             ObjectLookup.addGeometry(guid, result.geometry);
-            ObjectLookup.addPrimitive(guid, result.mesh);
+            
+            // Store the entity (Group or Mesh) in ObjectLookup
+            // This maintains compatibility - ObjectLookup now stores the scene entity
+            ObjectLookup.addPrimitive(guid, result.entity);
 
-            entity = result.mesh;
-            //console.log('Mesh Created', entity);
+            entity = result.entity;  // Use the entity (Group or Mesh)
+            //console.log('Entity Created', entity);
             parent.add(entity);
         }
 
@@ -76,13 +84,17 @@ export class FactoryClass {
         {
             const box = new Box3().setFromObject(entity);
             const size = box.getSize(new Vector3());
-            var mesh = entity as Mesh;
-            var geom = mesh.geometry as BoxGeometry;
-            geom.parameters.width = size.x;
-            geom.parameters.height = size.y;
-            geom.parameters.depth = size.z;
+            
+            // Get the actual mesh (either direct or from pivot group)
+            var mesh = Transforms.getMeshFromEntity(entity);
+            if (mesh) {
+                var geom = mesh.geometry as BoxGeometry;
+                geom.parameters.width = size.x;
+                geom.parameters.height = size.y;
+                geom.parameters.depth = size.z;
 
-            console.log('BoundaryGeometry is sized to fit the children', geom);
+                console.log('BoundaryGeometry is sized to fit the children', geom);
+            }
         }
 
 
