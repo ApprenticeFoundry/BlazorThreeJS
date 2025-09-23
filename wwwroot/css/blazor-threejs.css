@@ -1,0 +1,106 @@
+/* BlazorThreeJS Component Library Styles */
+
+.blazor-threejs-viewer {
+    position: relative;
+    display: block;
+    width: 100%;
+    height: 400px;
+    border: 1px solid #ddd;
+    border-radius: 4px;
+    overflow: hidden;
+    background-color: #000;
+}
+
+.blazor-threejs-canvas {
+    display: block;
+    width: 100%;
+    height: 100%;
+    outline: none;
+}
+
+.blazor-threejs-loading {
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    color: #fff;
+    font-family: Arial, sans-serif;
+    font-size: 14px;
+}
+
+.blazor-threejs-controls {
+    padding: 8px;
+    background-color: #f5f5f5;
+    border-top: 1px solid #ddd;
+    display: flex;
+    gap: 8px;
+    align-items: center;
+    font-family: Arial, sans-serif;
+    font-size: 12px;
+}
+
+.blazor-threejs-button {
+    background-color: #007bff;
+    color: white;
+    border: none;
+    padding: 4px 8px;
+    border-radius: 3px;
+    cursor: pointer;
+    font-size: 11px;
+    transition: background-color 0.2s;
+}
+
+.blazor-threejs-button:hover {
+    background-color: #0056b3;
+}
+
+.blazor-threejs-button:disabled {
+    background-color: #6c757d;
+    cursor: not-allowed;
+}
+
+/* Performance indicator */
+.blazor-threejs-stats {
+    position: absolute;
+    top: 8px;
+    left: 8px;
+    background-color: rgba(0, 0, 0, 0.7);
+    color: #fff;
+    padding: 4px 8px;
+    border-radius: 3px;
+    font-family: monospace;
+    font-size: 10px;
+    z-index: 100;
+}
+
+/* Object selection highlight */
+.blazor-threejs-selected {
+    outline: 2px solid #ff6b35 !important;
+    outline-offset: 2px;
+}
+
+/* Responsive behavior */
+@media (max-width: 768px) {
+    .blazor-threejs-viewer {
+        height: 300px;
+    }
+    
+    .blazor-threejs-controls {
+        padding: 6px;
+        font-size: 11px;
+    }
+    
+    .blazor-threejs-button {
+        padding: 3px 6px;
+        font-size: 10px;
+    }
+}
+
+/* Dark theme support */
+@media (prefers-color-scheme: dark) {
+    .blazor-threejs-controls {
+        background-color: #2d2d2d;
+        border-top-color: #555;
+        color: #fff;
+    }
+}

@@ -1,15 +1,11 @@
 
 using BlazorThreeJS.Lights;
 using BlazorThreeJS.Maths;
-
 using BlazorThreeJS.Objects;
 using BlazorThreeJS.Viewers;
 using FoundryRulesAndUnits.Models;
 using FoundryRulesAndUnits.Extensions;
 using System.Text.Json.Serialization;
-using Microsoft.AspNetCore.Mvc.ViewFeatures;
-using static System.Formats.Asn1.AsnWriter;
-using static System.Net.Mime.MediaTypeNames;
 using BlazorThreeJS.Settings;
 
 namespace BlazorThreeJS.Core

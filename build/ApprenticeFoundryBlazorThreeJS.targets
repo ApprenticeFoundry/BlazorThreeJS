@@ -1,0 +1,12 @@
+<Project>
+  <Target Name="IncludeBlazorThreeJSStaticWebAssets" BeforeTargets="Build">
+    <ItemGroup>
+      <StaticWebAsset Include="$(MSBuildThisFileDirectory)../wwwroot/**/*.*" Condition="Exists('$(MSBuildThisFileDirectory)../wwwroot/')">
+        <SourceType>Package</SourceType>
+        <SourceId>ApprenticeFoundryBlazorThreeJS</SourceId>
+        <ContentRoot>$(MSBuildThisFileDirectory)../wwwroot/</ContentRoot>
+        <BasePath>_content/ApprenticeFoundryBlazorThreeJS</BasePath>
+      </StaticWebAsset>
+    </ItemGroup>
+  </Target>
+</Project>

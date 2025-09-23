@@ -1,16 +1,20 @@
-<Project Sdk="Microsoft.NET.Sdk.Web">
+<Project Sdk="Microsoft.NET.Sdk.Razor">
 
   <PropertyGroup>
-    <TargetFrameworks>net9.0</TargetFrameworks>
+    <TargetFramework>net9.0</TargetFramework>
     <Nullable>enable</Nullable>
     <ImplicitUsings>enable</ImplicitUsings>
-    <AddRazorSupportForMvc>true</AddRazorSupportForMvc>
     <IsPackable>true</IsPackable>
     <LangVersion>12.0</LangVersion>
-    <Copyright>Copyright © 2020</Copyright>
-    <PackageLicenseExpression>MIT</PackageLicenseExpression>
+    
+    <!-- Essential for Blazor component library static web assets -->
+    <GenerateEmbeddedFilesManifest>true</GenerateEmbeddedFilesManifest>
+    <StaticWebAssetBasePath>_content/ApprenticeFoundryBlazorThreeJS</StaticWebAssetBasePath>
+    
+    <!-- Build and packaging configuration -->
     <EmitCompilerGeneratedFiles>true</EmitCompilerGeneratedFiles>
     <ErrorOnDuplicatePublishOutputFiles>false</ErrorOnDuplicatePublishOutputFiles>
+
     <JsLibRoot>JsLib\</JsLibRoot>
     <DefaultItemExcludes>$(DefaultItemExcludes);$(JsLibRoot)node_modules\**</DefaultItemExcludes>
     <RestoreSources>$(RestoreSources);https://api.nuget.org/v3/index.json</RestoreSources>
@@ -54,6 +58,13 @@
     <PackageReference Include="BlazorComponentBus" Version="2.2.0" />
     <PackageReference Include="System.Text.Json" Version="9.0.0" />
     <PackageReference Include="Microsoft.AspNetCore.Components.Web" Version="9.0.7" />
+  </ItemGroup>
+
+  <!-- Static web assets are automatically included by Microsoft.NET.Sdk.Razor -->
+
+  <!-- Include build targets for better NuGet integration -->
+  <ItemGroup Condition="Exists('build\')">
+    <None Include="build\**" Pack="true" PackagePath="build\" />
   </ItemGroup>
 
 </Project>
