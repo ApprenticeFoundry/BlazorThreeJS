@@ -25,7 +25,24 @@ Install-Package ApprenticeFoundryBlazorThreeJS
 Alternatively, you can add the package reference directly to your `.csproj` file:
 
 ```xml
-<PackageReference Include="ApprenticeFoundryBlazorThreeJS" Version="23.0.0" />
+<PackageReference Include="ApprenticeFoundryBlazorThreeJS" Version="23.1.0" />
+```
+
+## 🌟 Key Feature: Custom Pivot Points
+
+Unlike standard Three.js, BlazorThreeJS allows you to rotate objects around **any point**:
+- **Floor Placement**: Rotate objects around their bottom edge (perfect for architecture)
+- **Corner Rotation**: Spin around corners or edges  
+- **Custom Centers**: Define any rotation point in 3D space
+- **Backward Compatible**: Existing code works unchanged
+
+```csharp
+// Rotate a building around its base (bottom center)
+Transform = new Transform3("Building") {
+    Position = new Vector3(0, 0, 0),     // Ground position
+    Pivot = new Vector3(0, -1, 0),       // Rotate around bottom
+    Rotation = new Euler(0, 45°, 0)      // 45° turn on foundation
+}
 ```
 
 ## Getting Started
@@ -179,7 +196,7 @@ public class Transform3
 
 ## Package Information
 
-**Current Version**: 23.0.0  
+**Current Version**: 23.1.0  
 **Target Framework**: .NET 9.0  
 **License**: MIT  
 **Repository**: https://github.com/ApprenticeFoundry/BlazorThreeJS
@@ -188,10 +205,12 @@ public class Transform3
 
 This NuGet package includes:
 - ✅ **Core Library**: Complete C# API for Three.js integration
+- ✅ **🆕 Custom Pivot System**: Rotate objects around any point (floor, corners, custom positions)
 - ✅ **JavaScript Bundle**: Compiled Three.js bundle (`app-lib.js` - 751KB)
 - ✅ **Component Styles**: Ready-to-use CSS for 3D viewers
 - ✅ **3D Assets**: Sample models and fonts for quick start
 - ✅ **Build Integration**: Automatic static asset deployment
+- ✅ **Advanced Transforms**: Position, rotation, scale, and pivot with matrix caching
 
 ## Troubleshooting
 
@@ -229,9 +248,12 @@ This project is licensed under the MIT License. See the [LICENSE](https://github
 
 ## Release Notes
 
-### Version 23.0.0
-- ✅ **Blazor Component Library**: Properly configured for NuGet consumption
+### Version 23.1.0
+- ✅ **Blazor Component Library**: Properly configured for NuGet consumption  
+- ✅ **🆕 Custom Pivot Points**: Revolutionary feature for rotating objects around any point
 - ✅ **Static Web Assets**: Automatic deployment of JS/CSS/assets to consuming apps
 - ✅ **Build Integration**: MSBuild targets for seamless project integration
+- ✅ **Performance Optimizations**: Matrix caching and dirty-flag system
 - ✅ **Updated Dependencies**: Compatible with .NET 9.0 and latest Three.js
+- ✅ **Backward Compatibility**: Existing code works unchanged (pivot defaults to 0,0,0)
 - ✅ **Improved Documentation**: Enhanced setup and usage instructions
