@@ -19,38 +19,64 @@ BlazorThreeJS is a NuGet package that provides seamless integration of the Three
 To install BlazorThreeJS, run the following command in the NuGet Package Manager Console:
 
 ```sh
-Install-Package BlazorThreeJS
+Install-Package ApprenticeFoundryBlazorThreeJS
 ```
 
 Alternatively, you can add the package reference directly to your `.csproj` file:
 
 ```xml
-<PackageReference Include="BlazorThreeJS" Version="17.1.0" />
+<PackageReference Include="ApprenticeFoundryBlazorThreeJS" Version="23.0.0" />
 ```
 
 ## Getting Started
 
-1. **Setup**: Add the BlazorThreeJS package to your Blazor project.
-2. **Import**: Import the necessary namespaces in your Blazor components.
-3. **Create**: Use the provided components and services to create and manipulate 3D scenes.
+### 1. Install the Package
+Add the BlazorThreeJS package to your Blazor project using the installation instructions above.
 
-### Basic Example
+### 2. Add Static Assets to Your App
+In your Blazor app's `_Host.cshtml`, `_Layout.cshtml`, or `App.razor`, add the required JavaScript reference:
 
+```html
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="utf-8" />
+    <title>My Blazor App</title>
+    <base href="~/" />
+    
+    <!-- Optional: BlazorThreeJS styles -->
+    <link href="_content/ApprenticeFoundryBlazorThreeJS/css/blazor-threejs.css" rel="stylesheet" />
+</head>
+<body>
+    <!-- Your app content -->
+    
+    <!-- Required: BlazorThreeJS JavaScript -->
+    <script src="_content/ApprenticeFoundryBlazorThreeJS/dist/app-lib.js"></script>
+    
+    <!-- Blazor framework script -->
+    <script src="_framework/blazor.server.js"></script>
+</body>
+</html>
+```
+
+### 3. Use in Your Components
 ```razor
 @page "/3d-scene"
 @using BlazorThreeJS.Viewers
 @using BlazorThreeJS.Core
 @using BlazorThreeJS.Maths
 
-<Canvas3DComponent SceneName="MyScene" @ref="CanvasRef" 
-                   CanvasWidth="800" CanvasHeight="600" />
+<ViewerThreeD @ref="viewer" 
+              Width="800" 
+              Height="600" 
+              SceneName="MyScene" />
 
 @code {
-    private Canvas3DComponent? CanvasRef;
+    private ViewerThreeD? viewer;
     
     protected override async Task OnAfterRenderAsync(bool firstRender)
     {
-        if (firstRender && CanvasRef != null)
+        if (firstRender && viewer != null)
         {
             await CreateScene();
         }
@@ -71,7 +97,7 @@ Alternatively, you can add the package reference directly to your `.csproj` file
             // Add geometry and material...
         };
         
-        await CanvasRef.AddObjectToScene(box);
+        await viewer.AddObjectToScene(box);
     }
 }
 ```
@@ -151,12 +177,43 @@ public class Transform3
 }
 ```
 
+## Package Information
+
+**Current Version**: 23.0.0  
+**Target Framework**: .NET 9.0  
+**License**: MIT  
+**Repository**: https://github.com/ApprenticeFoundry/BlazorThreeJS
+
+## What's Included
+
+This NuGet package includes:
+- ✅ **Core Library**: Complete C# API for Three.js integration
+- ✅ **JavaScript Bundle**: Compiled Three.js bundle (`app-lib.js` - 751KB)
+- ✅ **Component Styles**: Ready-to-use CSS for 3D viewers
+- ✅ **3D Assets**: Sample models and fonts for quick start
+- ✅ **Build Integration**: Automatic static asset deployment
+
+## Troubleshooting
+
+### Assets Not Loading (404 Errors)
+Make sure you've added the JavaScript reference to your app:
+```html
+<script src="_content/ApprenticeFoundryBlazorThreeJS/dist/app-lib.js"></script>
+```
+
+### Components Not Found
+Add the using statement to your component or `_Imports.razor`:
+```razor
+@using BlazorThreeJS.Viewers
+@using BlazorThreeJS.Core
+```
+
 ## Documentation
 
 - **[Pivot Implementation Analysis](PIVOT_IMPLEMENTATION_ANALYSIS.md)**: Technical details of the pivot system
 - **[Pivot Usage Examples](PIVOT_USAGE_EXAMPLES.md)**: Comprehensive examples and use cases
 - **[Sample Scene](Data/sample-scene.json)**: Complete scene example with various objects
-- **[Official Documentation](https://github.com/SteveStrong/BlazorThreeJS)**: Full API reference and guides
+- **[GitHub Repository](https://github.com/ApprenticeFoundry/BlazorThreeJS)**: Full source code and examples
 
 
 
@@ -164,6 +221,17 @@ public class Transform3
 
 This project is licensed under the MIT License. See the [LICENSE](https://github.com/ApprenticeFoundry/BlazorThreeJS/blob/develop/LICENSE) file for more details.
 
-## Contact
+## Support
 
-For any questions or feedback, please open an issue on the [GitHub repository](https://apprenticefoundry.github.io/).
+- **Issues**: Report bugs or request features on [GitHub Issues](https://github.com/ApprenticeFoundry/BlazorThreeJS/issues)
+- **Discussions**: Ask questions on [GitHub Discussions](https://github.com/ApprenticeFoundry/BlazorThreeJS/discussions)
+- **Website**: Visit [ApprenticeFoundry.github.io](https://apprenticefoundry.github.io/) for more resources
+
+## Release Notes
+
+### Version 23.0.0
+- ✅ **Blazor Component Library**: Properly configured for NuGet consumption
+- ✅ **Static Web Assets**: Automatic deployment of JS/CSS/assets to consuming apps
+- ✅ **Build Integration**: MSBuild targets for seamless project integration
+- ✅ **Updated Dependencies**: Compatible with .NET 9.0 and latest Three.js
+- ✅ **Improved Documentation**: Enhanced setup and usage instructions
