@@ -1,15 +1,28 @@
-dotnet build --configuration Release
+# BlazorThreeJS NuGet Package
 
-dotnet pack --configuration Release  
+## Publishing Steps
 
-Login to nuget.org
+1. Build JavaScript assets:
+   ```bash
+   cd BlazorThreeJS\JsLib
+   npm run build
+   cd ..
+   ```
 
-Click Upload
+2. Build and pack:
+   ```bash
+   dotnet build --configuration Release
+   dotnet pack --configuration Release  
+   ```
 
-In File Explorer Locate .\bin\Debug\FoundryBlazor.<version>.nupkg
+3. Upload to NuGet:
+   - Login to nuget.org
+   - Click Upload
+   - In File Explorer locate `.\bin\Release\ApprenticeFoundryBlazorThreeJS.<version>.nupkg`
+   - Upload to nuget.org
 
-Upload to nuget.org
+## Version 22.0.0+ Changes
 
-go to the directory
-to create all the javascript and push into the right folder
-BlazorThreeJS\Jslib> npm run build
+⚠️ **JavaScript Asset Renamed**: The JavaScript bundle is now `app-lib-threejs.js` instead of `app-lib.js` to prevent conflicts with other Blazor libraries.
+
+**Impact for users**: Minimal to none - Blazor automatically handles static web asset discovery.

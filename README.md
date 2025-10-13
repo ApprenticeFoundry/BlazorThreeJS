@@ -23,6 +23,19 @@ Alternatively, you can add the package reference directly to your `.csproj` file
 <PackageReference Include="BlazorThreeJS" Version="17.1.0" />
 ```
 
+## Breaking Changes
+
+### Version 22.0.0+ - JavaScript Asset Renaming
+
+**⚠️ Important Notice**: Starting from version 22.0.0, the JavaScript bundle filename has been changed from `app-lib.js` to `app-lib-threejs.js` to prevent static web asset conflicts when using multiple Blazor libraries.
+
+**Impact**: 
+- If you were directly referencing the JavaScript file (not recommended), update your references
+- Normal usage through IJSRuntime and Blazor components is **not affected**
+- The global JavaScript namespace `BlazorThreeJS` remains unchanged
+
+**No Action Required**: Most users will not need to make any changes as the library uses automatic static web asset discovery.
+
 ## Getting Started
 
 1. **Setup**: Add the BlazorThreeJS package to your Blazor project.

@@ -45,7 +45,9 @@ module.exports = {
     },
     output: {
         path: path.resolve(__dirname, '../wwwroot/dist'),
-        filename: 'app-lib.js',
+        // Note: Renamed from 'app-lib.js' to prevent Blazor static web asset conflicts
+        // See ASSET_NAMING_CHANGES.md for details
+        filename: 'app-lib-threejs.js',
         library: 'AppLib',
         clean: true,
     },
