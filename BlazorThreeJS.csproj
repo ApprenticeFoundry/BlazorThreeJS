@@ -48,8 +48,8 @@
   </ItemGroup>
 
   <ItemGroup>
-    <!-- <ProjectReference Include="..\FoundryRulesAndUnits\FoundryRulesAndUnits.csproj" /> -->
-    <PackageReference Include="ApprenticeFoundryRulesAndUnits" Version="8.1.0" />
+     <ProjectReference Include="..\FoundryRulesAndUnits\FoundryRulesAndUnits.csproj" /> 
+    <!--<PackageReference Include="ApprenticeFoundryRulesAndUnits" Version="8.1.0" />-->
     <PackageReference Include="Blazor.Extensions.Canvas" Version="1.1.1" />
     <PackageReference Include="BlazorComponentBus" Version="2.2.0" />
     <PackageReference Include="System.Text.Json" Version="9.0.0" />
